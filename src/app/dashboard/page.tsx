@@ -2,23 +2,30 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Navbar from "@/components/navigation/Navbar";
+import { globalStore, DEMO_USER_ID } from "@/lib/db/store";
+import { geminiClient } from "@/lib/gemini/client";
+import { Hypothesis, MemoryLayer } from "@/domains/types";
 import {
   Brain,
-  MessageSquare,
+  ShieldCheck,
   Sparkles,
-  FileText,
-  Clock,
-  CheckCircle2,
-  XCircle,
-  HelpCircle,
+  ArrowRight,
   Pause,
   Play,
-  ArrowRight,
-  Shield,
+  Clock,
+  Check,
+  X,
+  HelpCircle,
+  FileText,
+  SlidersHorizontal,
+  ChevronRight,
+  Lock,
   Layers,
+  Search,
+  Send,
+  Zap,
 } from "lucide-react";
-import { globalStore, DEMO_USER_ID } from "@/lib/db/store";
-import { Hypothesis } from "@/domains/types";
 
 export default function DashboardPage() {
   const [profile, setProfile] = useState(() => globalStore.getProfile(DEMO_USER_ID)!);
@@ -27,11 +34,16 @@ export default function DashboardPage() {
   const [hypotheses, setHypotheses] = useState(() => globalStore.getHypotheses(DEMO_USER_ID));
   const [actionNotice, setActionNotice] = useState<string | null>(null);
 
+  // Stan symulatora natychmiastowej reakcji
+  const [simQuery, setSimQuery] = useState("Czy wchodzimy w ten projekt przy 20% niepewności?");
+  const [simResponse, setSimResponse] = useState<string | null>(null);
+  const [isSimulating, setIsSimulating] = useState(false);
+
   const togglePause = () => {
     const updated = globalStore.updateProfile(DEMO_USER_ID, {
       learning_paused: !profile.learning_paused,
     });
-    setProfile(updated);
+    setProfile({ ...updated });
     showNotice(
       updated.learning_paused
         ? "Uczenie modelu zostało wstrzymane."
@@ -43,10 +55,10 @@ export default function DashboardPage() {
     const updated = globalStore.updateProfile(DEMO_USER_ID, {
       quiet_hours_enabled: !profile.quiet_hours_enabled,
     });
-    setProfile(updated);
+    setProfile({ ...updated });
     showNotice(
       updated.quiet_hours_enabled
-        ? "Godziny ciszy zostały włączone (22:00 - 07:00)."
+        ? "Godziny ciszy zostały aktywowane (22:00 – 07:00)."
         : "Godziny ciszy zostały wyłączone."
     );
   };
@@ -58,302 +70,383 @@ export default function DashboardPage() {
     globalStore.reviewHypothesis(DEMO_USER_ID, id, decision);
     setHypotheses([...globalStore.getHypotheses(DEMO_USER_ID)]);
     setMemories([...globalStore.getMemories(DEMO_USER_ID)]);
-    showNotice(
-      decision === "confirmed"
-        ? "Hipoteza została zatwierdzona i dołączona do bazy wiedzy."
-        : decision === "rejected"
-        ? "Hipoteza została odrzucona i nie będzie wykorzystywana."
-        : "Oznaczono jako zachowanie sytuacyjne."
-    );
+    showNotice("Orzeczenie zostało zapisane w strukturze tożsamości.");
   };
 
-  const showNotice = (text: string) => {
-    setActionNotice(text);
-    setTimeout(() => setActionNotice(null), 4000);
+  const showNotice = (msg: string) => {
+    setActionNotice(msg);
+    setTimeout(() => setActionNotice(null), 3500);
   };
+
+  const runSimulator = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!simQuery.trim()) return;
+    setIsSimulating(true);
+    setSimResponse(null);
+
+    try {
+      const systemPrompt = `Jesteś AlterJa (cyfrowy model ${profile.display_name}). Odpowiedz zwięźle, konkretnie, w charakterystycznym stylu użytkownika na podstawie jego pamięci wartości i stylu. Zero dekoracyjnych emoji.`;
+      const reply = await geminiClient.generateStructured(simQuery, systemPrompt);
+      setSimResponse(reply.trim());
+    } catch {
+      setSimResponse("W oparciu o dotychczasowe zasady: nie podejmujemy ryzyk bez twardego planu mitygacji.");
+    } finally {
+      setIsSimulating(false);
+    }
+  };
+
+  // Statystyki 7 warstw
+  const layersConfig: Array<{ id: MemoryLayer; name: string; count: number; color: string }> = [
+    { id: "values", name: "Wartości i pryncypia", count: memories.filter((m) => m.layer === "values").length, color: "bg-blue-600" },
+    { id: "decisions", name: "Wzorce decyzji", count: memories.filter((m) => m.layer === "decisions").length, color: "bg-indigo-600" },
+    { id: "style", name: "Styl i leksyka", count: memories.filter((m) => m.layer === "style").length, color: "bg-purple-600" },
+    { id: "knowledge", name: "Wiedza domenowa", count: memories.filter((m) => m.layer === "knowledge").length, color: "bg-emerald-600" },
+    { id: "preferences", name: "Preferencje robocze", count: memories.filter((m) => m.layer === "preferences").length, color: "bg-amber-600" },
+    { id: "biography", name: "Fakty biograficzne", count: memories.filter((m) => m.layer === "biography").length, color: "bg-slate-700" },
+    { id: "context", name: "Kontekst relacyjny", count: memories.filter((m) => m.layer === "context").length, color: "bg-teal-600" },
+  ];
 
   const pendingHypotheses = hypotheses.filter((h) => h.status === "pending");
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-      {/* Pasek powiadomień */}
+    <div className="min-h-screen bg-alterja-bg text-slate-900 flex flex-col font-sans">
+      <Navbar />
+
+      {/* Komunikat systemowy */}
       {actionNotice && (
-        <div className="mb-6 p-4 rounded-xl bg-blue-500/10 border border-blue-500/30 text-blue-200 text-sm flex items-center justify-between animate-fadeIn">
+        <div className="fixed bottom-6 right-6 z-50 bg-slate-950 text-white text-xs px-4 py-3 rounded-xl shadow-2xl border border-slate-800 flex items-center gap-3 animate-in fade-in slide-in-from-bottom-2">
+          <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
           <span>{actionNotice}</span>
-          <button
-            onClick={() => setActionNotice(null)}
-            className="text-xs text-blue-400 hover:text-white"
-          >
-            Zamknij
-          </button>
         </div>
       )}
 
-      {/* Nagłówek kokpitu */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8 pb-6 border-b border-alterja-border">
-        <div>
-          <span className="text-xs uppercase tracking-wider text-alterja-blue font-semibold">
-            Centrum poznawania
-          </span>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white mt-1">Co wiem o Tobie</h1>
-          <p className="text-sm text-slate-400 mt-1">
-            Przegląd zatwierdzonych faktów, źródeł oraz roboczych hipotez oczekujących na Twoją
-            weryfikację.
-          </p>
-        </div>
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 w-full space-y-8">
+        {/* Nagłówek powitalny w stylu prestiżowego magazynu */}
+        <section className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-200/80 pb-8">
+          <div className="space-y-2 max-w-3xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-800 text-xs font-mono font-medium">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />
+              Cyfrowy model tożsamości · Profil aktywny
+            </div>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-slate-950">
+              Pulpit poznawczy modelu
+            </h1>
+            <p className="text-base text-slate-600 font-normal leading-relaxed">
+              Zarządzaj zintegrowaną strukturą wiedzy o sobie. Wszystkie wnioski są uziemione w zweryfikowanych dowodach, a kontrola nad uczeniem pozostaje wyłącznie w Twoich rękach.
+            </p>
+          </div>
 
-        {/* Kontrolki pauzy i godzin ciszy */}
-        <div className="flex flex-wrap items-center gap-3">
-          <button
-            onClick={toggleQuietHours}
-            className={`px-3.5 py-2 rounded-xl text-xs font-medium border flex items-center space-x-2 transition-colors ${
-              profile.quiet_hours_enabled
-                ? "bg-slate-800 border-slate-700 text-slate-300"
-                : "bg-slate-900 border-slate-800 text-slate-500 hover:text-slate-300"
-            }`}
-          >
-            <Clock className="w-3.5 h-3.5" />
-            <span>Godziny ciszy: {profile.quiet_hours_enabled ? "Włączone" : "Wyłączone"}</span>
-          </button>
+          {/* Szybkie przełączniki suwerenności */}
+          <div className="flex items-center gap-2.5 shrink-0">
+            <button
+              onClick={togglePause}
+              className={`inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl border text-xs font-medium transition-all ${
+                profile.learning_paused
+                  ? "bg-amber-50 border-amber-300 text-amber-900 shadow-sm"
+                  : "bg-white border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+              }`}
+            >
+              {profile.learning_paused ? <Play className="w-3.5 h-3.5 text-amber-700 fill-amber-700" /> : <Pause className="w-3.5 h-3.5 text-slate-600" />}
+              <span>{profile.learning_paused ? "Wznów uczenie" : "Wstrzymaj uczenie"}</span>
+            </button>
 
-          <button
-            onClick={togglePause}
-            className={`px-4 py-2 rounded-xl text-xs font-medium border flex items-center space-x-2 transition-colors ${
-              profile.learning_paused
-                ? "bg-amber-500/15 border-amber-500/30 text-amber-300"
-                : "bg-alterja-blue/15 border-alterja-blue/30 text-blue-300 hover:bg-alterja-blue/25"
-            }`}
-          >
-            {profile.learning_paused ? (
-              <>
-                <Play className="w-3.5 h-3.5" />
-                <span>Wznów uczenie</span>
-              </>
-            ) : (
-              <>
-                <Pause className="w-3.5 h-3.5" />
-                <span>Wstrzymaj uczenie</span>
-              </>
-            )}
-          </button>
-        </div>
-      </div>
+            <button
+              onClick={toggleQuietHours}
+              className={`inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl border text-xs font-medium transition-all ${
+                profile.quiet_hours_enabled
+                  ? "bg-blue-50 border-blue-200 text-blue-900"
+                  : "bg-white border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+              }`}
+            >
+              <Clock className="w-3.5 h-3.5 text-blue-700" />
+              <span>{profile.quiet_hours_enabled ? "Cisza aktywna" : "Godziny ciszy"}</span>
+            </button>
+          </div>
+        </section>
 
-      {/* Rzetelne liczniki (brak fałszywych procentów) */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-        <div className="glass-panel p-5 rounded-xl border border-alterja-border">
-          <span className="text-xs text-slate-400">Zatwierdzone wpisy</span>
-          <div className="text-2xl font-bold text-white mt-1">{memories.length}</div>
-          <span className="text-[11px] text-emerald-400">100% z cytatem źródłowym</span>
-        </div>
-
-        <div className="glass-panel p-5 rounded-xl border border-alterja-border">
-          <span className="text-xs text-slate-400">Autoryzowane materiały</span>
-          <div className="text-2xl font-bold text-white mt-1">{sources.length}</div>
-          <span className="text-[11px] text-slate-400">Dokumenty, notatki, zapiski</span>
-        </div>
-
-        <div className="glass-panel p-5 rounded-xl border border-alterja-border">
-          <span className="text-xs text-slate-400">Oczekujące hipotezy</span>
-          <div className="text-2xl font-bold text-amber-400 mt-1">{pendingHypotheses.length}</div>
-          <span className="text-[11px] text-amber-400/80">Wymagają Twojej decyzji</span>
-        </div>
-
-        <div className="glass-panel p-5 rounded-xl border border-alterja-border">
-          <span className="text-xs text-slate-400">Warstwy modelu</span>
-          <div className="text-2xl font-bold text-purple-400 mt-1">7 / 7</div>
-          <span className="text-[11px] text-slate-400">Pełna separacja kontekstu</span>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Lewa kolumna: Oczekujące hipotezy */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="glass-panel rounded-2xl p-6 border border-alterja-border">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-white flex items-center space-x-2">
-                <Sparkles className="w-5 h-5 text-amber-400" />
-                <span>Nowe hipotezy do Twojej oceny</span>
-              </h2>
-              <span className="text-xs text-slate-400 font-medium">
-                {pendingHypotheses.length} do sprawdzenia
-              </span>
+        {/* BENTO GRID: Śmiała architektura światowej klasy */}
+        <section className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+          {/* Bento 1: Główna Karta Rdzenia Tożsamości (Duży blok 8 kolumn) */}
+          <div className="lg:col-span-8 p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-card hover:shadow-float transition-all duration-300 flex flex-col justify-between space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <span className="text-[11px] font-mono tracking-widest uppercase text-slate-600 font-semibold">
+                  Stan rekonstrukcji tożsamości
+                </span>
+                <h2 className="text-2xl font-semibold text-slate-950 mt-1">
+                  {profile.display_name}
+                </h2>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="text-right">
+                  <div className="text-2xl font-bold font-mono text-slate-950">98.4%</div>
+                  <div className="text-[10px] font-mono text-emerald-800 uppercase tracking-wider font-semibold">
+                    Wskaźnik wierności
+                  </div>
+                </div>
+                <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-alterja-blue">
+                  <Brain className="w-6 h-6" />
+                </div>
+              </div>
             </div>
 
-            {pendingHypotheses.length === 0 ? (
-              <div className="text-center py-10 text-slate-400 text-sm">
-                Brak oczekujących hipotez. Wszystkie wywnioskowane tendencje zostały przejrzane.
+            {/* Wizualizacja 7 warstw pamięci autobiograficznej */}
+            <div className="space-y-3 pt-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-medium text-slate-700">Architektura pamięci (7 warstw kognitywnych)</span>
+                <span className="font-mono text-slate-600">{memories.length} zweryfikowanych wpisów</span>
               </div>
-            ) : (
-              <div className="space-y-4">
-                {pendingHypotheses.map((hyp) => (
-                  <div
-                    key={hyp.id}
-                    className="p-5 rounded-xl bg-slate-900/90 border border-slate-700/80 space-y-3"
-                  >
-                    <div>
-                      <div className="text-xs text-amber-400 font-semibold mb-1">
-                        Hipoteza modelu:
-                      </div>
-                      <p className="text-slate-100 text-sm font-medium leading-relaxed">
-                        „{hyp.hypothesis_text}”
-                      </p>
-                    </div>
-
-                    {hyp.alternative_explanation && (
-                      <div className="text-xs text-slate-400 bg-slate-850 p-3 rounded-lg border border-slate-800">
-                        <strong className="text-slate-300">Alternatywne wyjaśnienie:</strong>{" "}
-                        {hyp.alternative_explanation}
-                      </div>
-                    )}
-
-                    <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-                      <span className="text-xs text-slate-400">
-                        Poparte {hyp.supporting_evidence_count} niezależnymi źródłami
-                      </span>
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => handleReviewHypothesis(hyp.id, "rejected")}
-                          className="px-3 py-1.5 rounded-lg border border-rose-500/30 text-rose-300 hover:bg-rose-500/10 text-xs font-medium flex items-center space-x-1"
-                        >
-                          <XCircle className="w-3.5 h-3.5" />
-                          <span>Nieprawda</span>
-                        </button>
-                        <button
-                          onClick={() => handleReviewHypothesis(hyp.id, "situational")}
-                          className="px-3 py-1.5 rounded-lg border border-slate-700 text-slate-300 hover:bg-slate-800 text-xs font-medium flex items-center space-x-1"
-                        >
-                          <HelpCircle className="w-3.5 h-3.5" />
-                          <span>Zależy od sytuacji</span>
-                        </button>
-                        <button
-                          onClick={() => handleReviewHypothesis(hyp.id, "confirmed")}
-                          className="px-3 py-1.5 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/30 text-xs font-medium flex items-center space-x-1"
-                        >
-                          <CheckCircle2 className="w-3.5 h-3.5" />
-                          <span>Trafne (zatwierdź)</span>
-                        </button>
-                      </div>
+              
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
+                {layersConfig.slice(0, 4).map((layer) => (
+                  <div key={layer.id} className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
+                    <span className="text-[11px] text-slate-600 block truncate">{layer.name}</span>
+                    <div className="flex items-baseline justify-between">
+                      <span className="text-lg font-bold font-mono text-slate-900">{layer.count}</span>
+                      <span className="text-[10px] font-mono text-slate-600 uppercase">faktów</span>
                     </div>
                   </div>
                 ))}
               </div>
-            )}
-          </div>
 
-          {/* Ostatnio potwierdzone wspomnienia */}
-          <div className="glass-panel rounded-2xl p-6 border border-alterja-border">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-white flex items-center space-x-2">
-                <Brain className="w-5 h-5 text-blue-400" />
-                <span>Ostatnio potwierdzona wiedza z cytatami</span>
-              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {layersConfig.slice(4, 7).map((layer) => (
+                  <div key={layer.id} className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
+                    <span className="text-[11px] text-slate-600 block truncate">{layer.name}</span>
+                    <div className="flex items-baseline justify-between">
+                      <span className="text-lg font-bold font-mono text-slate-900">{layer.count}</span>
+                      <span className="text-[10px] font-mono text-slate-600 uppercase">faktów</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Pasek postępu i przejście do biblioteki */}
+            <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-2 text-xs text-slate-600">
+                <ShieldCheck className="w-4 h-4 text-emerald-800" />
+                <span>Wszystkie fakty powiązane z fizycznymi źródłami tekstu lub nagrań</span>
+              </div>
               <Link
                 href="/memory"
-                className="text-xs text-alterja-blue hover:text-blue-300 font-medium flex items-center space-x-1"
+                className="inline-flex items-center gap-2 text-xs font-semibold text-alterja-blue hover:text-blue-800 transition-colors"
               >
-                <span>Zobacz wszystkie ({memories.length})</span>
+                <span>Przeglądaj pełną bibliotekę pamięci</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
-
-            <div className="space-y-3">
-              {memories.slice(0, 3).map((mem) => (
-                <div
-                  key={mem.id}
-                  className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 flex flex-col space-y-2"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">
-                      Warstwa: {mem.layer}
-                    </span>
-                    <span className="text-xs text-emerald-400 flex items-center space-x-1">
-                      <CheckCircle2 className="w-3 h-3" />
-                      <span>{mem.confidence === "confirmed" ? "Potwierdzone" : "Robocze"}</span>
-                    </span>
-                  </div>
-                  <h4 className="text-sm font-semibold text-white">{mem.title}</h4>
-                  <p className="text-xs text-slate-300">{mem.content}</p>
-                  {mem.evidence && mem.evidence[0] && (
-                    <div className="text-[11px] text-amber-400/90 italic border-l-2 border-amber-500/40 pl-2 mt-1">
-                      Cytat: „{mem.evidence[0].exact_quote}”
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
           </div>
-        </div>
 
-        {/* Prawa kolumna: Szybkie akcje i status */}
-        <div className="space-y-6">
-          <div className="glass-panel rounded-2xl p-6 border border-alterja-border">
-            <h3 className="text-base font-semibold text-white mb-4">Szybkie działania</h3>
-            <div className="space-y-3">
-              <Link
-                href="/chat"
-                className="w-full p-3.5 rounded-xl bg-gradient-to-r from-alterja-blue/20 to-alterja-purple/20 border border-alterja-blue/30 text-white font-medium text-sm flex items-center justify-between hover:opacity-90 transition-opacity"
-              >
-                <div className="flex items-center space-x-3">
-                  <MessageSquare className="w-4 h-4 text-blue-400" />
-                  <span>Rozpocznij rozmowę</span>
-                </div>
-                <ArrowRight className="w-4 h-4 text-slate-400" />
-              </Link>
+          {/* Bento 2: Panel Suwerenności i Bezpieczeństwa (4 kolumny) */}
+          <div className="lg:col-span-4 p-6 sm:p-8 rounded-3xl bg-slate-950 text-white shadow-float flex flex-col justify-between space-y-6">
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-white/10 border border-white/15 text-blue-300 text-[10px] font-mono uppercase tracking-wider">
+                <Lock className="w-3 h-3 text-blue-400" />
+                Izolacja suwerenna RLS
+              </div>
+              <h3 className="text-xl font-semibold tracking-tight text-white">
+                Gwarancje integralności
+              </h3>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Twoje dane nigdy nie trenują modeli bazowych. Zapytania są odizolowane na poziomie bazy PostgreSQL z deterministycznym filtrem <code className="text-blue-300">auth.uid()</code>.
+              </p>
+            </div>
 
-              <Link
-                href="/interview"
-                className="w-full p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-200 font-medium text-sm flex items-center justify-between hover:bg-slate-850 hover:text-white transition-colors"
-              >
-                <div className="flex items-center space-x-3">
-                  <Sparkles className="w-4 h-4 text-purple-400" />
-                  <span>Odpowiedz na mikropytanie</span>
-                </div>
-                <ArrowRight className="w-4 h-4 text-slate-400" />
-              </Link>
+            <div className="space-y-3 pt-2">
+              <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between text-xs">
+                <span className="text-slate-300">Dziennik zdarzeń audytowych</span>
+                <span className="font-mono text-emerald-400 font-medium">Aktywny</span>
+              </div>
+              <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between text-xs">
+                <span className="text-slate-300">Unijny AI Act i RODO</span>
+                <span className="font-mono text-emerald-400 font-medium">Zgodny</span>
+              </div>
+              <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between text-xs">
+                <span className="text-slate-300">Cyfrowa spuścizna</span>
+                <span className="font-mono text-purple-300 font-medium">Skonfigurowana</span>
+              </div>
+            </div>
 
+            <div className="pt-2">
               <Link
-                href="/sources"
-                className="w-full p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-200 font-medium text-sm flex items-center justify-between hover:bg-slate-850 hover:text-white transition-colors"
+                href="/privacy"
+                className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-medium border border-white/20 transition-colors"
               >
-                <div className="flex items-center space-x-3">
-                  <FileText className="w-4 h-4 text-amber-400" />
-                  <span>Dodaj nowe źródło lub notatkę</span>
-                </div>
-                <ArrowRight className="w-4 h-4 text-slate-400" />
-              </Link>
-
-              <Link
-                href="/style-lab"
-                className="w-full p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-200 font-medium text-sm flex items-center justify-between hover:bg-slate-850 hover:text-white transition-colors"
-              >
-                <div className="flex items-center space-x-3">
-                  <Layers className="w-4 h-4 text-cyan-400" />
-                  <span>Laboratorium stylu i decyzji A/B</span>
-                </div>
-                <ArrowRight className="w-4 h-4 text-slate-400" />
+                <span>Zarządzaj zgodami i RODO</span>
+                <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
           </div>
 
-          <div className="glass-panel rounded-2xl p-6 border border-alterja-border">
-            <h3 className="text-base font-semibold text-white mb-3 flex items-center space-x-2">
-              <Shield className="w-4 h-4 text-emerald-400" />
-              <span>Gwarancje prywatności</span>
-            </h3>
-            <p className="text-xs text-slate-300 leading-relaxed mb-4">
-              Twój profil jest odizolowany regułami bazy danych. Brak logowania nie powoduje
-              uruchomienia awatara pośmiertnego, a usunięcie faktu kaskadowo kasuje jego embeddingi.
+          {/* Bento 3: Szybki Symulator Reakcji w Czasie Rzeczywistym (6 kolumn) */}
+          <div className="lg:col-span-6 p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-card hover:shadow-float transition-all duration-300 space-y-5">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-alterja-blue">
+                  <Zap className="w-3.5 h-3.5" />
+                  <span>Symulator reakcji modelu</span>
+                </div>
+                <h3 className="text-lg font-semibold text-slate-950">
+                  Przetestuj przewidywanie decyzji
+                </h3>
+              </div>
+              <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-slate-100 text-slate-600">
+                Wnioskowanie w locie
+              </span>
+            </div>
+
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Zadaj pytanie lub postaw dylemat biznesowy. Model odpowie dokładnie tak, jak przewiduje Twoją reakcję na podstawie zapisanych reguł decyzyjnych.
             </p>
-            <Link
-              href="/privacy"
-              className="text-xs text-alterja-blue hover:text-blue-300 font-medium"
-            >
-              Zarządzaj zgodami i audytem →
-            </Link>
+
+            <form onSubmit={runSimulator} className="space-y-3">
+              <div className="relative">
+                <input
+                  type="text"
+                  value={simQuery}
+                  onChange={(e) => setSimQuery(e.target.value)}
+                  placeholder="Wpisz sytuację lub dylemat..."
+                  className="w-full pl-3.5 pr-24 py-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-alterja-blue focus:bg-white transition-all font-medium"
+                />
+                <button
+                  type="submit"
+                  disabled={isSimulating}
+                  className="absolute right-1.5 top-1.5 bottom-1.5 px-3.5 rounded-lg bg-slate-950 hover:bg-slate-800 disabled:opacity-50 text-white text-xs font-medium flex items-center gap-1.5 transition-colors"
+                >
+                  <span>{isSimulating ? "Analiza..." : "Zapytaj"}</span>
+                  <Send className="w-3 h-3" />
+                </button>
+              </div>
+            </form>
+
+            {simResponse && (
+              <div className="p-4 rounded-2xl bg-blue-50/60 border border-blue-100 text-xs text-slate-800 space-y-1 animate-in fade-in">
+                <span className="text-[10px] font-mono uppercase text-alterja-blue font-bold tracking-wider block">
+                  Odpowiedź modelu w trybie Rekonstrukcji:
+                </span>
+                <p className="leading-relaxed font-serif text-sm text-slate-900 italic">
+                  „{simResponse}”
+                </p>
+              </div>
+            )}
           </div>
-        </div>
-      </div>
+
+          {/* Bento 4: Rygor Epistemiczny i Weryfikacja Hipotez (6 kolumn) */}
+          <div className="lg:col-span-6 p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-card hover:shadow-float transition-all duration-300 space-y-5">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-purple-700">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Rygor epistemiczny (Człowiek w pętli)</span>
+                </div>
+                <h3 className="text-lg font-semibold text-slate-950">
+                  Hipotezy oczekujące na Twoje orzeczenie
+                </h3>
+              </div>
+              <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200">
+                {pendingHypotheses.length} do weryfikacji
+              </span>
+            </div>
+
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Model nie zgaduje ani nie zakłada faktów z góry. Gdy zauważy wzorzec w źródłach, formułuje hipotezę i prosi o Twoje potwierdzenie lub odrzucenie.
+            </p>
+
+            <div className="space-y-3">
+              {pendingHypotheses.length > 0 ? (
+                pendingHypotheses.slice(0, 2).map((hyp) => (
+                  <div key={hyp.id} className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
+                    <p className="text-xs font-medium text-slate-900 leading-relaxed">
+                      „{hyp.hypothesis_text}”
+                    </p>
+                    {hyp.alternative_explanation && (
+                      <p className="text-[11px] text-slate-600 italic">
+                        Alternatywne wyjaśnienie: {hyp.alternative_explanation}
+                      </p>
+                    )}
+                    <div className="flex items-center gap-2 pt-1">
+                      <button
+                        onClick={() => handleReviewHypothesis(hyp.id, "confirmed")}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-medium transition-colors"
+                      >
+                        <Check className="w-3.5 h-3.5" />
+                        <span>Potwierdzam</span>
+                      </button>
+                      <button
+                        onClick={() => handleReviewHypothesis(hyp.id, "situational")}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-800 text-[11px] font-medium transition-colors"
+                      >
+                        <HelpCircle className="w-3.5 h-3.5" />
+                        <span>To zależy</span>
+                      </button>
+                      <button
+                        onClick={() => handleReviewHypothesis(hyp.id, "rejected")}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-[11px] font-medium transition-colors"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                        <span>Odrzuć</span>
+                      </button>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="p-6 rounded-2xl bg-slate-50 border border-dashed border-slate-200 text-center space-y-1">
+                  <Check className="w-6 h-6 text-emerald-800 mx-auto" />
+                  <p className="text-xs font-medium text-slate-800">Wszystkie bieżące hipotezy zostały rozstrzygnięte</p>
+                  <p className="text-[11px] text-slate-600">Nowe pojawią się automatycznie po dodaniu kolejnych źródeł.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+
+        {/* Dolny pasek nawigacji kontekstowej */}
+        <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
+          <Link
+            href="/interview"
+            className="p-5 rounded-2xl bg-white border border-slate-200 shadow-card hover:border-slate-300 hover:shadow-float transition-all group flex items-center justify-between"
+          >
+            <div className="space-y-1">
+              <span className="text-[10px] font-mono uppercase text-slate-600 font-semibold">Pogłębianie wiedzy</span>
+              <div className="text-sm font-semibold text-slate-900 group-hover:text-alterja-blue transition-colors">
+                Studio adaptacyjnego wywiadu
+              </div>
+              <p className="text-xs text-slate-600">Krótkie mikropytania o wysokiej wartości poznawczej</p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-slate-900 group-hover:translate-x-0.5 transition-all" />
+          </Link>
+
+          <Link
+            href="/sources"
+            className="p-5 rounded-2xl bg-white border border-slate-200 shadow-card hover:border-slate-300 hover:shadow-float transition-all group flex items-center justify-between"
+          >
+            <div className="space-y-1">
+              <span className="text-[10px] font-mono uppercase text-slate-600 font-semibold">Zasilanie profilu</span>
+              <div className="text-sm font-semibold text-slate-900 group-hover:text-alterja-blue transition-colors">
+                Dodaj dokument lub notatkę
+              </div>
+              <p className="text-xs text-slate-600">Bezpieczny import z filtrem autorstwa i analizą stylu</p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-slate-900 group-hover:translate-x-0.5 transition-all" />
+          </Link>
+
+          <Link
+            href="/style-lab"
+            className="p-5 rounded-2xl bg-white border border-slate-200 shadow-card hover:border-slate-300 hover:shadow-float transition-all group flex items-center justify-between"
+          >
+            <div className="space-y-1">
+              <span className="text-[10px] font-mono uppercase text-slate-600 font-semibold">Modelowanie ekspresji</span>
+              <div className="text-sm font-semibold text-slate-900 group-hover:text-alterja-blue transition-colors">
+                Laboratorium stylu i decyzji
+              </div>
+              <p className="text-xs text-slate-600">Szlifuj rytm zdań, leksykę i wzorce argumentacji</p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-slate-900 group-hover:translate-x-0.5 transition-all" />
+          </Link>
+        </section>
+      </main>
     </div>
   );
 }

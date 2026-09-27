@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
+import Navbar from "@/components/navigation/Navbar";
 import {
   Brain,
   Shield,
@@ -12,282 +13,190 @@ import {
   Lock,
   Layers,
   Sparkles,
-  Search,
+  FileCheck2,
+  Scale,
 } from "lucide-react";
 
 export default function HomePage() {
   return (
-    <div className="flex flex-col min-h-screen">
-      {/* Sekcja Hero */}
-      <section className="relative overflow-hidden pt-12 pb-24 lg:pt-20 lg:pb-32 border-b border-alterja-border">
-        {/* Subtelne tło gradientowe */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-gradient-to-tr from-alterja-blue/15 via-alterja-purple/15 to-transparent blur-3xl pointer-events-none" />
+    <div className="min-h-screen bg-alterja-bg text-slate-900 flex flex-col font-sans">
+      <Navbar />
 
+      {/* Sekcja Hero */}
+      <section className="relative overflow-hidden pt-12 pb-20 lg:pt-20 lg:pb-28 border-b border-slate-200/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center max-w-3xl mx-auto">
-            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-alterja-blue/10 border border-alterja-blue/30 text-alterja-blue text-xs font-medium mb-8">
-              <Sparkles className="w-3.5 h-3.5" />
+          <div className="text-center max-w-3xl mx-auto space-y-6">
+            
+            {/* Oznaczenie tożsamości */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-900 text-xs font-mono font-medium">
+              <Sparkles className="w-3.5 h-3.5 text-blue-600" />
               <span>Cyfrowy model człowieka z pochodzeniem informacji</span>
             </div>
 
-            <div className="relative w-48 h-16 mx-auto mb-6">
-              <Image
-                src="/alterja-logo.png"
-                alt="AlterJa"
-                fill
-                className="object-contain"
-                priority
-              />
+            {/* Monumentalne Logo AlterJa — Bije po oczach na jasnym tle */}
+            <div className="py-2 flex justify-center">
+              <div className="relative w-64 sm:w-80 h-20 sm:h-24 transition-transform hover:scale-[1.02] duration-300">
+                <Image
+                  src="/alterja-logo.png"
+                  alt="AlterJa"
+                  fill
+                  className="object-contain drop-shadow-sm"
+                  priority
+                />
+              </div>
             </div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white mb-6 leading-tight">
-              Twój kontrolowany model. <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400">
-                Wiedza, styl i decyzje.
-              </span>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-slate-950 leading-[1.12]">
+              Twój suwerenny model. <br />
+              <span className="text-alterja-blue">Pamięć, styl i decyzje.</span>
             </h1>
 
-            <p className="text-lg sm:text-xl text-slate-300 mb-10 leading-relaxed font-normal">
-              AlterJa tworzy rozwijający się cyfrowy model Twojej osoby: autobiograficznej pamięci,
-              sposobu wypowiadania się, preferencji, wartości i wyborów. Każda odpowiedź ma
-              wskazane źródło, a brak wiedzy jest otwarcie przyznawany.
+            <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto font-normal leading-relaxed">
+              AlterJa buduje rozwijający się model Twojej osoby: autobiograficznej pamięci,
+              unikalnego rytmu wypowiedzi, wartości i wyborów życiowych. Każda odpowiedź posiada
+              wskazany dowód źródłowy, a granice wiedzy są otwarcie szanowane.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
               <Link
                 href="/dashboard"
-                className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-gradient-to-r from-alterja-blue to-alterja-purple text-white font-medium shadow-xl shadow-alterja-blue/20 hover:opacity-95 transition-all flex items-center justify-center space-x-2 group"
+                className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-slate-950 hover:bg-slate-800 text-white font-medium shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 group"
               >
-                <span>Otwórz pulpit demonstracyjny</span>
-                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                <span>Otwórz pulpit modelu</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
-                href="#demo"
-                className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-200 hover:bg-slate-850 hover:text-white transition-colors flex items-center justify-center space-x-2"
+                href="/interview"
+                className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-white hover:bg-slate-50 text-slate-800 font-medium border border-slate-200 shadow-sm transition-all flex items-center justify-center gap-2"
               >
-                <span>Zobacz, jak działa pamięć</span>
+                <Sparkles className="w-4 h-4 text-alterja-blue" />
+                <span>Rozpocznij wywiad adaptacyjny</span>
               </Link>
             </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Trzy filary wartości */}
-      <section id="idea" className="py-20 bg-alterja-dark/40 border-b border-alterja-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">
-              Jeden model, trzy bezpieczne zastosowania
-            </h2>
-            <p className="text-slate-400">
-              Ten sam, rzetelnie udokumentowany rdzeń tożsamości służy do codziennej pracy,
-              integracji z narzędziami oraz zachowania spuścizny.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="glass-panel rounded-2xl p-8 border border-alterja-border flex flex-col justify-between">
-              <div>
-                <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 mb-6">
-                  <Brain className="w-6 h-6" />
-                </div>
-                <h3 className="text-xl font-semibold text-white mb-3">Prywatny asystent</h3>
-                <p className="text-sm text-slate-300 leading-relaxed">
-                  Zna Twój kontekst, projekty i preferencje. Pomaga formułować myśli, podejmować
-                  decyzje i analizować argumenty bez konieczności ciągłego tłumaczenia sytuacji od
-                  nowa.
-                </p>
+            {/* Bezpieczeństwo i gwarancje */}
+            <div className="pt-6 flex flex-wrap items-center justify-center gap-6 text-xs text-slate-600 font-medium">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-800" />
+                <span>Izolacja Row Level Security</span>
               </div>
-              <div className="mt-6 pt-6 border-t border-slate-800 text-xs text-blue-400 font-medium">
-                Tryby: Rekonstrukcja · Asystent · Krytyk
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-800" />
+                <span>Brak treningu na modelach bazowych</span>
               </div>
-            </div>
-
-            <div className="glass-panel rounded-2xl p-8 border border-alterja-border flex flex-col justify-between">
-              <div>
-                <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-6">
-                  <Key className="w-6 h-6" />
-                </div>
-                <h3 className="text-xl font-semibold text-white mb-3">Kontrolowane API</h3>
-                <p className="text-sm text-slate-300 leading-relaxed">
-                  Udostępniaj wybrane zdolności modelu (np. redagowanie tekstu w Twoim stylu)
-                  zewnętrznym edytorom. Aplikacja do stylu nie otrzymuje dostępu do prywatnej
-                  biografii.
-                </p>
-              </div>
-              <div className="mt-6 pt-6 border-t border-slate-800 text-xs text-purple-400 font-medium">
-                Granularne granty OAuth · RFC 9700
-              </div>
-            </div>
-
-            <div className="glass-panel rounded-2xl p-8 border border-alterja-border flex flex-col justify-between">
-              <div>
-                <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-6">
-                  <Archive className="w-6 h-6" />
-                </div>
-                <h3 className="text-xl font-semibold text-white mb-3">Cyfrowa spuścizna</h3>
-                <p className="text-sm text-slate-300 leading-relaxed">
-                  Domyślnie wyłączony moduł umożliwiający określenie woli po śmierci: od trwałego
-                  usunięcia profilu po pasywne archiwum dla bliskich lub oznaczoną rekonstrukcję za
-                  ich zgodą.
-                </p>
-              </div>
-              <div className="mt-6 pt-6 border-t border-slate-800 text-xs text-amber-400 font-medium">
-                Weryfikacja aktu zgonu · Zamrożony rdzeń
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-800" />
+                <span>100% uziemienia w dowodach</span>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Demonstracja na fikcyjnym profilu: Jak działa pamięć */}
-      <section id="demo" className="py-20 border-b border-alterja-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl mx-auto text-center mb-12">
-            <span className="text-xs uppercase tracking-wider text-alterja-blue font-semibold">
-              Jawna weryfikacja epistemiczna
-            </span>
-            <h2 className="text-3xl font-bold text-white mt-2 mb-4">
-              Pamięć z dowodem pochodzenia, nie czarna skrzynka
-            </h2>
-            <p className="text-slate-400">
-              Oto jak wygląda wpis pamięci w AlterJi na przykładzie fikcyjnego profilu testowego:
-            </p>
-          </div>
+      {/* Sekcja 3 Filarów — Klasa Światowa */}
+      <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full space-y-12">
+        <div className="text-center max-w-2xl mx-auto space-y-2">
+          <span className="text-xs font-mono uppercase tracking-widest text-slate-600 font-semibold">
+            Architektura trójmodułowa
+          </span>
+          <h2 className="text-3xl font-semibold tracking-tight text-slate-950">
+            Trzy fundamentalne filary AlterJa
+          </h2>
+          <p className="text-sm text-slate-600">
+            Od intymnego poznania człowieka, przez integrację z zewnętrznymi aplikacjami, po dostojną dyspozycję na przyszłość.
+          </p>
+        </div>
 
-          <div className="max-w-4xl mx-auto glass-panel rounded-2xl p-6 sm:p-8 border border-slate-700/80 shadow-2xl">
-            <div className="flex flex-wrap items-center justify-between gap-3 mb-6 pb-4 border-b border-slate-800">
-              <div className="flex items-center space-x-3">
-                <span className="px-2.5 py-1 rounded-md bg-purple-500/15 border border-purple-500/30 text-purple-300 text-xs font-mono font-medium">
-                  Warstwa: Wartości i priorytety
-                </span>
-                <span className="px-2.5 py-1 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-medium flex items-center space-x-1">
-                  <CheckCircle2 className="w-3 h-3" />
-                  <span>Potwierdzona deklaracja</span>
-                </span>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Filar 1 */}
+          <div className="p-8 rounded-3xl bg-white border border-slate-200 shadow-card hover:shadow-float transition-all duration-300 flex flex-col justify-between space-y-6">
+            <div className="space-y-4">
+              <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-100 text-alterja-blue flex items-center justify-center">
+                <Brain className="w-6 h-6" />
               </div>
-              <span className="text-xs text-slate-400 font-mono">ID: mem-01-val</span>
-            </div>
-
-            <div className="mb-6">
-              <h4 className="text-lg font-semibold text-white mb-2">
-                Prymat rzetelności nad pośpiechem
-              </h4>
-              <p className="text-slate-200 text-base leading-relaxed">
-                Właściciel preferuje dokładną weryfikację w źródłach pierwotnych i odrzuca
-                podejmowanie decyzji pod presją czasu bez solidnych dowodów.
+              <div className="space-y-1">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-slate-600 font-semibold">Filar I</span>
+                <h3 className="text-xl font-semibold text-slate-950">Cyfrowy model człowieka</h3>
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Strukturalna pamięć autobiograficzna w 7 warstwach: od faktów i wiedzy po styl wypowiedzi, zasady moralne i wzorce podejmowania decyzji. Model przewiduje Twoje reakcje, a nie symuluje obcą osobowość.
               </p>
             </div>
+            <Link
+              href="/memory"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-alterja-blue hover:text-blue-800 transition-colors"
+            >
+              <span>Poznaj 7 warstw pamięci</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
 
-            {/* Karta dowodu pochodzenia */}
-            <div className="rounded-xl bg-slate-900/90 border border-amber-500/30 p-4 sm:p-5 mb-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-semibold uppercase tracking-wider text-amber-400 flex items-center space-x-1.5">
-                  <Search className="w-3.5 h-3.5" />
-                  <span>Dowód źródłowy (Grounding Citation)</span>
-                </span>
-                <span className="text-xs text-slate-400">Dokument: Dziennik zawodowy 2024</span>
+          {/* Filar 2 */}
+          <div className="p-8 rounded-3xl bg-white border border-slate-200 shadow-card hover:shadow-float transition-all duration-300 flex flex-col justify-between space-y-6">
+            <div className="space-y-4">
+              <div className="w-12 h-12 rounded-2xl bg-purple-50 border border-purple-100 text-purple-700 flex items-center justify-center">
+                <Key className="w-6 h-6" />
               </div>
-              <blockquote className="text-sm italic text-slate-300 pl-3 border-l-2 border-amber-400">
-                „Wolę poświęcić dodatkowe dwa dni na weryfikację faktów w źródłach pierwotnych, niż
-                wdrożyć niesprawdzone założenie pod presją czasu.”
-              </blockquote>
+              <div className="space-y-1">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-slate-600 font-semibold">Filar II</span>
+                <h3 className="text-xl font-semibold text-slate-950">Platforma API dla aplikacji</h3>
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Udostępniaj swój styl i wiedzę w kontrolowany sposób. Precyzyjne granty uprawnień: przekształcaj teksty zgodnie z Twoją leksyką bez ujawniania sekretów biograficznych i prywatnych danych.
+              </p>
             </div>
+            <Link
+              href="/developer"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-purple-700 hover:text-purple-900 transition-colors"
+            >
+              <span>Portal deweloperski i specyfikacja</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
 
-            <div className="flex items-center justify-between text-xs text-slate-400 pt-2">
-              <span>Status weryfikacji: 100% ugruntowany w autoryzowanym materiale</span>
-              <span className="text-amber-400/90 font-medium">Zero halucynacji biograficznych</span>
+          {/* Filar 3 */}
+          <div className="p-8 rounded-3xl bg-white border border-slate-200 shadow-card hover:shadow-float transition-all duration-300 flex flex-col justify-between space-y-6">
+            <div className="space-y-4">
+              <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-100 text-amber-700 flex items-center justify-center">
+                <Archive className="w-6 h-6" />
+              </div>
+              <div className="space-y-1">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-slate-600 font-semibold">Filar III</span>
+                <h3 className="text-xl font-semibold text-slate-950">Cyfrowa spuścizna</h3>
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Świadome rozporządzenie tożsamością na wypadek śmierci. Wybór trybu (tylko archiwum, memoriał lub całkowite usunięcie), weryfikacja oficjalnym aktem zgonu z USC oraz ochrona bliskich przed symulacją.
+              </p>
             </div>
+            <Link
+              href="/legacy"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-700 hover:text-amber-900 transition-colors"
+            >
+              <span>Skonfiguruj dyspozycję cyfrową</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* Bezpieczeństwo i RODO */}
-      <section id="security" className="py-20 bg-alterja-dark/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-medium mb-6">
-                <Lock className="w-3.5 h-3.5" />
-                <span>Prywatność jako architektura (Privacy by Design)</span>
-              </div>
-              <h2 className="text-3xl font-bold text-white mb-6">
-                Twoja tożsamość nie staje się darmowym paliwem dla cudzych modeli
-              </h2>
-              <ul className="space-y-4 text-slate-300 text-sm">
-                <li className="flex items-start space-x-3">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
-                  <span>
-                    <strong>Deterministyczna kontrola w bazie:</strong> Uprawnienia są egzekwowane
-                    przez PostgreSQL Row Level Security (RLS), a nie przez zawodne prompty językowe.
-                  </span>
-                </li>
-                <li className="flex items-start space-x-3">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
-                  <span>
-                    <strong>Brak sekretów w interfejsie:</strong> Klucze administracyjne bazy nigdy
-                    nie trafiają do przeglądarki użytkownika.
-                  </span>
-                </li>
-                <li className="flex items-start space-x-3">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
-                  <span>
-                    <strong>Prawdziwe prawo do bycia zapomnianym:</strong> Usunięcie faktu trwale
-                    kasuje rekord, cytaty i indeks wektorowy bez pozostawiania kopii w pamięci
-                    podręcznej.
-                  </span>
-                </li>
-              </ul>
-
-              <div className="mt-8">
-                <Link
-                  href="/privacy"
-                  className="text-sm text-alterja-blue hover:text-blue-300 font-medium inline-flex items-center space-x-1"
-                >
-                  <span>Sprawdź centrum prywatności i zarządzanie zgodami</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
+      {/* Stopka */}
+      <footer className="mt-auto border-t border-slate-200 bg-white py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-slate-500">
+          <div className="flex items-center gap-3">
+            <div className="relative w-28 h-8">
+              <Image src="/alterja-logo.png" alt="AlterJa" fill className="object-contain object-left" />
             </div>
+            <span>© 2026 AlterJa (alterja.pl). Wszystkie prawa zastrzeżone.</span>
+          </div>
 
-            <div className="glass-panel rounded-2xl p-8 border border-slate-700">
-              <h3 className="text-lg font-semibold text-white mb-4">
-                Siedem odseparowanych warstw modelu
-              </h3>
-              <div className="space-y-2.5 text-xs font-mono">
-                <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 flex justify-between items-center">
-                  <span className="text-blue-400">1. Biografia i zdarzenia</span>
-                  <span className="text-slate-400">Fakty chronologiczne</span>
-                </div>
-                <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 flex justify-between items-center">
-                  <span className="text-indigo-400">2. Wiedza i doświadczenie</span>
-                  <span className="text-slate-400">Kompetencje domenowe</span>
-                </div>
-                <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 flex justify-between items-center">
-                  <span className="text-purple-400">3. Styl komunikacji</span>
-                  <span className="text-slate-400">Leksyka, rytm, składnia</span>
-                </div>
-                <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 flex justify-between items-center">
-                  <span className="text-amber-400">4. Preferencje codzienne</span>
-                  <span className="text-slate-400">Wybory i nawyki</span>
-                </div>
-                <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 flex justify-between items-center">
-                  <span className="text-emerald-400">5. Wartości i priorytety</span>
-                  <span className="text-slate-400">Zasady nienaruszalne</span>
-                </div>
-                <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 flex justify-between items-center">
-                  <span className="text-cyan-400">6. Przypadki decyzyjne</span>
-                  <span className="text-slate-400">Wybory z uzasadnieniem</span>
-                </div>
-                <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 flex justify-between items-center">
-                  <span className="text-rose-400">7. Kontekst sytuacyjny</span>
-                  <span className="text-slate-400">Okoliczności i role</span>
-                </div>
-              </div>
-            </div>
+          <div className="flex items-center gap-6">
+            <Link href="/privacy" className="hover:text-slate-900 transition-colors">Prywatność i RODO</Link>
+            <Link href="/legacy" className="hover:text-slate-900 transition-colors">Spuścizna</Link>
+            <Link href="/developer" className="hover:text-slate-900 transition-colors">API</Link>
+            <Link href="/ops" className="hover:text-slate-900 transition-colors">Status</Link>
           </div>
         </div>
-      </section>
+      </footer>
     </div>
   );
 }

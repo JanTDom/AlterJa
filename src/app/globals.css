@@ -3,13 +3,14 @@
 @tailwind utilities;
 
 :root {
-  --background: #08090d;
-  --foreground: #f8fafc;
-  --card: #0f121a;
-  --card-border: #1e2436;
-  --accent-blue: #1b64f2;
-  --accent-purple: #7928ca;
-  --accent-amber: #d97706;
+  --background: #F8F9FB;
+  --foreground: #0F172A;
+  --card: #FFFFFF;
+  --card-border: #E2E8F0;
+  --accent-blue: #1E40AF;
+  --accent-blue-light: #3B82F6;
+  --accent-purple: #6B21A8;
+  --accent-amber: #B45309;
 }
 
 @layer base {
@@ -19,9 +20,10 @@
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    selection-background-color: #DBEAFE;
+    selection-color: #1E40AF;
   }
 
-  /* Polskie cudzysłowy i typografia */
   q {
     quotes: "„" "”" "‚" "’";
   }
@@ -29,7 +31,7 @@
 
 /* Wskaźnik fokusu WCAG 2.2 AA */
 :focus-visible {
-  outline: 2px solid #2575fc;
+  outline: 2px solid #1E40AF;
   outline-offset: 2px;
 }
 
@@ -45,17 +47,24 @@
   }
 }
 
-/* Subtelny szklany panel */
-.glass-panel {
-  background: rgba(15, 18, 26, 0.75);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+/* Szlachetny panel na jasnym tle */
+.editorial-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04), 0 1px 2px -1px rgba(15, 23, 42, 0.02);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.glass-panel-hover {
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+.editorial-card:hover {
+  border-color: #CBD5E1;
+  box-shadow: 0 12px 30px -8px rgba(15, 23, 42, 0.08);
+  transform: translateY(-2px);
 }
-.glass-panel-hover:hover {
-  border-color: rgba(37, 117, 252, 0.35);
-  transform: translateY(-1px);
+
+/* Subtelny szklany panel jasny */
+.glass-header {
+  background: rgba(248, 249, 251, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
 }

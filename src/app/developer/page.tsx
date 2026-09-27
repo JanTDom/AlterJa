@@ -100,19 +100,19 @@ export default function DeveloperPage() {
   };
 
   return (
-    <div className="min-h-screen bg-alter-dark text-slate-100 flex flex-col selection:bg-alter-blue/30 selection:text-white">
+    <div className="min-h-screen bg-alterja-bg text-slate-900 flex flex-col selection:bg-alterja-accent/15 selection:text-alterja-accent">
       <Navbar />
 
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-8">
         {/* Nagłówek */}
-        <div className="border-b border-alter-border pb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="border-b border-slate-200 pb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-mono uppercase tracking-wider mb-2">
+            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-blue-50 border border-blue-200 text-blue-700 text-xs font-mono uppercase tracking-wider mb-2">
               <Terminal className="w-3.5 h-3.5" />
               Platforma API i bezpieczne integracje
             </div>
-            <h1 className="text-2xl sm:text-3xl font-medium tracking-tight text-white">Portal deweloperski</h1>
-            <p className="text-sm text-slate-400 mt-1 max-w-2xl">
+            <h1 className="text-2xl sm:text-3xl font-serif font-medium tracking-tight text-slate-900">Portal deweloperski</h1>
+            <p className="text-sm text-slate-600 mt-1 max-w-2xl">
               Kontrolowane udostępnianie stylu i pamięci dla aplikacji trzecich. Pełna specyfikacja OpenAPI 3.1, granularne granty oraz natychmiastowe unieważnianie kluczy.
             </p>
           </div>
@@ -121,9 +121,9 @@ export default function DeveloperPage() {
             <Link
               href="/api/v1/openapi.json"
               target="_blank"
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-alter-card hover:bg-slate-800 border border-alter-border text-xs font-medium text-slate-200 transition-colors"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-xs font-medium text-slate-700 shadow-sm transition-colors"
             >
-              <Code className="w-4 h-4 text-alter-blue" />
+              <Code className="w-4 h-4 text-alterja-accent" />
               Specyfikacja OpenAPI (JSON)
             </Link>
           </div>
@@ -131,28 +131,28 @@ export default function DeveloperPage() {
 
         {/* Modal / alert wygenerowania nowego klucza */}
         {createdClient && (
-          <div className="p-5 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-3 animate-in fade-in">
+          <div className="p-5 rounded-2xl bg-amber-50 border border-amber-200 space-y-3 animate-in fade-in">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-mono uppercase tracking-wider text-amber-300 font-bold">
+              <span className="text-xs font-mono uppercase tracking-wider text-amber-800 font-bold">
                 Nowy klucz API został pomyślnie wygenerowany
               </span>
               <button
                 onClick={() => setCreatedClient(null)}
-                className="text-slate-400 hover:text-white text-xs"
+                className="text-slate-500 hover:text-slate-800 text-xs font-medium"
               >
                 Zamknij powiadomienie
               </button>
             </div>
-            <p className="text-xs text-slate-300">
+            <p className="text-xs text-slate-700">
               Skopiuj klucz teraz. Ze względów bezpieczeństwa w bazie zapisany jest wyłącznie bezpieczny skrót SHA-256 i pełna wartość nie zostanie wyświetlona ponownie:
             </p>
-            <div className="flex items-center gap-2 p-2.5 rounded-lg bg-alter-dark border border-alter-border font-mono text-xs text-white">
+            <div className="flex items-center gap-2 p-2.5 rounded-lg bg-white border border-amber-200 font-mono text-xs text-slate-900 shadow-inner">
               <span className="flex-1 truncate">{createdClient.api_key}</span>
               <button
                 onClick={() => handleCopy(createdClient.api_key || "", createdClient.id)}
-                className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[11px] text-slate-200 flex items-center gap-1.5"
+                className="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-[11px] text-slate-700 flex items-center gap-1.5 transition-colors"
               >
-                {copiedKey === createdClient.id ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                {copiedKey === createdClient.id ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                 {copiedKey === createdClient.id ? "Skopiowano" : "Kopiuj"}
               </button>
             </div>
@@ -162,34 +162,34 @@ export default function DeveloperPage() {
         {/* Formularz tworzenia klucza + Lista aktywnych kluczy */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Tworzenie nowego klucza */}
-          <div className="p-6 rounded-2xl bg-alter-card border border-alter-border space-y-4">
-            <h2 className="text-base font-medium text-white tracking-tight flex items-center gap-2">
-              <Key className="w-4 h-4 text-alter-blue" />
+          <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-card space-y-4">
+            <h2 className="text-base font-serif font-medium text-slate-900 tracking-tight flex items-center gap-2">
+              <Key className="w-4 h-4 text-alterja-accent" />
               Wygeneruj nowy klucz dostępu
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-500">
               Określ nazwę integracji oraz dopuszczalny zakres operacji.
             </p>
 
             <form onSubmit={handleCreateKey} className="space-y-4">
               <div>
-                <label className="block text-xs font-mono text-slate-400 mb-1">Nazwa aplikacji klienta</label>
+                <label className="block text-xs font-mono text-slate-500 mb-1">Nazwa aplikacji klienta</label>
                 <input
                   type="text"
                   required
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
                   placeholder="np. Notion Sync, Slack Bot, Edytor e-mail"
-                  className="w-full px-3 py-2 rounded-lg bg-alter-dark border border-alter-border text-xs text-white placeholder-slate-600 focus:outline-none focus:border-alter-blue"
+                  className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-alterja-accent focus:bg-white"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-mono text-slate-400 mb-1">Dopuszczalny zakres (Grant Scope)</label>
+                <label className="block text-xs font-mono text-slate-500 mb-1">Dopuszczalny zakres (Grant Scope)</label>
                 <select
                   value={newScope}
                   onChange={(e) => setNewScope(e.target.value as any)}
-                  className="w-full px-3 py-2 rounded-lg bg-alter-dark border border-alter-border text-xs text-white focus:outline-none focus:border-alter-blue"
+                  className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:outline-none focus:border-alterja-accent focus:bg-white"
                 >
                   <option value="style_only">style:transform — tylko styl (bez dostępu do faktów biograficznych)</option>
                   <option value="memory_query">memory:read — odpytywanie dopuszczonej pamięci</option>
@@ -199,7 +199,7 @@ export default function DeveloperPage() {
 
               <button
                 type="submit"
-                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-alter-blue hover:bg-blue-600 text-xs font-medium text-white transition-colors"
+                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-alterja-accent hover:bg-alterja-accent/90 text-xs font-medium text-white shadow-sm transition-colors"
               >
                 <Plus className="w-4 h-4" />
                 Utwórz klucz API
@@ -208,25 +208,25 @@ export default function DeveloperPage() {
           </div>
 
           {/* Lista aktywnych integracji */}
-          <div className="lg:col-span-2 p-6 rounded-2xl bg-alter-card border border-alter-border space-y-4">
+          <div className="lg:col-span-2 p-6 rounded-2xl bg-white border border-slate-200 shadow-card space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-base font-medium text-white tracking-tight flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <h2 className="text-base font-serif font-medium text-slate-900 tracking-tight flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-emerald-600" />
                 Aktywne integracje i poświadczenia
               </h2>
-              <span className="text-xs text-slate-400 font-mono">{clients.length} aktywne wpisy</span>
+              <span className="text-xs text-slate-500 font-mono">{clients.length} aktywne wpisy</span>
             </div>
 
             <div className="space-y-3">
               {clients.map((c) => (
                 <div
                   key={c.id}
-                  className="p-4 rounded-xl bg-alter-dark/60 border border-alter-border flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                  className="p-4 rounded-xl bg-slate-50/70 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                 >
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-medium text-white">{c.name}</span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full font-mono bg-alter-blue/10 text-alter-blue border border-alter-blue/20">
+                      <span className="text-xs font-medium text-slate-900">{c.name}</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full font-mono bg-blue-50 text-alterja-accent border border-blue-200">
                         {c.grants && c.grants.length > 0
                           ? c.grants.map((g) => g.grant_type).join(", ")
                           : "style_only"}
@@ -240,7 +240,7 @@ export default function DeveloperPage() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleRevokeKey(c.id)}
-                      className="p-2 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs flex items-center gap-1 transition-colors"
+                      className="p-2 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs flex items-center gap-1 transition-colors"
                       title="Natychmiast unieważnij ten klucz"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -254,21 +254,21 @@ export default function DeveloperPage() {
         </div>
 
         {/* Interaktywny API Playground */}
-        <section className="p-6 rounded-2xl bg-alter-card border border-alter-border space-y-4">
+        <section className="p-6 rounded-2xl bg-white border border-slate-200 shadow-card space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
-              <h2 className="text-base font-medium text-white tracking-tight flex items-center gap-2">
-                <Play className="w-4 h-4 text-purple-400" />
+              <h2 className="text-base font-serif font-medium text-slate-900 tracking-tight flex items-center gap-2">
+                <Play className="w-4 h-4 text-purple-600" />
                 Interaktywne testowanie zapytań (API Playground)
               </h2>
-              <p className="text-xs text-slate-400">Wyślij rzeczywiste zapytanie HTTP do lokalnego interfejsu bramki API AlterJa.</p>
+              <p className="text-xs text-slate-500">Wyślij rzeczywiste zapytanie HTTP do lokalnego interfejsu bramki API AlterJa.</p>
             </div>
 
-            <div className="flex items-center gap-1 bg-alter-dark p-1 rounded-lg border border-alter-border">
+            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200">
               <button
                 onClick={() => setTestEndpoint("transform")}
                 className={`px-3 py-1 rounded text-xs font-mono transition-colors ${
-                  testEndpoint === "transform" ? "bg-alter-blue text-white" : "text-slate-400 hover:text-white"
+                  testEndpoint === "transform" ? "bg-white text-alterja-accent shadow-sm font-semibold" : "text-slate-600 hover:text-slate-900"
                 }`}
               >
                 /style/transform
@@ -276,7 +276,7 @@ export default function DeveloperPage() {
               <button
                 onClick={() => setTestEndpoint("respond")}
                 className={`px-3 py-1 rounded text-xs font-mono transition-colors ${
-                  testEndpoint === "respond" ? "bg-alter-blue text-white" : "text-slate-400 hover:text-white"
+                  testEndpoint === "respond" ? "bg-white text-alterja-accent shadow-sm font-semibold" : "text-slate-600 hover:text-slate-900"
                 }`}
               >
                 /persona/respond
@@ -284,7 +284,7 @@ export default function DeveloperPage() {
               <button
                 onClick={() => setTestEndpoint("query")}
                 className={`px-3 py-1 rounded text-xs font-mono transition-colors ${
-                  testEndpoint === "query" ? "bg-alter-blue text-white" : "text-slate-400 hover:text-white"
+                  testEndpoint === "query" ? "bg-white text-alterja-accent shadow-sm font-semibold" : "text-slate-600 hover:text-slate-900"
                 }`}
               >
                 /memory/query
@@ -294,17 +294,17 @@ export default function DeveloperPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="block text-xs font-mono text-slate-400">Tekst wejściowy (Payload input):</label>
+              <label className="block text-xs font-mono text-slate-500">Tekst wejściowy (Payload input):</label>
               <textarea
                 rows={7}
                 value={testInput}
                 onChange={(e) => setTestInput(e.target.value)}
-                className="w-full p-3 rounded-xl bg-alter-dark border border-alter-border font-mono text-xs text-white placeholder-slate-600 focus:outline-none focus:border-alter-blue leading-relaxed"
+                className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 font-mono text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-alterja-accent focus:bg-white leading-relaxed"
               />
               <button
                 onClick={runPlayground}
                 disabled={isRunning}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-alter-blue hover:bg-blue-600 disabled:opacity-50 text-xs font-medium text-white transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-alterja-accent hover:bg-alterja-accent/90 disabled:opacity-50 text-xs font-medium text-white shadow-sm transition-colors"
               >
                 <Play className="w-3.5 h-3.5" />
                 {isRunning ? "Wysyłanie zapytania..." : "Wyślij testowe żądanie POST"}
@@ -312,8 +312,8 @@ export default function DeveloperPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="block text-xs font-mono text-slate-400">Odpowiedź serwera (JSON Response):</label>
-              <div className="h-[188px] overflow-auto p-3 rounded-xl bg-alter-dark border border-alter-border font-mono text-xs text-emerald-400 whitespace-pre">
+              <label className="block text-xs font-mono text-slate-500">Odpowiedź serwera (JSON Response):</label>
+              <div className="h-[188px] overflow-auto p-3 rounded-xl bg-slate-900 border border-slate-800 font-mono text-xs text-emerald-400 whitespace-pre shadow-inner">
                 {testOutput ? testOutput : "// Kliknij 'Wyślij testowe żądanie POST', aby zobaczyć wynik"}
               </div>
             </div>

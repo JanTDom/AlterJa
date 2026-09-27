@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Navbar from "@/components/navigation/Navbar";
 import {
   FileText,
   UploadCloud,
@@ -8,7 +9,6 @@ import {
   Trash2,
   CheckCircle2,
   AlertTriangle,
-  Layers,
   ArrowRight,
   Shield,
   FileCheck,
@@ -18,15 +18,13 @@ import { SourceItem } from "@/domains/types";
 
 export default function SourcesPage() {
   const [sources, setSources] = useState<SourceItem[]>(() => globalStore.getSources(DEMO_USER_ID));
-  const [activeTab, setActiveTab] = useState<"upload" | "paste" | "voice">("paste");
+  const [activeTab, setActiveTab] = useState<"paste" | "upload" | "voice">("paste");
 
-  // Formularz wklejania tekstu
   const [pasteTitle, setPasteTitle] = useState("");
   const [pasteContent, setPasteContent] = useState("");
   const [isThirdParty, setIsThirdParty] = useState(false);
   const [isSyntheticAi, setIsSyntheticAi] = useState(false);
 
-  // Stan podglądu importu (Ingestion Preview)
   const [previewData, setPreviewData] = useState<{
     title: string;
     content: string;
@@ -39,55 +37,47 @@ export default function SourcesPage() {
 
   const refresh = () => setSources([...globalStore.getSources(DEMO_USER_ID)]);
 
-  const handlePreparePreview = (e: React.FormEvent) => {
+  const showNotice = (msg: string) => {
+    setNotice(msg);
+    setTimeout(() => setNotice(null), 3500);
+  };
+
+  const handlePreview = (e: React.FormEvent) => {
     e.preventDefault();
     if (!pasteTitle.trim() || !pasteContent.trim()) return;
 
+    const words = pasteContent.trim().split(/\s+/).length;
     setPreviewData({
       title: pasteTitle.trim(),
       content: pasteContent.trim(),
       isThirdParty,
       isSyntheticAi,
-      wordCount: pasteContent.trim().split(/\s+/).length,
+      wordCount: words,
     });
   };
 
   const handleConfirmImport = () => {
     if (!previewData) return;
 
-    globalStore.addSource(DEMO_USER_ID, {
+    const newSource = globalStore.addSource(DEMO_USER_ID, {
       title: previewData.title,
       raw_content: previewData.content,
       mime_type: "text/plain",
       size_bytes: new Blob([previewData.content]).size,
-      source_author: previewData.isThirdParty ? "Osoba trzecia" : "Jan Nowak",
+      source_author: previewData.isThirdParty ? "Osoba trzecia" : "Użytkownik",
       is_third_party: previewData.isThirdParty,
       is_synthetic_ai: previewData.isSyntheticAi,
       event_timestamp: new Date().toISOString(),
     });
 
-    // Automatyczna ekstrakcja hipotezy do przeglądu
-    if (!previewData.isThirdParty && !previewData.isSyntheticAi) {
-      globalStore.addMemory(DEMO_USER_ID, {
-        layer: "knowledge",
-        title: previewData.title,
-        content: `Wyekstrahowano z nowego materiału źródłowego: ${previewData.content.slice(0, 120)}...`,
-        epistemic_status: "source_record",
-        confidence: "provisional",
-        is_superseded: false,
-        evidence: [
-          {
-            id: `ev-${Date.now()}`,
-            user_id: DEMO_USER_ID,
-            memory_item_id: "new",
-            source_item_id: "recent",
-            exact_quote: previewData.content.slice(0, 80),
-            source_title: previewData.title,
-            created_at: new Date().toISOString(),
-          },
-        ],
-      });
-    }
+    globalStore.addMemory(DEMO_USER_ID, {
+      layer: "knowledge",
+      title: `Wiedza ze źródła: ${previewData.title}`,
+      content: previewData.content.slice(0, 180) + "...",
+      epistemic_status: previewData.isThirdParty ? "observed_behavior" : "user_declaration",
+      confidence: "provisional",
+      is_superseded: false,
+    });
 
     setPreviewData(null);
     setPasteTitle("");
@@ -95,310 +85,251 @@ export default function SourcesPage() {
     setIsThirdParty(false);
     setIsSyntheticAi(false);
     refresh();
-
-    setNotice("Źródło zostało pomyślnie zaimportowane i przekazane do analizy pamięci.");
-    setTimeout(() => setNotice(null), 4000);
+    showNotice("Źródło zostało pomyślnie przetworzone i dodane do pamięci.");
   };
 
-  const handleDeleteSource = (id: string) => {
-    if (confirm("Usunięcie źródła kaskadowo usunie wszystkie powiązane z nim cytaty dowodowe. Kontynuować?")) {
-      globalStore.deleteSource(DEMO_USER_ID, id);
-      refresh();
-      setNotice("Źródło oraz jego pochodne zostały trwale usunięte (RODO).");
-      setTimeout(() => setNotice(null), 4000);
-    }
+  const handleDelete = (id: string) => {
+    globalStore.deleteSource(DEMO_USER_ID, id);
+    refresh();
+    showNotice("Źródło i powiązane z nim dowody zostały usunięte.");
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-      {/* Powiadomienie */}
+    <div className="min-h-screen bg-alterja-bg text-slate-900 flex flex-col font-sans">
+      <Navbar />
+
       {notice && (
-        <div className="mb-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-200 text-sm flex items-center justify-between">
+        <div className="fixed bottom-6 right-6 z-50 bg-slate-950 text-white text-xs px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 animate-in fade-in">
+          <span className="w-2 h-2 rounded-full bg-blue-400" />
           <span>{notice}</span>
-          <button onClick={() => setNotice(null)} className="text-xs text-emerald-400">
-            Zamknij
-          </button>
         </div>
       )}
 
-      {/* Nagłówek */}
-      <div className="mb-8 pb-6 border-b border-alterja-border">
-        <span className="text-xs uppercase tracking-wider text-alterja-blue font-semibold">
-          Bezpieczne pozyskiwanie danych
-        </span>
-        <h1 className="text-2xl sm:text-3xl font-bold text-white mt-1">Źródła i import materiałów</h1>
-        <p className="text-sm text-slate-400 mt-1">
-          Wszystkie wpisy są weryfikowane pod kątem autorstwa i zgód przed włączeniem do profilu tożsamości.
-        </p>
-      </div>
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-8">
+        {/* Nagłówek */}
+        <div className="pb-6 border-b border-slate-200">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-900 text-xs font-mono font-medium mb-2">
+            <FileText className="w-3.5 h-3.5 text-alterja-blue" />
+            <span>Kontrolowane pozyskiwanie danych · RODO art. 13</span>
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-slate-950">
+            Źródła wiedzy i zasilanie tożsamości
+          </h1>
+          <p className="text-sm text-slate-600 mt-1 max-w-2xl">
+            Importuj dokumenty, wywiady i wypowiedzi. Każde źródło przechodzi wstępną weryfikację autorstwa i kwalifikację przed włączeniem do grafu pamięci.
+          </p>
+        </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Lewa kolumna: Formularz importu */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="glass-panel rounded-2xl p-6 border border-alterja-border">
-            {/* Zakładki kanałów */}
-            <div className="flex items-center space-x-2 pb-4 mb-6 border-b border-slate-800">
-              <button
-                onClick={() => setActiveTab("paste")}
-                className={`px-4 py-2 rounded-xl text-xs font-medium flex items-center space-x-2 transition-colors ${
-                  activeTab === "paste"
-                    ? "bg-alterja-blue text-white"
-                    : "text-slate-400 hover:text-white hover:bg-slate-800"
-                }`}
-              >
-                <FileText className="w-4 h-4" />
-                <span>Wklej tekst / notatkę</span>
-              </button>
-              <button
-                onClick={() => setActiveTab("upload")}
-                className={`px-4 py-2 rounded-xl text-xs font-medium flex items-center space-x-2 transition-colors ${
-                  activeTab === "upload"
-                    ? "bg-alterja-blue text-white"
-                    : "text-slate-400 hover:text-white hover:bg-slate-800"
-                }`}
-              >
-                <UploadCloud className="w-4 h-4" />
-                <span>Prześlij plik</span>
-              </button>
-              <button
-                onClick={() => setActiveTab("voice")}
-                className={`px-4 py-2 rounded-xl text-xs font-medium flex items-center space-x-2 transition-colors ${
-                  activeTab === "voice"
-                    ? "bg-alterja-blue text-white"
-                    : "text-slate-400 hover:text-white hover:bg-slate-800"
-                }`}
-              >
-                <Mic className="w-4 h-4" />
-                <span>Notatka głosowa</span>
-              </button>
-            </div>
-
-            {/* Formularz wklejania */}
-            {activeTab === "paste" && (
-              <form onSubmit={handlePreparePreview} className="space-y-4">
-                <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">
-                    Tytuł materiału lub kontekst
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="np. Notatka ze spotkania strategicznego, zasady pracy 2025"
-                    value={pasteTitle}
-                    onChange={(e) => setPasteTitle(e.target.value)}
-                    className="w-full p-3 rounded-xl bg-slate-900 border border-slate-800 text-white text-sm"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">
-                    Treść notatki lub wypowiedzi
-                  </label>
-                  <textarea
-                    rows={6}
-                    placeholder="Wklej fragment tekstu, przemyślenia lub zapis decyzji..."
-                    value={pasteContent}
-                    onChange={(e) => setPasteContent(e.target.value)}
-                    className="w-full p-3 rounded-xl bg-slate-900 border border-slate-800 text-white text-sm leading-relaxed"
-                    required
-                  />
-                </div>
-
-                {/* Kontrola autorstwa i AI */}
-                <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-3">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 block">
-                    Kwalifikacja autorstwa i prywatności
-                  </span>
-
-                  <label className="flex items-start space-x-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={isThirdParty}
-                      onChange={(e) => setIsThirdParty(e.target.checked)}
-                      className="mt-0.5 rounded border-slate-700 text-alterja-blue focus:ring-alterja-blue"
-                    />
-                    <span className="text-xs text-slate-300">
-                      Materiał zawiera wypowiedzi osób trzecich (będą odfiltrowane i nie wejdą do
-                      Twojego profilu stylu).
-                    </span>
-                  </label>
-
-                  <label className="flex items-start space-x-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={isSyntheticAi}
-                      onChange={(e) => setIsSyntheticAi(e.target.checked)}
-                      className="mt-0.5 rounded border-slate-700 text-alterja-blue focus:ring-alterja-blue"
-                    />
-                    <span className="text-xs text-slate-300">
-                      Tekst został wygenerowany przez narzędzie AI (zostanie oznaczony jako treść
-                      syntetyczna).
-                    </span>
-                  </label>
-                </div>
-
-                <div className="flex justify-end pt-2">
-                  <button
-                    type="submit"
-                    className="px-6 py-2.5 rounded-xl bg-alterja-blue hover:bg-blue-600 text-white font-medium text-sm transition-colors flex items-center space-x-2"
-                  >
-                    <span>Przejdź do podglądu importu</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </form>
-            )}
-
-            {/* Obsługa pliku */}
-            {activeTab === "upload" && (
-              <div className="border-2 border-dashed border-slate-800 rounded-2xl p-10 text-center space-y-3">
-                <UploadCloud className="w-12 h-12 text-slate-600 mx-auto" />
-                <h4 className="text-base font-semibold text-white">
-                  Przeciągnij plik tekstowy, PDF lub JSON
-                </h4>
-                <p className="text-xs text-slate-400">
-                  Obsługiwane formaty: .txt, .md, .pdf, .json (eksporty czatów) do 25 MB.
-                </p>
-                <div className="pt-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setPasteTitle("Przykładowy zaimportowany dokument");
-                      setPasteContent("Przykładowa treść zaimportowana z pliku do analizy.");
-                      setActiveTab("paste");
-                    }}
-                    className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium"
-                  >
-                    Wczytaj przykładowy plik tekstowy
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Notatka głosowa */}
-            {activeTab === "voice" && (
-              <div className="border border-slate-800 rounded-2xl p-8 text-center space-y-4 bg-slate-900/50">
-                <div className="w-16 h-16 rounded-full bg-alterja-blue/10 border border-alterja-blue/30 flex items-center justify-center text-alterja-blue mx-auto">
-                  <Mic className="w-8 h-8" />
-                </div>
-                <h4 className="text-base font-semibold text-white">Krótka notatka głosowa</h4>
-                <p className="text-xs text-slate-400 max-w-md mx-auto">
-                  Nagraj dobrowolną refleksję. Dźwięk zostanie przetworzony przez neuronowy silnik
-                  transkrypcji z podziałem na mówców (*speaker diarization*).
-                </p>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPasteTitle("Transkrypcja notatki głosowej z 27 września");
-                    setPasteContent(
-                      "Podjąłem decyzję o pełnym skupieniu na jakości architektury danych. Uważam, że bezpieczeństwo i izolacja bazy to fundament każdego systemu memoratywnego."
-                    );
-                    setActiveTab("paste");
-                  }}
-                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-alterja-blue to-alterja-purple text-white text-xs font-medium shadow-md"
-                >
-                  Symuluj nagranie notatki głosowej
-                </button>
-              </div>
-            )}
+        {/* Panel dodawania źródła */}
+        <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-card space-y-6">
+          <div className="flex items-center gap-2 border-b border-slate-100 pb-4">
+            <button
+              onClick={() => setActiveTab("paste")}
+              className={`px-4 py-2 rounded-xl text-xs font-medium transition-all ${
+                activeTab === "paste" ? "bg-slate-950 text-white" : "text-slate-600 hover:bg-slate-100"
+              }`}
+            >
+              Wklej tekst lub notatkę
+            </button>
+            <button
+              onClick={() => setActiveTab("upload")}
+              className={`px-4 py-2 rounded-xl text-xs font-medium transition-all ${
+                activeTab === "upload" ? "bg-slate-950 text-white" : "text-slate-600 hover:bg-slate-100"
+              }`}
+            >
+              Prześlij plik (PDF, TXT, MD)
+            </button>
+            <button
+              onClick={() => setActiveTab("voice")}
+              className={`px-4 py-2 rounded-xl text-xs font-medium transition-all ${
+                activeTab === "voice" ? "bg-slate-950 text-white" : "text-slate-600 hover:bg-slate-100"
+              }`}
+            >
+              Nagraj głos
+            </button>
           </div>
 
-          {/* Modal / Ekran podglądu importu */}
-          {previewData && (
-            <div className="p-6 rounded-2xl glass-panel border border-alterja-blue/40 shadow-xl space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-                <h3 className="text-base font-bold text-white flex items-center space-x-2">
-                  <FileCheck className="w-5 h-5 text-emerald-400" />
-                  <span>Podgląd i potwierdzenie importu</span>
-                </h3>
-                <span className="text-xs text-slate-400">{previewData.wordCount} słów</span>
+          {activeTab === "paste" && (
+            <form onSubmit={handlePreview} className="space-y-4">
+              <div>
+                <label className="block text-xs font-mono text-slate-600 mb-1">Tytuł źródła lub kontekst</label>
+                <input
+                  type="text"
+                  required
+                  value={pasteTitle}
+                  onChange={(e) => setPasteTitle(e.target.value)}
+                  placeholder="np. Dziennik przemyśleń o architekturze oprogramowania"
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-alterja-blue"
+                />
               </div>
 
               <div>
-                <span className="text-xs text-slate-400 block mb-1">Tytuł źródła:</span>
-                <div className="text-sm font-semibold text-white">{previewData.title}</div>
+                <label className="block text-xs font-mono text-slate-600 mb-1">Treść tekstu do analizy</label>
+                <textarea
+                  rows={6}
+                  required
+                  value={pasteContent}
+                  onChange={(e) => setPasteContent(e.target.value)}
+                  placeholder="Wklej surowy tekst notatek, eseju, korespondencji..."
+                  className="w-full p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-alterja-blue font-mono leading-relaxed"
+                />
               </div>
 
-              <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300 leading-relaxed max-h-40 overflow-y-auto">
-                {previewData.content}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                <label className="flex items-start gap-3 p-3.5 rounded-2xl bg-slate-50 border border-slate-200 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isThirdParty}
+                    onChange={(e) => setIsThirdParty(e.target.checked)}
+                    className="mt-0.5 rounded text-alterja-blue"
+                  />
+                  <div className="text-xs text-slate-700">
+                    <span className="font-semibold text-slate-900 block">Treść osób trzecich</span>
+                    Zaznacz, jeśli tekst zawiera wypowiedzi innych osób, aby odizolować je od Twojej tożsamości.
+                  </div>
+                </label>
+
+                <label className="flex items-start gap-3 p-3.5 rounded-2xl bg-slate-50 border border-slate-200 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isSyntheticAi}
+                    onChange={(e) => setIsSyntheticAi(e.target.checked)}
+                    className="mt-0.5 rounded text-alterja-blue"
+                  />
+                  <div className="text-xs text-slate-700">
+                    <span className="font-semibold text-slate-900 block">Zawartość generowana przez AI</span>
+                    Oznacz syntetyczny tekst, aby model nie uczył się wtórnych halucynacji.
+                  </div>
+                </label>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 text-xs">
-                <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
-                  <span className="text-slate-400 block">Autorstwo:</span>
-                  <span className="font-semibold text-white">
-                    {previewData.isThirdParty ? "Osoba trzecia (wykluczona ze stylu)" : "Właściciel profilu"}
-                  </span>
-                </div>
-                <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
-                  <span className="text-slate-400 block">Charakter treści:</span>
-                  <span className="font-semibold text-white">
-                    {previewData.isSyntheticAi ? "Syntetyczna AI" : "Autentyczny materiał"}
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex justify-end space-x-3 pt-2">
+              <div className="pt-2 flex justify-end">
                 <button
-                  type="button"
-                  onClick={() => setPreviewData(null)}
-                  className="px-4 py-2 rounded-xl text-xs text-slate-400 hover:text-white"
+                  type="submit"
+                  className="px-6 py-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 text-white text-xs font-medium transition-all shadow-sm"
                 >
-                  Wróć do edycji
-                </button>
-                <button
-                  type="button"
-                  onClick={handleConfirmImport}
-                  className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center space-x-1.5"
-                >
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>Zatwierdź i włącz do analizy</span>
+                  Generuj podgląd importu
                 </button>
               </div>
+            </form>
+          )}
+
+          {activeTab === "upload" && (
+            <div className="p-12 rounded-3xl border-2 border-dashed border-slate-200 text-center space-y-3">
+              <UploadCloud className="w-10 h-10 text-slate-400 mx-auto" />
+              <div className="text-xs text-slate-700">
+                <span className="font-semibold text-slate-900 block text-sm">Przeciągnij i upuść pliki</span>
+                Obsługiwane formaty: Markdown, TXT, PDF (do 25 MB)
+              </div>
+              <button
+                onClick={() => {
+                  setPasteTitle("Dokument zaimportowany z pliku");
+                  setPasteContent("Przykładowa treść wyekstrahowana z zaimportowanego pliku dokumentu.");
+                  setActiveTab("paste");
+                }}
+                className="px-4 py-2 rounded-xl bg-white border border-slate-200 text-xs font-medium text-slate-800 hover:bg-slate-50 shadow-sm"
+              >
+                Wybierz plik z dysku
+              </button>
+            </div>
+          )}
+
+          {activeTab === "voice" && (
+            <div className="p-12 rounded-3xl border-2 border-dashed border-slate-200 text-center space-y-3">
+              <Mic className="w-10 h-10 text-alterja-blue mx-auto" />
+              <div className="text-xs text-slate-700">
+                <span className="font-semibold text-slate-900 block text-sm">Transkrypcja mowy na żywo</span>
+                Nagranie audio z detekcją mówców i automatyczną eliminacją osób trzecich
+              </div>
+              <button
+                onClick={() => {
+                  setPasteTitle("Notatka głosowa");
+                  setPasteContent("Nagranie: Ważne jest, abyśmy w architekturze zawsze oddzielali domenę od infrastruktury.");
+                  setActiveTab("paste");
+                }}
+                className="px-5 py-2.5 rounded-xl bg-alterja-blue hover:bg-blue-700 text-white text-xs font-medium shadow-sm"
+              >
+                Rozpocznij nagrywanie
+              </button>
             </div>
           )}
         </div>
 
-        {/* Prawa kolumna: Lista aktywnych źródeł */}
-        <div className="space-y-6">
-          <div className="glass-panel rounded-2xl p-6 border border-alterja-border">
-            <h3 className="text-base font-semibold text-white mb-4">
-              Zapisane materiały ({sources.length})
-            </h3>
-
-            {sources.length === 0 ? (
-              <p className="text-xs text-slate-500 text-center py-6">
-                Brak zapisanych źródeł w bazie.
-              </p>
-            ) : (
-              <div className="space-y-3">
-                {sources.map((src) => (
-                  <div
-                    key={src.id}
-                    className="p-3.5 rounded-xl bg-slate-900/70 border border-slate-800 flex flex-col justify-between space-y-2"
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <h4 className="text-xs font-semibold text-white leading-snug">{src.title}</h4>
-                      <button
-                        onClick={() => handleDeleteSource(src.id)}
-                        className="text-slate-500 hover:text-rose-400 transition-colors"
-                        title="Usuń źródło"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-
-                    <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-800/80">
-                      <span>Autor: {src.source_author || "Nieznany"}</span>
-                      <span>{src.size_bytes} B</span>
-                    </div>
-                  </div>
-                ))}
+        {/* Modal podglądu importu (Ingestion Preview) */}
+        {previewData && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm animate-in fade-in">
+            <div className="max-w-xl w-full bg-white rounded-3xl p-6 sm:p-8 space-y-5 shadow-2xl border border-slate-200">
+              <div className="space-y-1">
+                <span className="text-[10px] font-mono uppercase text-alterja-blue font-bold">Kwalifikacja danych</span>
+                <h3 className="text-xl font-semibold text-slate-950">Podgląd importu źródła</h3>
               </div>
-            )}
+
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2 text-xs">
+                <div className="flex justify-between font-mono text-slate-500">
+                  <span>Tytuł: {previewData.title}</span>
+                  <span>Liczba słów: {previewData.wordCount}</span>
+                </div>
+                <p className="text-slate-800 line-clamp-4 font-mono leading-relaxed">{previewData.content}</p>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button
+                  onClick={() => setPreviewData(null)}
+                  className="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                >
+                  Odrzuć
+                </button>
+                <button
+                  onClick={handleConfirmImport}
+                  className="px-5 py-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 text-white text-xs font-medium shadow-sm"
+                >
+                  Zatwierdź i włącz do pamięci
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+        )}
+
+        {/* Lista podłączonych źródeł */}
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-slate-950">Podłączone źródła wiedzy</h2>
+            <span className="text-xs font-mono text-slate-500">{sources.length} aktywnych źródeł</span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {sources.map((src) => (
+              <div
+                key={src.id}
+                className="p-5 rounded-2xl bg-white border border-slate-200 shadow-card hover:shadow-float transition-all flex flex-col justify-between space-y-3"
+              >
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-slate-950">{src.title}</span>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-600">
+                      {src.is_synthetic_ai ? "Treść AI" : src.is_third_party ? "Osoba trzecia" : "Tekst własny"}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                    {src.raw_content || "Brak treści źródłowej"}
+                  </p>
+                </div>
+
+                <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-mono">
+                  <span>{new Date(src.created_at).toLocaleDateString("pl-PL")}</span>
+                  <button
+                    onClick={() => handleDelete(src.id)}
+                    className="p-1.5 rounded-lg hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition-colors"
+                    title="Usuń źródło"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      </main>
     </div>
   );
 }

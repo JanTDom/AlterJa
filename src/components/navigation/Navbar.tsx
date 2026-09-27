@@ -5,16 +5,19 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
+  Compass,
   Brain,
   MessageSquare,
   Sparkles,
-  Shield,
   FileText,
-  Key,
+  SlidersHorizontal,
+  Shield,
   Archive,
+  Terminal,
+  Activity,
   Menu,
   X,
-  Compass,
+  ExternalLink,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -23,148 +26,104 @@ const NAV_ITEMS = [
   { href: "/chat", label: "Rozmowa", icon: MessageSquare },
   { href: "/interview", label: "Wywiad", icon: Sparkles },
   { href: "/sources", label: "Źródła", icon: FileText },
-  { href: "/style-lab", label: "Styl i decyzje", icon: Sparkles },
+  { href: "/style-lab", label: "Styl i decyzje", icon: SlidersHorizontal },
   { href: "/privacy", label: "Prywatność", icon: Shield },
   { href: "/legacy", label: "Spuścizna", icon: Archive },
-  { href: "/developer", label: "API", icon: Key },
+  { href: "/developer", label: "API", icon: Terminal },
+  { href: "/ops", label: "Status", icon: Activity },
 ];
 
 export function Navbar() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const isPublicPage = pathname === "/" || pathname?.startsWith("/auth");
-
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-alterja-border/60 bg-alterja-darkest/90 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        {/* Logo */}
-        <Link href="/" className="flex items-center space-x-3 group">
-          <div className="relative h-9 w-32 transition-transform duration-200 group-hover:scale-105">
+    <header className="sticky top-0 z-50 w-full glass-header">
+      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        {/* Logo marki - Wyraziste i bijące po oczach na jasnym tle */}
+        <Link href="/" className="flex items-center gap-3.5 group py-2">
+          <div className="relative h-11 sm:h-12 w-36 sm:w-44 transition-transform duration-300 ease-out group-hover:scale-[1.02]">
             <Image
               src="/alterja-logo.png"
-              alt="AlterJa logo"
+              alt="AlterJa"
               fill
-              className="object-contain object-left"
               priority
+              className="object-contain object-left drop-shadow-sm"
             />
           </div>
+          <span className="hidden xl:inline-block text-[10px] font-mono tracking-wider uppercase px-2 py-0.5 rounded border border-slate-200 bg-slate-100 text-slate-600 font-medium">
+            alterja.pl
+          </span>
         </Link>
 
         {/* Nawigacja desktopowa */}
-        {!isPublicPage ? (
-          <nav className="hidden lg:flex items-center space-x-1" aria-label="Główne menu">
-            {NAV_ITEMS.map((item) => {
-              const Icon = item.icon;
-              const isActive = pathname === item.href;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                    isActive
-                      ? "bg-alterja-blue/15 text-alterja-blue border border-alterja-blue/30"
-                      : "text-slate-300 hover:text-white hover:bg-slate-800/50"
-                  }`}
-                >
-                  <Icon className="h-4 w-4" />
-                  <span>{item.label}</span>
-                </Link>
-              );
-            })}
-          </nav>
-        ) : (
-          <nav className="hidden md:flex items-center space-x-6">
-            <Link
-              href="#idea"
-              className="text-sm text-slate-300 hover:text-white transition-colors"
-            >
-              Idea
-            </Link>
-            <Link
-              href="#memory"
-              className="text-sm text-slate-300 hover:text-white transition-colors"
-            >
-              Siedem warstw
-            </Link>
-            <Link
-              href="#demo"
-              className="text-sm text-slate-300 hover:text-white transition-colors"
-            >
-              Demonstracja
-            </Link>
-            <Link
-              href="#security"
-              className="text-sm text-slate-300 hover:text-white transition-colors"
-            >
-              Bezpieczeństwo
-            </Link>
-            <Link
-              href="/dashboard"
-              className="text-sm font-medium px-4 py-2 rounded-lg bg-gradient-to-r from-alterja-blue to-alterja-purple text-white shadow-lg shadow-alterja-blue/20 hover:opacity-95 transition-opacity"
-            >
-              Otwórz aplikację
-            </Link>
-          </nav>
-        )}
+        <nav className="hidden lg:flex items-center gap-1">
+          {NAV_ITEMS.map((item) => {
+            const Icon = item.icon;
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`relative px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 flex items-center gap-1.5 ${
+                  isActive
+                    ? "bg-slate-900 text-white shadow-sm"
+                    : "text-slate-600 hover:text-slate-950 hover:bg-slate-100/80"
+                }`}
+              >
+                <Icon className={`w-3.5 h-3.5 ${isActive ? "text-blue-300" : "text-slate-400 group-hover:text-slate-600"}`} />
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
+        </nav>
 
-        {/* Prawy panel - status profilu */}
-        {!isPublicPage && (
-          <div className="hidden sm:flex items-center space-x-3">
-            <div className="flex items-center space-x-2 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span>Model aktywny</span>
-            </div>
-          </div>
-        )}
+        {/* Akcje prawej strony */}
+        <div className="hidden sm:flex items-center gap-3">
+          <Link
+            href="/chat"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-alterja-blue hover:bg-blue-700 text-xs font-medium text-white shadow-sm transition-all duration-150 hover:shadow"
+          >
+            <MessageSquare className="w-3.5 h-3.5" />
+            <span>Otwórz rozmowę</span>
+          </Link>
+        </div>
 
-        {/* Przycisk mobile */}
-        <div className="flex lg:hidden">
+        {/* Przycisk mobile menu */}
+        <div className="flex lg:hidden items-center gap-2">
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
-            aria-label={mobileMenuOpen ? "Zamknij menu" : "Otwórz menu"}
+            className="p-2 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+            aria-label="Przełącz menu"
           >
-            {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
       </div>
 
       {/* Menu mobilne */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-b border-alterja-border bg-alterja-dark px-4 pt-2 pb-4 space-y-1">
-          {!isPublicPage ? (
-            NAV_ITEMS.map((item) => {
-              const Icon = item.icon;
-              const isActive = pathname === item.href;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center space-x-3 px-3 py-2.5 rounded-lg text-base font-medium ${
-                    isActive
-                      ? "bg-alterja-blue/15 text-alterja-blue border border-alterja-blue/30"
-                      : "text-slate-300 hover:bg-slate-800"
-                  }`}
-                >
-                  <Icon className="h-5 w-5" />
-                  <span>{item.label}</span>
-                </Link>
-              );
-            })
-          ) : (
-            <div className="flex flex-col space-y-3 pt-2">
+        <div className="lg:hidden border-b border-slate-200 bg-white/98 backdrop-blur-xl px-4 py-4 space-y-1 animate-in slide-in-from-top-2">
+          {NAV_ITEMS.map((item) => {
+            const Icon = item.icon;
+            const isActive = pathname === item.href;
+            return (
               <Link
-                href="/dashboard"
+                key={item.href}
+                href={item.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="w-full text-center px-4 py-2.5 rounded-lg bg-alterja-blue text-white font-medium"
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium transition-colors ${
+                  isActive
+                    ? "bg-slate-900 text-white"
+                    : "text-slate-700 hover:bg-slate-100"
+                }`}
               >
-                Otwórz aplikację
+                <Icon className={`w-4 h-4 ${isActive ? "text-blue-300" : "text-slate-400"}`} />
+                <span>{item.label}</span>
               </Link>
-            </div>
-          )}
+            );
+          })}
         </div>
       )}
     </header>
@@ -172,4 +131,3 @@ export function Navbar() {
 }
 
 export default Navbar;
-

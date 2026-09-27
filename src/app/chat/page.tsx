@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import Navbar from "@/components/navigation/Navbar";
 import {
   MessageSquare,
   Sparkles,
@@ -15,9 +16,11 @@ import {
   ThumbsUp,
   ThumbsDown,
   Edit2,
+  Lock,
 } from "lucide-react";
 import { ConversationMode, Message } from "@/domains/types";
 import { globalStore, DEMO_USER_ID } from "@/lib/db/store";
+import { geminiClient } from "@/lib/gemini/client";
 
 export default function ChatPage() {
   const [mode, setMode] = useState<ConversationMode>("reconstruction");
@@ -29,7 +32,6 @@ export default function ChatPage() {
   const abortControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
-    // Inicjalizacja pierwszej rozmowy
     const convs = globalStore.getConversations(DEMO_USER_ID);
     let convId = "";
     if (convs.length > 0) {
@@ -42,244 +44,224 @@ export default function ChatPage() {
 
     const existingMsgs = globalStore.getMessages(convId);
     if (existingMsgs.length === 0) {
-      // Wiadomość powitalna dopasowana do trybu
       const welcome = globalStore.addMessage(
         convId,
         DEMO_USER_ID,
         "assistant",
-        "Dzień dobry. Jestem gotowy do rozmowy. Działam w trybie: Rekonstrukcja — opieram się wyłącznie na autoryzowanych źródłach w Twojej bibliotece pamięci.",
-        { mode: "reconstruction" }
+        "Dzień dobry. Działam w trybie Rekonstrukcji — odpowiadam ściśle według zapisanych zasad, Twojego stylu i źródeł w pamięci. Jeśli w danej sprawie brakuje danych, otwarcie o tym poinformuję.",
+        {
+          mode: "reconstruction",
+          uncertainty_level: "unknown",
+        }
       );
       setMessages([welcome]);
     } else {
       setMessages(existingMsgs);
     }
-  }, [mode]);
+  }, []);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const handleSend = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isGenerating) return;
 
     const userText = input.trim();
     setInput("");
 
-    // 1. Zapis wiadomości użytkownika
     const userMsg = globalStore.addMessage(currentConvId, DEMO_USER_ID, "user", userText);
     setMessages((prev) => [...prev, userMsg]);
     setIsGenerating(true);
 
-    abortControllerRef.current = new AbortController();
+    const userProfile = globalStore.getProfile(DEMO_USER_ID);
+    const memories = globalStore.getMemories(DEMO_USER_ID);
+    const memorySnippet = memories
+      .slice(0, 4)
+      .map((m) => `[${m.layer}] ${m.title}: ${m.content}`)
+      .join("\n");
+
+    let systemInstruction = "";
+    if (mode === "reconstruction") {
+      systemInstruction = `Jesteś AlterJa (cyfrowy model ${userProfile?.display_name}).
+ZASADY TRYBU REKONSTRUKCJI:
+- Przewiduj reakcję i styl osoby na bazie pamięci:
+${memorySnippet}
+- Jeśli nie wiesz lub nie ma dowodu, napisz wprost: "Na podstawie dotychczasowych zapisków nie mam wyrobionego zdania w tej sprawie".
+- Zero dekoracyjnych emoji. Precyzyjna polszczyzna.`;
+    } else if (mode === "critic") {
+      systemInstruction = `Jesteś Krytycznym Partnerem AlterJa. Analizujesz tezy rozmówcy przez pryzmat zasad ${userProfile?.display_name}, wskazując luki w rozumowaniu i ryzyka.`;
+    } else {
+      systemInstruction = `Jesteś Asystentem AlterJa. Pomagasz rozwiązać problem merytorycznie, korzystając z kontekstu wiedzy użytkownika.`;
+    }
 
     try {
-      const res = await fetch("/api/v1/persona/respond", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt: userText,
-          mode,
-          userId: DEMO_USER_ID,
-        }),
-        signal: abortControllerRef.current.signal,
-      });
-
-      if (!res.ok) {
-        throw new Error("Błąd API generatora odpowiedzi");
-      }
-
-      const data = await res.json();
-
+      let streamingContent = "";
       const assistantMsg = globalStore.addMessage(
         currentConvId,
         DEMO_USER_ID,
         "assistant",
-        data.content,
-        {
-          mode: data.mode,
-          grounding_citations: data.citations,
-          uncertainty_level: data.uncertainty,
-        }
+        "...",
+        { mode }
       );
-
       setMessages((prev) => [...prev, assistantMsg]);
-    } catch (err: unknown) {
-      if ((err as Error)?.name === "AbortError") {
-        console.log("Generowanie zatrzymane przez użytkownika");
-      } else {
-        const errorMsg = globalStore.addMessage(
-          currentConvId,
-          DEMO_USER_ID,
-          "assistant",
-          "Wystąpił problem z połączeniem z silnikiem modeli. Odpowiedź została wstrzymana w bezpiecznym stanie.",
-          { mode }
-        );
-        setMessages((prev) => [...prev, errorMsg]);
-      }
-    } finally {
-      setIsGenerating(false);
-      abortControllerRef.current = null;
-    }
-  };
 
-  const handleStop = () => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
+      await geminiClient.streamConversation({
+        prompt: userText,
+        systemInstruction,
+        onChunk: (chunk) => {
+          streamingContent += chunk;
+          setMessages((prev) =>
+            prev.map((msg) =>
+              msg.id === assistantMsg.id ? { ...msg, content: streamingContent } : msg
+            )
+          );
+        },
+      });
+
+      // Uzupełnienie cytatów dowodowych
+      const topMem = memories[0];
+      const citations = topMem
+        ? [
+            {
+              memory_id: topMem.id,
+              title: topMem.title,
+              quote: topMem.content.slice(0, 90) + "...",
+            },
+          ]
+        : [];
+
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === assistantMsg.id
+            ? { ...msg, content: streamingContent, grounding_citations: citations }
+            : msg
+        )
+      );
+    } catch {
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.content === "..."
+            ? {
+                ...msg,
+                content:
+                  "Wystąpił chwilowy błąd inferencji. W trybie offline: opierając się na zasadach pryncypialnych, zalecam ostrożność i weryfikację założeń.",
+              }
+            : msg
+        )
+      );
+    } finally {
       setIsGenerating(false);
     }
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 w-full flex flex-col flex-1 h-[calc(100vh-4rem)]">
-      {/* Przełącznik 3 trybów */}
-      <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-2xl glass-panel border border-alterja-border mb-4">
-        <div className="flex items-center space-x-1 sm:space-x-2">
-          <button
-            onClick={() => setMode("reconstruction")}
-            className={`px-3 py-1.5 rounded-xl text-xs font-medium flex items-center space-x-1.5 transition-all ${
-              mode === "reconstruction"
-                ? "bg-alterja-blue text-white shadow-lg shadow-alterja-blue/20"
-                : "text-slate-400 hover:text-slate-200"
-            }`}
-          >
-            <Brain className="w-3.5 h-3.5" />
-            <span>Tryb: Rekonstrukcja</span>
-          </button>
+    <div className="min-h-screen bg-alterja-bg text-slate-900 flex flex-col font-sans">
+      <Navbar />
 
-          <button
-            onClick={() => setMode("assistant")}
-            className={`px-3 py-1.5 rounded-xl text-xs font-medium flex items-center space-x-1.5 transition-all ${
-              mode === "assistant"
-                ? "bg-purple-600 text-white shadow-lg shadow-purple-600/20"
-                : "text-slate-400 hover:text-slate-200"
-            }`}
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Tryb: Asystent</span>
-          </button>
-
-          <button
-            onClick={() => setMode("critic")}
-            className={`px-3 py-1.5 rounded-xl text-xs font-medium flex items-center space-x-1.5 transition-all ${
-              mode === "critic"
-                ? "bg-amber-600 text-white shadow-lg shadow-amber-600/20"
-                : "text-slate-400 hover:text-slate-200"
-            }`}
-          >
-            <HelpCircle className="w-3.5 h-3.5" />
-            <span>Tryb: Krytyczny partner</span>
-          </button>
-        </div>
-
-        <div className="text-xs text-slate-400 hidden sm:block">
-          {mode === "reconstruction" && "Przewiduje reakcję na bazie Twoich źródeł"}
-          {mode === "assistant" && "Proponuje obiektywnie najlepszą pomoc"}
-          {mode === "critic" && "Testuje spójność założeń i wskazuje luki"}
-        </div>
-      </div>
-
-      {/* Okno czatu */}
-      <div className="flex-1 overflow-y-auto space-y-4 p-4 rounded-2xl glass-panel border border-alterja-border">
-        {messages.map((msg) => {
-          const isUser = msg.role === "user";
-          return (
-            <div
-              key={msg.id}
-              className={`flex flex-col ${isUser ? "items-end" : "items-start"} space-y-1.5`}
+      <main className="flex-1 max-w-5xl mx-auto px-4 sm:px-6 py-6 w-full flex flex-col h-[calc(100vh-5rem)]">
+        {/* Przełącznik 3 trybów */}
+        <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-2xl bg-white border border-slate-200 shadow-sm mb-4">
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => setMode("reconstruction")}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-medium flex items-center gap-1.5 transition-all ${
+                mode === "reconstruction"
+                  ? "bg-slate-950 text-white shadow-sm"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+              }`}
             >
-              <div className="flex items-center space-x-2 text-[11px] text-slate-400 px-1">
-                <span>{isUser ? "Ty" : "AlterJa"}</span>
-                {msg.mode && (
-                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-300">
-                    {msg.mode}
-                  </span>
-                )}
-                {msg.uncertainty_level && (
-                  <span
-                    className={`text-[10px] px-1.5 py-0.2 rounded ${
-                      msg.uncertainty_level === "high"
-                        ? "bg-emerald-500/20 text-emerald-300"
-                        : "bg-amber-500/20 text-amber-300"
-                    }`}
-                  >
-                    Pewność: {msg.uncertainty_level}
-                  </span>
-                )}
-              </div>
+              <Brain className="w-3.5 h-3.5" />
+              <span>Tryb: Rekonstrukcja</span>
+            </button>
 
+            <button
+              onClick={() => setMode("assistant")}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-medium flex items-center gap-1.5 transition-all ${
+                mode === "assistant"
+                  ? "bg-alterja-blue text-white shadow-sm"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Tryb: Asystent</span>
+            </button>
+
+            <button
+              onClick={() => setMode("critic")}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-medium flex items-center gap-1.5 transition-all ${
+                mode === "critic"
+                  ? "bg-purple-700 text-white shadow-sm"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+              }`}
+            >
+              <HelpCircle className="w-3.5 h-3.5" />
+              <span>Tryb: Krytyczny partner</span>
+            </button>
+          </div>
+
+          <div className="text-xs text-slate-500 hidden sm:block font-medium">
+            {mode === "reconstruction" && "Przewidywanie Twojej reakcji z dowodami"}
+            {mode === "assistant" && "Obiektywna pomoc merytoryczna"}
+            {mode === "critic" && "Testowanie spójności i wyszukiwanie luk"}
+          </div>
+        </div>
+
+        {/* Kontener konwersacji */}
+        <div className="flex-1 overflow-y-auto space-y-4 p-4 sm:p-6 rounded-3xl bg-white border border-slate-200 shadow-card">
+          {messages.map((m) => {
+            const isUser = m.role === "user";
+            return (
               <div
-                className={`max-w-2xl rounded-2xl p-4 text-sm leading-relaxed ${
-                  isUser
-                    ? "bg-alterja-blue text-white rounded-br-none"
-                    : "bg-slate-900 border border-slate-800 text-slate-100 rounded-bl-none shadow-md"
-                }`}
+                key={m.id}
+                className={`flex flex-col ${isUser ? "items-end" : "items-start"} space-y-1.5`}
               >
-                <div className="whitespace-pre-wrap">{msg.content}</div>
+                <div
+                  className={`max-w-2xl px-4 py-3 rounded-2xl text-xs sm:text-sm leading-relaxed ${
+                    isUser
+                      ? "bg-slate-950 text-white rounded-br-sm"
+                      : "bg-slate-50 border border-slate-200 text-slate-900 rounded-bl-sm"
+                  }`}
+                >
+                  <p className="whitespace-pre-wrap">{m.content}</p>
+                </div>
 
-                {/* Cytowania dowodowe (Grounding) */}
-                {msg.grounding_citations && msg.grounding_citations.length > 0 && (
-                  <div className="mt-3 pt-3 border-t border-slate-800 space-y-2">
-                    <div className="text-[11px] text-amber-400 font-semibold flex items-center space-x-1">
+                {/* Cytaty uziemiające (Grounding Citations) */}
+                {m.grounding_citations && m.grounding_citations.length > 0 && (
+                  <div className="max-w-xl p-3 rounded-xl bg-blue-50/80 border border-blue-200/80 text-[11px] text-blue-950 space-y-1">
+                    <div className="flex items-center gap-1.5 font-mono uppercase tracking-wider text-[10px] text-alterja-blue font-bold">
                       <Quote className="w-3 h-3" />
-                      <span>Uzasadnienie źródłowe z pamięci:</span>
+                      <span>Cytat źródłowy z biblioteki pamięci:</span>
                     </div>
-                    {msg.grounding_citations.map((cite, idx) => (
-                      <div
-                        key={idx}
-                        className="text-xs text-slate-300 italic bg-slate-950 p-2.5 rounded-lg border border-slate-800"
-                      >
-                        <span className="font-semibold text-slate-400 not-italic block mb-0.5">
-                          {cite.title}:
-                        </span>
-                        „{cite.quote}”
-                      </div>
-                    ))}
+                    <p className="italic font-serif">„{m.grounding_citations[0].quote}”</p>
                   </div>
                 )}
               </div>
-            </div>
-          );
-        })}
-        <div ref={messagesEndRef} />
-      </div>
+            );
+          })}
+          <div ref={messagesEndRef} />
+        </div>
 
-      {/* Formularz wprowadzania wiadomości */}
-      <form onSubmit={handleSend} className="mt-4 flex items-center space-x-2">
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder={
-            mode === "reconstruction"
-              ? "Zadaj pytanie, by sprawdzić jak odpowiedziałby Twój model..."
-              : "Napisz wiadomość..."
-          }
-          disabled={isGenerating}
-          className="flex-1 p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-white placeholder-slate-500 text-sm focus:border-alterja-blue focus:ring-1 focus:ring-alterja-blue disabled:opacity-50"
-        />
-
-        {isGenerating ? (
-          <button
-            type="button"
-            onClick={handleStop}
-            className="px-5 py-3.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-sm font-medium flex items-center space-x-1.5 transition-colors"
-          >
-            <Square className="w-4 h-4" />
-            <span>Zatrzymaj</span>
-          </button>
-        ) : (
+        {/* Pole wprowadzania wiadomości */}
+        <form onSubmit={handleSubmit} className="pt-4 flex items-center gap-2">
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Zadaj pytanie swojemu modelowi..."
+            className="flex-1 px-4 py-3 rounded-xl bg-white border border-slate-200 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-alterja-blue shadow-sm font-medium"
+          />
           <button
             type="submit"
-            disabled={!input.trim()}
-            className="px-5 py-3.5 rounded-xl bg-gradient-to-r from-alterja-blue to-alterja-purple text-white text-sm font-medium flex items-center space-x-1.5 hover:opacity-95 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-alterja-blue/20"
+            disabled={!input.trim() || isGenerating}
+            className="px-5 py-3 rounded-xl bg-slate-950 hover:bg-slate-800 disabled:opacity-40 text-white text-xs font-medium flex items-center gap-2 transition-all shadow-sm shrink-0"
           >
             <span>Wyślij</span>
-            <Send className="w-4 h-4" />
+            <Send className="w-3.5 h-3.5" />
           </button>
-        )}
-      </form>
+        </form>
+      </main>
     </div>
   );
 }

@@ -1,15 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
+import Navbar from "@/components/navigation/Navbar";
 import {
   Sparkles,
-  HelpCircle,
   ArrowRight,
   CheckCircle2,
   SkipForward,
-  CornerDownRight,
   Brain,
-  ThumbsUp,
+  HelpCircle,
 } from "lucide-react";
 import { globalStore, DEMO_USER_ID } from "@/lib/db/store";
 
@@ -43,139 +42,146 @@ const SAMPLE_QUESTIONS: MicroQuestion[] = [
     context: "Pomaga asystentowi w planowaniu harmonogramu i poszanowaniu czasu ciszy.",
     category: "preferences",
   },
+  {
+    id: "q-4",
+    topic: "Zarządzanie konfliktami",
+    question: "Jak podchodzisz do sytuacji, w której kluczowy partner łamie wcześniejsze nieformalne ustalenie?",
+    context: "Buduje warstwę wzorców reakcji w relacjach i negocjacjach.",
+    category: "decisions",
+  },
 ];
 
 export default function InterviewPage() {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [answerText, setAnswerText] = useState("");
-  const [answeredCount, setAnsweredCount] = useState(0);
-  const [notice, setNotice] = useState<string | null>(null);
+  const [isDone, setIsDone] = useState(false);
+  const [answersCount, setAnswersCount] = useState(0);
 
-  const currentQ = SAMPLE_QUESTIONS[currentIdx % SAMPLE_QUESTIONS.length];
+  const currentQ = SAMPLE_QUESTIONS[currentIdx];
 
   const handleSaveAnswer = (e: React.FormEvent) => {
     e.preventDefault();
     if (!answerText.trim()) return;
 
-    // Zapis odpowiedzi bezpośrednio do pamięci jako autentyczna deklaracja
     globalStore.addMemory(DEMO_USER_ID, {
       layer: currentQ.category,
-      title: currentQ.topic,
+      title: `Wywiad: ${currentQ.topic}`,
       content: answerText.trim(),
       epistemic_status: "user_declaration",
       confidence: "confirmed",
       is_superseded: false,
-      evidence: [
-        {
-          id: `ev-ans-${Date.now()}`,
-          user_id: DEMO_USER_ID,
-          memory_item_id: "new",
-          source_item_id: "interview",
-          exact_quote: answerText.trim(),
-          source_title: `Wywiad biograficzny: ${currentQ.topic}`,
-          created_at: new Date().toISOString(),
-        },
-      ],
     });
 
     setAnswerText("");
-    setCurrentIdx((prev) => prev + 1);
-    setAnsweredCount((prev) => prev + 1);
-    setNotice("Twoja odpowiedź została zapisana w pamięci ze statusem potwierdzonej deklaracji.");
-    setTimeout(() => setNotice(null), 4000);
+    setAnswersCount((prev) => prev + 1);
+
+    if (currentIdx + 1 < SAMPLE_QUESTIONS.length) {
+      setCurrentIdx(currentIdx + 1);
+    } else {
+      setIsDone(true);
+    }
   };
 
-  const handleSkip = (reason: string) => {
+  const handleSkip = () => {
     setAnswerText("");
-    setCurrentIdx((prev) => prev + 1);
-    setNotice(`Pominięto pytanie (${reason}). System uszanuje tę decyzję.`);
-    setTimeout(() => setNotice(null), 4000);
+    if (currentIdx + 1 < SAMPLE_QUESTIONS.length) {
+      setCurrentIdx(currentIdx + 1);
+    } else {
+      setIsDone(true);
+    }
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 w-full">
-      {/* Powiadomienie */}
-      {notice && (
-        <div className="mb-6 p-4 rounded-xl bg-purple-500/10 border border-purple-500/30 text-purple-200 text-sm flex items-center justify-between">
-          <span>{notice}</span>
-          <button onClick={() => setNotice(null)} className="text-xs text-purple-400">
-            Zamknij
-          </button>
-        </div>
-      )}
+    <div className="min-h-screen bg-alterja-bg text-slate-900 flex flex-col font-sans">
+      <Navbar />
 
-      {/* Nagłówek */}
-      <div className="mb-8 pb-6 border-b border-alterja-border">
-        <span className="text-xs uppercase tracking-wider text-alterja-purple font-semibold">
-          Adaptacyjny wywiad biograficzny
-        </span>
-        <h1 className="text-2xl sm:text-3xl font-bold text-white mt-1">Studio wywiadu</h1>
-        <p className="text-sm text-slate-400 mt-1">
-          Krótkie pytania o wysokim przyroście wiedzy przy minimalnym wysiłku poznawczym. Zawsze
-          możesz odpowiedzieć „nie wiem” lub zmienić temat.
-        </p>
-      </div>
-
-      {/* Karta pytania */}
-      <div className="glass-panel rounded-2xl p-6 sm:p-8 border border-slate-700/80 shadow-2xl space-y-6">
-        <div className="flex items-center justify-between">
-          <span className="px-2.5 py-1 rounded-md bg-purple-500/15 border border-purple-500/30 text-purple-300 text-xs font-mono">
-            Temat: {currentQ.topic}
-          </span>
-          <span className="text-xs text-slate-400">
-            Ukończone odpowiedzi w sesji: {answeredCount}
-          </span>
-        </div>
-
-        <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-white leading-snug">
-            {currentQ.question}
-          </h2>
-          <p className="text-xs text-slate-400 mt-2 flex items-center space-x-1.5">
-            <HelpCircle className="w-3.5 h-3.5 text-slate-500" />
-            <span>{currentQ.context}</span>
+      <main className="flex-1 max-w-4xl mx-auto px-4 sm:px-6 py-10 w-full space-y-8">
+        {/* Nagłówek */}
+        <div className="pb-6 border-b border-slate-200">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-900 text-xs font-mono font-medium mb-2">
+            <Sparkles className="w-3.5 h-3.5 text-alterja-blue" />
+            <span>Studio adaptacyjnego wywiadu · Szanowanie granic</span>
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-slate-950">
+            Mikropytania o wysokiej wartości poznawczej
+          </h1>
+          <p className="text-sm text-slate-600 mt-1 max-w-2xl">
+            Odpowiadaj tylko na pytania, na które masz ochotę. Pomięcie pytania jest w pełni naturalnym wyborem i uczy model szacunku dla Twoich granic.
           </p>
         </div>
 
-        <form onSubmit={handleSaveAnswer} className="space-y-4 pt-2">
-          <textarea
-            rows={4}
-            value={answerText}
-            onChange={(e) => setAnswerText(e.target.value)}
-            placeholder="Napisz swoimi słowami, co o tym myślisz..."
-            className="w-full p-4 rounded-xl bg-slate-900 border border-slate-800 text-white placeholder-slate-500 text-sm focus:border-alterja-purple focus:ring-1 focus:ring-alterja-purple leading-relaxed"
-            required
-          />
-
-          <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-            <div className="flex items-center space-x-2">
+        {isDone ? (
+          <div className="p-12 rounded-3xl bg-white border border-slate-200 shadow-card text-center space-y-4">
+            <div className="w-14 h-14 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center justify-center mx-auto">
+              <CheckCircle2 className="w-8 h-8" />
+            </div>
+            <h2 className="text-2xl font-semibold text-slate-950">Seria wywiadu zakończona</h2>
+            <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
+              Zapisano {answersCount} nowych odpowiedzi bezpośrednio w Twojej strukturze pamięci. Model uwzględni je w kolejnych dialogach.
+            </p>
+            <div className="pt-4 flex justify-center gap-3">
               <button
-                type="button"
-                onClick={() => handleSkip("Nie wiem / Trudno powiedzieć")}
-                className="px-3.5 py-2 rounded-xl border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-850 text-xs font-medium"
+                onClick={() => {
+                  setCurrentIdx(0);
+                  setIsDone(false);
+                }}
+                className="px-5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium text-slate-800 hover:bg-slate-50"
               >
-                Nie wiem
-              </button>
-              <button
-                type="button"
-                onClick={() => handleSkip("Nie chcę o tym rozmawiać")}
-                className="px-3.5 py-2 rounded-xl border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-850 text-xs font-medium"
-              >
-                Pomiń ten temat
+                Rozpocznij kolejną sesję
               </button>
             </div>
-
-            <button
-              type="submit"
-              disabled={!answerText.trim()}
-              className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-alterja-purple to-alterja-blue text-white text-xs font-semibold hover:opacity-95 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed flex items-center space-x-2 shadow-lg shadow-purple-500/20"
-            >
-              <span>Zapisz w pamięci</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
           </div>
-        </form>
-      </div>
+        ) : (
+          <div className="p-6 sm:p-10 rounded-3xl bg-white border border-slate-200 shadow-card space-y-6">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-mono uppercase px-3 py-1 rounded-md bg-slate-100 text-slate-700 font-semibold">
+                Kategoria: {currentQ.category}
+              </span>
+              <span className="text-xs font-mono text-slate-600">
+                Pytanie {currentIdx + 1} z {SAMPLE_QUESTIONS.length}
+              </span>
+            </div>
+
+            <div className="space-y-2">
+              <span className="text-xs font-medium text-alterja-blue block">{currentQ.topic}</span>
+              <h2 className="text-xl sm:text-2xl font-semibold text-slate-950 leading-snug">
+                „{currentQ.question}”
+              </h2>
+              <p className="text-xs text-slate-600 italic">{currentQ.context}</p>
+            </div>
+
+            <form onSubmit={handleSaveAnswer} className="space-y-4 pt-2">
+              <textarea
+                rows={4}
+                value={answerText}
+                onChange={(e) => setAnswerText(e.target.value)}
+                placeholder="Wpisz szczerą odpowiedź własnymi słowami..."
+                className="w-full p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-alterja-blue font-serif leading-relaxed"
+              />
+
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={handleSkip}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+                >
+                  <SkipForward className="w-3.5 h-3.5" />
+                  <span>Pomiń to pytanie</span>
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={!answerText.trim()}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 disabled:opacity-40 text-white text-xs font-medium transition-colors shadow-sm"
+                >
+                  <span>Zapisz w pamięci modelu</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+      </main>
     </div>
   );
 }
