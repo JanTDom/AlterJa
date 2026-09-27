@@ -1,5 +1,24 @@
 import type { Metadata, Viewport } from "next";
+import { Plus_Jakarta_Sans, Playfair_Display, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+
+const sans = Plus_Jakarta_Sans({
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-sans",
+  display: "swap",
+});
+
+const serif = Playfair_Display({
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-serif",
+  display: "swap",
+});
+
+const mono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "AlterJa — Kontrolowany cyfrowy model człowieka",
@@ -20,7 +39,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#F8F9FB",
+  themeColor: "#FAFBFD",
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
@@ -32,13 +51,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pl" className="scroll-smooth bg-alterja-bg">
-      <body className="min-h-screen bg-alterja-bg text-slate-900 flex flex-col font-sans antialiased selection:bg-alterja-accent/15 selection:text-alterja-accent">
+    <html lang="pl" className={`scroll-smooth ${sans.variable} ${serif.variable} ${mono.variable}`}>
+      <body className="min-h-screen bg-alterja-bg text-slate-900 flex flex-col font-sans antialiased selection:bg-alterja-blue/15 selection:text-alterja-blue">
         <main className="flex-1 flex flex-col">{children}</main>
-        <footer className="border-t border-slate-200 bg-white py-8 text-center text-xs text-slate-500">
+        <footer className="border-t border-slate-200/80 bg-white/70 backdrop-blur-md py-8 text-center text-xs text-slate-500">
           <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p>© 2026 AlterJa (alterja.pl). Wszelkie prawa zastrzeżone.</p>
-            <div className="flex items-center space-x-6 text-slate-600">
+            <p className="font-mono text-[11px] text-slate-600">© 2026 AlterJa (alterja.pl). Wszystkie prawa zastrzeżone.</p>
+            <div className="flex items-center space-x-6 text-slate-600 font-mono text-[11px]">
               <span className="hover:text-slate-900 transition-colors">Zgodność z RODO i Aktem o AI</span>
               <span className="hover:text-slate-900 transition-colors">WCAG 2.2 AA</span>
               <span className="hover:text-slate-900 transition-colors">Brak reklam</span>

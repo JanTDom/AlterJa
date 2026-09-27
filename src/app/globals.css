@@ -3,29 +3,29 @@
 @tailwind utilities;
 
 :root {
-  --background: #F9F9FB;
-  --foreground: #0F1728;
-  --card: #FFFFFF;
-  --card-border: #E4E7EC;
+  --background: #F8F9FC;
+  --foreground: #0B0F19;
   --accent-blue: #1849A9;
   --accent-blue-light: #2970FF;
   --accent-purple: #6941C6;
-  --accent-amber: #B54708;
+  --accent-gold: #B54708;
 }
 
 @layer base {
   body {
     background-color: var(--background);
     color: var(--foreground);
+    font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     selection-background-color: #DBEAFE;
     selection-color: #1849A9;
     background-image: 
-      radial-gradient(at 15% 10%, rgba(24, 73, 169, 0.035) 0px, transparent 55%),
-      radial-gradient(at 85% 15%, rgba(105, 65, 198, 0.03) 0px, transparent 50%),
-      radial-gradient(at 50% 85%, rgba(24, 73, 169, 0.02) 0px, transparent 60%);
+      radial-gradient(at 0% 0%, rgba(24, 73, 169, 0.06) 0px, transparent 45%),
+      radial-gradient(at 100% 0%, rgba(105, 65, 198, 0.05) 0px, transparent 40%),
+      radial-gradient(at 50% 50%, rgba(24, 73, 169, 0.02) 0px, transparent 60%),
+      radial-gradient(at 80% 100%, rgba(181, 71, 8, 0.03) 0px, transparent 40%);
     background-attachment: fixed;
   }
 
@@ -37,7 +37,7 @@
 /* Wskaźnik fokusu WCAG 2.2 AA */
 :focus-visible {
   outline: 2px solid #1849A9;
-  outline-offset: 2px;
+  outline-offset: 3px;
 }
 
 /* Redukcja ruchu */
@@ -52,89 +52,134 @@
   }
 }
 
-/* Luksusowy panel studyjny (Atelier Card) */
-.atelier-card {
-  background: #FFFFFF;
-  border: 1px solid rgba(228, 231, 236, 0.9);
-  box-shadow: 
-    0 1px 3px -1px rgba(16, 24, 40, 0.04),
-    0 4px 12px -2px rgba(16, 24, 40, 0.03),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.95);
-  border-radius: 1.25rem;
-  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+/* Luksusowy nagłówek redakcyjny */
+.editorial-display {
+  font-family: var(--font-serif), "Playfair Display", Georgia, serif;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
 }
 
-.atelier-card:hover {
-  border-color: rgba(208, 213, 221, 1);
+/* Luksusowa Karta Obiektowa (Haute-Couture Object Card) */
+.luxe-card {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 1.75rem;
   box-shadow: 
-    0 4px 8px -2px rgba(16, 24, 40, 0.04),
-    0 16px 32px -4px rgba(16, 24, 40, 0.06),
+    0 1px 2px 0 rgba(16, 24, 40, 0.03),
+    0 8px 24px -4px rgba(16, 24, 40, 0.05),
+    0 24px 48px -12px rgba(16, 24, 40, 0.04),
     inset 0 1px 0 0 rgba(255, 255, 255, 1);
-  transform: translateY(-2px);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Tytuł redakcyjny o wysokim kontraście optycznym */
-.editorial-headline {
-  letter-spacing: -0.035em;
-  line-height: 1.08;
-  font-family: var(--font-serif), "Newsreader", "Playfair Display", Georgia, serif;
+.luxe-card:hover {
+  border-color: rgba(186, 198, 218, 0.9);
+  box-shadow: 
+    0 2px 4px 0 rgba(16, 24, 40, 0.04),
+    0 16px 36px -4px rgba(24, 73, 169, 0.08),
+    0 36px 64px -12px rgba(16, 24, 40, 0.06),
+    inset 0 1px 0 0 rgba(255, 255, 255, 1);
+  transform: translateY(-3px);
 }
 
-/* Wskaźnik techniczny / indeks numeryczny */
-.atelier-index {
-  font-family: var(--font-mono), "JetBrains Mono", monospace;
-  font-size: 0.6875rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #667085;
-}
-
-/* Pasek szklany nawigacji z subtelnym światłocieniem */
-.glass-header {
-  background: rgba(249, 249, 251, 0.88);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-bottom: 1px solid rgba(228, 231, 236, 0.85);
-  box-shadow: 0 1px 2px 0 rgba(16, 24, 40, 0.02);
-}
-
-/* Przyciski z reakcją fizyczną */
-.btn-atelier-primary {
-  background-color: #0F1728;
+/* Przyciski Haute-Couture z organicznym wykończeniem */
+.btn-luxe-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.75rem;
+  border-radius: 9999px;
+  background: linear-gradient(180deg, #182230 0%, #0B0F19 100%);
   color: #FFFFFF;
-  border-radius: 0.75rem;
-  box-shadow: 0 1px 2px 0 rgba(16, 24, 40, 0.05), inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
-  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 
+    0 1px 2px 0 rgba(11, 15, 25, 0.3),
+    0 10px 24px -4px rgba(11, 15, 25, 0.25),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.25);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
 }
 
-.btn-atelier-primary:hover {
-  background-color: #1D2939;
-  box-shadow: 0 4px 12px -2px rgba(16, 24, 40, 0.15), inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
-  transform: translateY(-1px);
+.btn-luxe-primary:hover {
+  background: linear-gradient(180deg, #222F3E 0%, #111827 100%);
+  box-shadow: 
+    0 2px 4px 0 rgba(11, 15, 25, 0.3),
+    0 14px 30px -4px rgba(24, 73, 169, 0.35),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.35);
+  transform: translateY(-1.5px) scale(1.01);
 }
 
-.btn-atelier-primary:active {
-  transform: scale(0.985);
-  background-color: #0F1728;
+.btn-luxe-primary:active {
+  transform: scale(0.98);
+  box-shadow: 0 4px 12px -2px rgba(11, 15, 25, 0.2);
 }
 
-.btn-atelier-secondary {
-  background-color: #FFFFFF;
-  color: #344054;
-  border: 1px solid #D0D5DD;
-  border-radius: 0.75rem;
-  box-shadow: 0 1px 2px 0 rgba(16, 24, 40, 0.05), inset 0 1px 0 0 rgba(255, 255, 255, 1);
-  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+.btn-luxe-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.75rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: #182230;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  border: 1px solid rgba(208, 213, 221, 0.9);
+  box-shadow: 
+    0 1px 2px 0 rgba(16, 24, 40, 0.04),
+    0 4px 14px -2px rgba(16, 24, 40, 0.05),
+    inset 0 1px 0 0 rgba(255, 255, 255, 1);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
 }
 
-.btn-atelier-secondary:hover {
-  background-color: #F9FAFB;
+.btn-luxe-secondary:hover {
+  background: #FFFFFF;
   border-color: #98A2B3;
-  color: #1D2939;
-  box-shadow: 0 4px 10px -2px rgba(16, 24, 40, 0.05);
-  transform: translateY(-1px);
+  color: #0B0F19;
+  box-shadow: 
+    0 2px 4px 0 rgba(16, 24, 40, 0.05),
+    0 8px 20px -2px rgba(16, 24, 40, 0.08),
+    inset 0 1px 0 0 rgba(255, 255, 255, 1);
+  transform: translateY(-1.5px) scale(1.01);
 }
 
-.btn-atelier-secondary:active {
-  transform: scale(0.985);
+.btn-luxe-secondary:active {
+  transform: scale(0.98);
+}
+
+/* Plakietka mikro-statusowa (Luxe Pill) */
+.luxe-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(208, 213, 221, 0.8);
+  box-shadow: 0 1px 3px 0 rgba(16, 24, 40, 0.04), inset 0 1px 0 0 rgba(255, 255, 255, 1);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Pasek nawigacyjny haute-couture */
+.glass-header-luxe {
+  background: rgba(248, 249, 252, 0.82);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 4px 20px -4px rgba(16, 24, 40, 0.03);
 }

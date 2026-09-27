@@ -28,6 +28,7 @@ import {
   Fingerprint,
   Shield,
   Activity,
+  Award,
 } from "lucide-react";
 
 export default function DashboardPage() {
@@ -99,54 +100,57 @@ export default function DashboardPage() {
   };
 
   // Statystyki 7 warstw
-  const layersConfig: Array<{ id: MemoryLayer; name: string; count: number; color: string }> = [
-    { id: "values", name: "Wartości i pryncypia", count: memories.filter((m) => m.layer === "values").length, color: "bg-blue-600" },
-    { id: "decisions", name: "Wzorce decyzji", count: memories.filter((m) => m.layer === "decisions").length, color: "bg-indigo-600" },
-    { id: "style", name: "Styl i leksyka", count: memories.filter((m) => m.layer === "style").length, color: "bg-purple-600" },
-    { id: "knowledge", name: "Wiedza domenowa", count: memories.filter((m) => m.layer === "knowledge").length, color: "bg-emerald-600" },
-    { id: "preferences", name: "Preferencje robocze", count: memories.filter((m) => m.layer === "preferences").length, color: "bg-amber-600" },
-    { id: "biography", name: "Fakty biograficzne", count: memories.filter((m) => m.layer === "biography").length, color: "bg-slate-700" },
-    { id: "context", name: "Kontekst relacyjny", count: memories.filter((m) => m.layer === "context").length, color: "bg-teal-600" },
+  const layersConfig: Array<{ id: MemoryLayer; name: string; count: number }> = [
+    { id: "values", name: "Wartości i pryncypia", count: memories.filter((m) => m.layer === "values").length },
+    { id: "decisions", name: "Wzorce decyzji", count: memories.filter((m) => m.layer === "decisions").length },
+    { id: "style", name: "Styl i leksyka", count: memories.filter((m) => m.layer === "style").length },
+    { id: "knowledge", name: "Wiedza domenowa", count: memories.filter((m) => m.layer === "knowledge").length },
+    { id: "preferences", name: "Preferencje robocze", count: memories.filter((m) => m.layer === "preferences").length },
+    { id: "biography", name: "Fakty biograficzne", count: memories.filter((m) => m.layer === "biography").length },
+    { id: "context", name: "Kontekst relacyjny", count: memories.filter((m) => m.layer === "context").length },
   ];
 
   const pendingHypotheses = hypotheses.filter((h) => h.status === "pending");
 
   return (
-    <div className="min-h-screen bg-alterja-bg text-slate-900 flex flex-col font-sans selection:bg-alterja-blue/10 selection:text-alterja-blue">
+    <div className="min-h-screen bg-alterja-bg text-slate-900 flex flex-col font-sans selection:bg-alterja-blue/15 selection:text-alterja-blue">
       <Navbar />
 
-      {/* Komunikat systemowy */}
+      {/* Komunikat systemowy toast */}
       {actionNotice && (
-        <div className="fixed bottom-6 right-6 z-50 bg-slate-950 text-white text-xs px-4 py-3 rounded-xl shadow-atelier-float border border-slate-800 flex items-center gap-3 animate-in fade-in slide-in-from-bottom-2">
-          <span className="w-2 h-2 rounded-full bg-alterja-blueLight animate-pulse" />
-          <span className="font-medium">{actionNotice}</span>
+        <div className="fixed bottom-6 right-6 z-50 bg-slate-950 text-white text-xs px-5 py-3.5 rounded-full shadow-2xl border border-white/20 flex items-center gap-3 animate-in fade-in slide-in-from-bottom-2">
+          <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
+          <span className="font-medium tracking-tight">{actionNotice}</span>
         </div>
       )}
 
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 w-full space-y-10">
+        
         {/* Nagłówek powitalny redakcyjny */}
-        <section className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-alterja-border pb-8">
+        <section className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-200/80 pb-8">
           <div className="space-y-3 max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-alterja-border shadow-atelier-sm text-xs font-mono">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-slate-200 shadow-sm text-xs font-mono">
               <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
-              <span className="text-slate-600 font-semibold tracking-wider uppercase text-[10px]">Pulpit poznawczy · Profil aktywny</span>
+              <span className="text-slate-600 font-semibold tracking-widest uppercase text-[10px]">
+                Pulpit poznawczy · Profil aktywny
+              </span>
             </div>
-            <h1 className="text-3xl sm:text-5xl font-serif font-medium tracking-tight text-slate-950 editorial-headline">
+            
+            <h1 className="text-3xl sm:text-5xl font-serif font-medium tracking-tight text-slate-950 editorial-display">
               Architektura tożsamości
             </h1>
+            
             <p className="text-sm sm:text-base text-slate-600 font-normal leading-relaxed max-w-2xl">
               Zarządzaj zintegrowaną strukturą wiedzy o sobie. Wszystkie wnioski są uziemione w zweryfikowanych dowodach, a kontrola nad uczeniem pozostaje wyłącznie w Twoich rękach.
             </p>
           </div>
 
-          {/* Szybkie przełączniki suwerenności */}
+          {/* Szybkie przełączniki suwerenności — Eleganckie pigułki */}
           <div className="flex items-center gap-3 shrink-0">
             <button
               onClick={togglePause}
-              className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-medium transition-all ${
-                profile.learning_paused
-                  ? "bg-amber-50 border-amber-300 text-amber-900 shadow-atelier-sm"
-                  : "bg-white border-alterja-border text-slate-700 hover:border-slate-300 hover:bg-slate-50 shadow-atelier-sm"
+              className={`btn-luxe-secondary !py-2.5 !px-4 text-xs ${
+                profile.learning_paused ? "!bg-amber-50 !border-amber-300 !text-amber-900" : ""
               }`}
             >
               {profile.learning_paused ? <Play className="w-3.5 h-3.5 text-amber-700 fill-amber-700" /> : <Pause className="w-3.5 h-3.5 text-slate-600" />}
@@ -155,10 +159,8 @@ export default function DashboardPage() {
 
             <button
               onClick={toggleQuietHours}
-              className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-medium transition-all ${
-                profile.quiet_hours_enabled
-                  ? "bg-blue-50 border-blue-200 text-alterja-blue shadow-atelier-sm"
-                  : "bg-white border-alterja-border text-slate-700 hover:border-slate-300 hover:bg-slate-50 shadow-atelier-sm"
+              className={`btn-luxe-secondary !py-2.5 !px-4 text-xs ${
+                profile.quiet_hours_enabled ? "!bg-blue-50 !border-blue-300 !text-alterja-blue" : ""
               }`}
             >
               <Clock className="w-3.5 h-3.5 text-alterja-blue" />
@@ -167,29 +169,33 @@ export default function DashboardPage() {
           </div>
         </section>
 
-        {/* BENTO GRID: Śmiała architektura atelier */}
+        {/* BENTO GRID: Architektura Haute-Couture */}
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
           {/* Bento 1: Główna Karta Rdzenia Tożsamości (8 kolumn) */}
-          <div className="lg:col-span-8 atelier-card p-8 sm:p-10 flex flex-col justify-between space-y-8 relative overflow-hidden">
+          <div className="lg:col-span-8 luxe-card p-8 sm:p-10 flex flex-col justify-between space-y-8 relative overflow-hidden">
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-6">
               <div className="space-y-1">
-                <span className="atelier-index">01 / STAN REKONSTRUKCJI TOŻSAMOŚCI</span>
-                <h2 className="text-2xl sm:text-3xl font-serif font-medium text-slate-950 mt-1">
+                <span className="text-[10px] font-mono tracking-widest uppercase text-slate-500 font-semibold block">
+                  01 / STAN REKONSTRUKCJI TOŻSAMOŚCI
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-serif font-medium text-slate-950 mt-1 editorial-display">
                   {profile.display_name}
                 </h2>
-                <p className="text-xs text-slate-500 font-mono">ID profilu: {profile.id} · Model hybrydowy (Gemini + RAG)</p>
+                <p className="text-xs text-slate-500 font-mono">
+                  ID profilu: {profile.id} · Model hybrydowy (Gemini + pgvector)
+                </p>
               </div>
 
-              {/* Rzeźbiony wskaźnik wierności */}
-              <div className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 shadow-atelier-sm">
+              {/* Rzeźbiony medalion wierności z podwójnym reliefem */}
+              <div className="flex items-center gap-4 p-4 rounded-2xl bg-white border border-slate-200/90 shadow-[0_4px_16px_rgba(24,73,169,0.06),inset_0_1px_0_0_rgba(255,255,255,1)]">
                 <div className="text-right">
                   <div className="text-3xl font-bold font-mono text-slate-950 tracking-tight">98.4%</div>
                   <div className="text-[10px] font-mono text-emerald-700 uppercase tracking-widest font-semibold">
                     Wskaźnik wierności
                   </div>
                 </div>
-                <div className="w-12 h-12 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-alterja-blue">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-blue-50 to-indigo-100/80 border border-blue-200 flex items-center justify-center text-alterja-blue shadow-inner">
                   <Fingerprint className="w-6 h-6" />
                 </div>
               </div>
@@ -204,7 +210,7 @@ export default function DashboardPage() {
               
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {layersConfig.slice(0, 4).map((layer) => (
-                  <div key={layer.id} className="p-4 rounded-2xl bg-slate-50/60 border border-slate-200/60 hover:border-alterja-blue/40 hover:bg-white hover:shadow-atelier-sm transition-all space-y-1 group">
+                  <div key={layer.id} className="p-4 rounded-2xl bg-slate-50/70 border border-slate-200/70 hover:border-alterja-blue/50 hover:bg-white hover:shadow-sm transition-all space-y-1 group">
                     <span className="text-[11px] text-slate-500 block truncate font-medium group-hover:text-slate-900">{layer.name}</span>
                     <div className="flex items-baseline justify-between pt-1">
                       <span className="text-xl font-bold font-mono text-slate-950">{layer.count}</span>
@@ -216,7 +222,7 @@ export default function DashboardPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {layersConfig.slice(4, 7).map((layer) => (
-                  <div key={layer.id} className="p-4 rounded-2xl bg-slate-50/60 border border-slate-200/60 hover:border-alterja-blue/40 hover:bg-white hover:shadow-atelier-sm transition-all space-y-1 group">
+                  <div key={layer.id} className="p-4 rounded-2xl bg-slate-50/70 border border-slate-200/70 hover:border-alterja-blue/50 hover:bg-white hover:shadow-sm transition-all space-y-1 group">
                     <span className="text-[11px] text-slate-500 block truncate font-medium group-hover:text-slate-900">{layer.name}</span>
                     <div className="flex items-baseline justify-between pt-1">
                       <span className="text-xl font-bold font-mono text-slate-950">{layer.count}</span>
@@ -244,16 +250,16 @@ export default function DashboardPage() {
           </div>
 
           {/* Bento 2: Panel Suwerenności i Bezpieczeństwa — Hebanowy Skarbiec (4 kolumny) */}
-          <div className="lg:col-span-4 p-8 rounded-3xl bg-slate-950 text-white shadow-atelier-float flex flex-col justify-between space-y-6 relative overflow-hidden border border-slate-800">
+          <div className="lg:col-span-4 p-8 rounded-[1.75rem] bg-gradient-to-b from-[#141A28] to-[#0A0D15] text-white shadow-2xl flex flex-col justify-between space-y-6 relative overflow-hidden border border-slate-800">
             {/* Tło optyczne */}
-            <div className="absolute top-0 right-0 w-48 h-48 bg-alterja-blue/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="absolute top-0 right-0 w-48 h-48 bg-alterja-blue/20 rounded-full blur-3xl pointer-events-none" />
 
             <div className="space-y-3 relative z-10">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/10 border border-white/15 text-blue-300 text-[10px] font-mono uppercase tracking-widest">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-blue-300 text-[10px] font-mono uppercase tracking-widest">
                 <Lock className="w-3 h-3 text-blue-400" />
                 Skarbiec suwerenności RLS
               </div>
-              <h3 className="text-2xl font-serif font-medium tracking-tight text-white">
+              <h3 className="text-2xl font-serif font-medium tracking-tight text-white editorial-display">
                 Gwarancje integralności
               </h3>
               <p className="text-xs text-slate-400 leading-relaxed font-normal">
@@ -279,7 +285,7 @@ export default function DashboardPage() {
             <div className="pt-2 relative z-10">
               <Link
                 href="/privacy"
-                className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-medium border border-white/20 transition-all active:scale-[0.985]"
+                className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-medium border border-white/20 transition-all active:scale-[0.985]"
               >
                 <span>Zarządzaj suwerennością i RODO</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -288,15 +294,17 @@ export default function DashboardPage() {
           </div>
 
           {/* Bento 3: Szybki Symulator Reakcji w Czasie Rzeczywistym (6 kolumn) */}
-          <div className="lg:col-span-6 atelier-card p-8 flex flex-col justify-between space-y-6">
+          <div className="lg:col-span-6 luxe-card p-8 flex flex-col justify-between space-y-6">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="atelier-index">02 / INTERAKTYWNA REKONSTRUKCJA</span>
+                <span className="text-[10px] font-mono uppercase tracking-widest text-alterja-blue font-semibold">
+                  02 / INTERAKTYWNA REKONSTRUKCJA
+                </span>
                 <span className="text-[10px] font-mono uppercase px-2.5 py-0.5 rounded-full bg-blue-50 text-alterja-blue border border-blue-200 font-semibold">
                   Wnioskowanie w locie
                 </span>
               </div>
-              <h3 className="text-xl font-serif font-medium text-slate-950">
+              <h3 className="text-xl font-serif font-medium text-slate-950 editorial-display">
                 Przetestuj przewidywanie decyzji
               </h3>
               <p className="text-xs text-slate-600 leading-relaxed">
@@ -311,12 +319,12 @@ export default function DashboardPage() {
                   value={simQuery}
                   onChange={(e) => setSimQuery(e.target.value)}
                   placeholder="Wpisz sytuację lub dylemat..."
-                  className="w-full pl-4 pr-24 py-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-alterja-blue focus:bg-white transition-all font-medium"
+                  className="w-full pl-4 pr-28 py-3.5 rounded-full bg-slate-50 border border-slate-200 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-alterja-blue focus:bg-white shadow-inner transition-all font-medium"
                 />
                 <button
                   type="submit"
                   disabled={isSimulating}
-                  className="absolute right-1.5 top-1.5 bottom-1.5 px-4 rounded-lg btn-atelier-primary disabled:opacity-50 text-white text-xs font-medium flex items-center gap-1.5"
+                  className="absolute right-1.5 top-1.5 bottom-1.5 px-4 rounded-full btn-luxe-primary !py-1.5 text-xs font-medium flex items-center gap-1.5"
                 >
                   <span>{isSimulating ? "Analiza..." : "Zapytaj"}</span>
                   <Send className="w-3 h-3" />
@@ -325,7 +333,7 @@ export default function DashboardPage() {
             </form>
 
             {simResponse && (
-              <div className="p-5 rounded-2xl bg-blue-50/50 border border-blue-200/80 text-xs text-slate-800 space-y-2 animate-in fade-in">
+              <div className="p-5 rounded-2xl bg-blue-50/60 border border-blue-200/80 text-xs text-slate-800 space-y-2 animate-in fade-in">
                 <span className="text-[10px] font-mono uppercase text-alterja-blue font-bold tracking-widest block">
                   Odpowiedź modelu w trybie Rekonstrukcji:
                 </span>
@@ -337,15 +345,17 @@ export default function DashboardPage() {
           </div>
 
           {/* Bento 4: Rygor Epistemiczny i Weryfikacja Hipotez (6 kolumn) */}
-          <div className="lg:col-span-6 atelier-card p-8 flex flex-col justify-between space-y-6">
+          <div className="lg:col-span-6 luxe-card p-8 flex flex-col justify-between space-y-6">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="atelier-index">03 / CZŁOWIEK W PĘTLI</span>
+                <span className="text-[10px] font-mono uppercase tracking-widest text-purple-700 font-semibold">
+                  03 / CZŁOWIEK W PĘTLI
+                </span>
                 <span className="text-[10px] font-mono uppercase px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200 font-semibold">
                   {pendingHypotheses.length} do weryfikacji
                 </span>
               </div>
-              <h3 className="text-xl font-serif font-medium text-slate-950">
+              <h3 className="text-xl font-serif font-medium text-slate-950 editorial-display">
                 Hipotezy oczekujące na Twoje orzeczenie
               </h3>
               <p className="text-xs text-slate-600 leading-relaxed">
@@ -356,7 +366,7 @@ export default function DashboardPage() {
             <div className="space-y-3">
               {pendingHypotheses.length > 0 ? (
                 pendingHypotheses.slice(0, 2).map((hyp) => (
-                  <div key={hyp.id} className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
+                  <div key={hyp.id} className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-3">
                     <p className="text-xs font-medium text-slate-900 leading-relaxed font-serif">
                       „{hyp.hypothesis_text}”
                     </p>
@@ -368,21 +378,21 @@ export default function DashboardPage() {
                     <div className="flex items-center gap-2 pt-1">
                       <button
                         onClick={() => handleReviewHypothesis(hyp.id, "confirmed")}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-medium transition-all active:scale-[0.985] shadow-atelier-sm"
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-medium transition-all active:scale-[0.985] shadow-sm"
                       >
                         <Check className="w-3.5 h-3.5" />
                         <span>Potwierdzam</span>
                       </button>
                       <button
                         onClick={() => handleReviewHypothesis(hyp.id, "situational")}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-medium transition-all active:scale-[0.985] border border-slate-200"
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-medium transition-all active:scale-[0.985] border border-slate-200"
                       >
                         <HelpCircle className="w-3.5 h-3.5" />
                         <span>To zależy</span>
                       </button>
                       <button
                         onClick={() => handleReviewHypothesis(hyp.id, "rejected")}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-[11px] font-medium transition-all active:scale-[0.985]"
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-[11px] font-medium transition-all active:scale-[0.985]"
                       >
                         <X className="w-3.5 h-3.5" />
                         <span>Odrzuć</span>
@@ -405,11 +415,13 @@ export default function DashboardPage() {
         <section className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-4">
           <Link
             href="/interview"
-            className="atelier-card p-6 flex items-center justify-between group hover:border-alterja-blue"
+            className="luxe-card p-6 flex items-center justify-between group hover:border-alterja-blue"
           >
             <div className="space-y-1.5">
-              <span className="atelier-index">POGŁĘBIANIE WIEDZY</span>
-              <div className="text-base font-serif font-medium text-slate-950 group-hover:text-alterja-blue transition-colors">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-slate-500 font-semibold block">
+                POGŁĘBIANIE WIEDZY
+              </span>
+              <div className="text-base font-serif font-medium text-slate-950 group-hover:text-alterja-blue transition-colors editorial-display">
                 Studio adaptacyjnego wywiadu
               </div>
               <p className="text-xs text-slate-500">Krótkie mikropytania o wysokiej wartości poznawczej</p>
@@ -419,11 +431,13 @@ export default function DashboardPage() {
 
           <Link
             href="/sources"
-            className="atelier-card p-6 flex items-center justify-between group hover:border-alterja-blue"
+            className="luxe-card p-6 flex items-center justify-between group hover:border-alterja-blue"
           >
             <div className="space-y-1.5">
-              <span className="atelier-index">ZASILANIE PROFILU</span>
-              <div className="text-base font-serif font-medium text-slate-950 group-hover:text-alterja-blue transition-colors">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-slate-500 font-semibold block">
+                ZASILANIE PROFILU
+              </span>
+              <div className="text-base font-serif font-medium text-slate-950 group-hover:text-alterja-blue transition-colors editorial-display">
                 Dodaj dokument lub notatkę
               </div>
               <p className="text-xs text-slate-500">Bezpieczny import z filtracją autorstwa i analizą stylu</p>
@@ -433,11 +447,13 @@ export default function DashboardPage() {
 
           <Link
             href="/style-lab"
-            className="atelier-card p-6 flex items-center justify-between group hover:border-alterja-blue"
+            className="luxe-card p-6 flex items-center justify-between group hover:border-alterja-blue"
           >
             <div className="space-y-1.5">
-              <span className="atelier-index">MODELOWANIE EKSPRESJI</span>
-              <div className="text-base font-serif font-medium text-slate-950 group-hover:text-alterja-blue transition-colors">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-slate-500 font-semibold block">
+                MODELOWANIE EKSPRESJI
+              </span>
+              <div className="text-base font-serif font-medium text-slate-950 group-hover:text-alterja-blue transition-colors editorial-display">
                 Laboratorium stylu i decyzji
               </div>
               <p className="text-xs text-slate-500">Szlifuj rytm zdań, leksykę i wzorce argumentacji</p>
