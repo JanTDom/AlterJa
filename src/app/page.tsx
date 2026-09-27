@@ -84,16 +84,16 @@ export default function HomePage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
             
             {/* Lewa kolumna: Bezkompromisowy manifest */}
-            <div className="lg:col-span-7 space-y-8 text-center lg:text-left">
+            <div className="lg:col-span-6 space-y-8 text-center lg:text-left">
               
-              {/* Plakietka buntu przeciwko orce */}
+              {/* Plakietka suwerenności */}
               <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white border border-slate-200/90 shadow-sm text-xs font-mono">
-                <span className="w-2.5 h-2.5 rounded-full bg-rose-600 animate-pulse" />
+                <span className="w-2.5 h-2.5 rounded-full bg-alterja-blue animate-pulse" />
                 <span className="text-slate-800 font-bold uppercase tracking-wider text-[11px]">
-                  Koniec z oraniem ponad siły
+                  Koniec z pracą ponad siły
                 </span>
                 <span className="text-slate-400">·</span>
-                <span className="text-alterja-blue font-semibold text-[11px]">Twoja kopia AI</span>
+                <span className="text-alterja-blue font-semibold text-[11px]">Twój cyfrowy sobowtór</span>
               </div>
 
               {/* Potężny, prowokujący tytuł */}
@@ -152,9 +152,9 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Prawa kolumna: Spektakularny obraz sobowtóra z pływającymi kartami */}
-            <div className="lg:col-span-5 relative flex justify-center">
-              <div className="relative w-full max-w-[480px] aspect-[4/5] rounded-[2.5rem] overflow-hidden shadow-[0_25px_60px_-15px_rgba(15,23,42,0.35),0_0_50px_rgba(41,112,255,0.25)] border-2 border-white/80 group">
+            {/* Prawa kolumna: Panoramiczny obraz sobowtóra z pływającymi kartami */}
+            <div className="lg:col-span-6 relative flex justify-center">
+              <div className="relative w-full aspect-[16/10] rounded-[2.5rem] overflow-hidden shadow-[0_25px_60px_-15px_rgba(15,23,42,0.35),0_0_50px_rgba(41,112,255,0.25)] border-2 border-white/80 group">
                 <Image
                   src="/images/twin-touch.jpg"
                   alt="Spotkanie z własnym cyfrowym sobowtórem AI"
@@ -167,7 +167,7 @@ export default function HomePage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent pointer-events-none" />
 
                 {/* Pływająca plakietka 1: Wydolność 24/7 (Góra prawo) */}
-                <div className="absolute top-6 right-6 p-3.5 rounded-2xl bg-white/90 backdrop-blur-xl border border-white/80 shadow-xl animate-float flex items-center gap-3">
+                <div className="absolute top-5 right-5 p-3 rounded-2xl bg-white/90 backdrop-blur-xl border border-white/80 shadow-xl animate-float flex items-center gap-3">
                   <div className="w-9 h-9 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-700">
                     <BatteryCharging className="w-5 h-5 animate-pulse" />
                   </div>
@@ -178,7 +178,7 @@ export default function HomePage() {
                 </div>
 
                 {/* Pływająca plakietka 2: Twój sobowtór (Dół lewo) */}
-                <div className="absolute bottom-6 left-6 right-6 p-4 rounded-2xl bg-slate-950/85 backdrop-blur-xl border border-white/20 text-white shadow-2xl animate-float-delayed flex items-center justify-between">
+                <div className="absolute bottom-5 left-5 right-5 p-4 rounded-2xl bg-slate-950/85 backdrop-blur-xl border border-white/20 text-white shadow-2xl animate-float-delayed flex items-center justify-between">
                   <div className="space-y-0.5">
                     <div className="text-[10px] font-mono uppercase tracking-widest text-blue-300 font-bold">
                       CYFROWY BLIŹNIAK AKTYWNY
@@ -218,14 +218,19 @@ export default function HomePage() {
           
           {/* Obraz: Kobieta w podróży, AI pracuje */}
           <div className="lg:col-span-6 relative">
-            <div className="relative aspect-[16/10] sm:aspect-[4/3] rounded-[2rem] overflow-hidden shadow-2xl border border-slate-200 group">
+            <div className="relative aspect-[16/9] rounded-[2.5rem] overflow-hidden shadow-2xl border border-slate-200/80 group">
               <Image
                 src="/images/travel-work.jpg"
                 alt="Kobieta podróżuje, podczas gdy jej kopia AI pracuje na laptopie"
                 fill
                 className="object-cover group-hover:scale-105 transition-transform duration-700"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent pointer-events-none" />
+              
+              <div className="absolute top-5 left-5 px-3 py-1 rounded-full bg-slate-950/70 backdrop-blur-md border border-white/20 text-white text-[10px] font-mono">
+                Terminal podróży · Salon biznesowy · 14:20
+              </div>
+
               <div className="absolute bottom-6 left-6 right-6 text-white space-y-1">
                 <span className="text-[10px] font-mono uppercase tracking-widest text-blue-300 font-bold">
                   WOLNOŚĆ I SPOKÓJ
@@ -382,7 +387,7 @@ export default function HomePage() {
 
       </section>
 
-      {/* 4. GALERIA WOLNOŚCI: JAK ALTERJA ODMIENIA TWOJE ŻYCIE */}
+      {/* 4. GALERIA WOLNOŚCI: JAK ALTERJA ODMIENIA TWOJE ŻYCIE (ASYMETRYCZNY BENTO) */}
       <section className="py-20 lg:py-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full space-y-16">
         
         <div className="text-center max-w-3xl mx-auto space-y-3">
@@ -390,43 +395,43 @@ export default function HomePage() {
             KORZYŚĆ DLA CIEBIE
           </span>
           <h2 className="text-3xl sm:text-5xl font-serif font-medium text-slate-950 editorial-display">
-            Co zyskujesz, gdy przestajesz orać samemu?
+            Co się zmienia, gdy Twoja kopia wchodzi do gry?
           </h2>
           <p className="text-base sm:text-lg text-slate-600">
-            To nie jest kolejna aplikacja do klikania. To zwielokrotnienie Twojego czasu, zdrowia i intelektu.
+            To nie jest kolejny program do odhaczania zadań. To zwielokrotnienie Twojego czasu, spokoju i intelektu.
           </p>
         </div>
 
-        {/* 3 Duże Filary Wizualne z nadesłanymi grafikami */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {/* 4 Filary w asymetrycznym układzie bento ze zdjęciami */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
-          {/* Filar 1: Czas dla bliskich */}
-          <div className="luxe-card p-6 flex flex-col justify-between space-y-6 group">
-            <div className="space-y-4">
-              <div className="relative aspect-[16/10] rounded-2xl overflow-hidden shadow-md">
-                <Image
-                  src="/images/life-together.jpg"
-                  alt="Czas z rodziną i odpoczynek"
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-              </div>
-              <h3 className="text-xl font-serif font-medium text-slate-950 editorial-display">
+          {/* Karta 1 (Duża 7 kolumn): Czas dla bliskich — pełne zdjęcie w tle */}
+          <div className="lg:col-span-7 relative rounded-[2.5rem] overflow-hidden shadow-xl border border-slate-200/80 min-h-[400px] flex flex-col justify-end p-8 text-white group">
+            <Image
+              src="/images/life-together.jpg"
+              alt="Czas z rodziną i odpoczynek"
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-700"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/50 to-transparent pointer-events-none" />
+            
+            <div className="relative z-10 space-y-3">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-blue-300 font-bold px-3 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/20 inline-block">
+                Czas dla Ciebie · Bez stresu
+              </span>
+              <h3 className="text-2xl sm:text-3xl font-serif font-medium text-white editorial-display">
                 Odzyskaj wolne wieczory i weekendy
               </h3>
-              <p className="text-sm text-slate-600 leading-relaxed">
-                Koniec ze sprawdzaniem maili przy kolacji i odpisywaniem w nocy. Twoja AlterJa przejmuje bieżące ustalenia, dając Ci przestrzeń na to, co naprawdę ważne.
+              <p className="text-sm sm:text-base text-slate-200 leading-relaxed max-w-xl">
+                Koniec ze sprawdzaniem maili przy kolacji i odpisywaniem w nocy. Twoja AlterJa przejmuje bieżące ustalenia, dając Ci przestrzeń na prawdziwe życie z bliskimi.
               </p>
-            </div>
-            <div className="pt-2 text-xs font-mono text-alterja-blue font-bold">
-              Czas dla Ciebie · Bez stresu
             </div>
           </div>
 
-          {/* Filar 2: Twój niepowtarzalny styl i mądrość */}
-          <div className="luxe-card p-6 flex flex-col justify-between space-y-6 group">
+          {/* Karta 2 (5 kolumn): Twój niepowtarzalny styl i charakter */}
+          <div className="lg:col-span-5 luxe-card p-6 flex flex-col justify-between space-y-6 group">
             <div className="space-y-4">
-              <div className="relative aspect-[16/10] rounded-2xl overflow-hidden shadow-md">
+              <div className="relative aspect-[16/9] rounded-2xl overflow-hidden shadow-md">
                 <Image
                   src="/images/creative-mind.jpg"
                   alt="Twórczość, pasja i własny styl"
@@ -438,7 +443,7 @@ export default function HomePage() {
                 Twój charakter, którego nikt nie podrobi
               </h3>
               <p className="text-sm text-slate-600 leading-relaxed">
-                Sklonuj swoje poczucie humoru, unikalny sposób argumentacji, zasady i wartości. Nikt nie zorientuje się, że rozmawia z modelem, bo to jesteś Ty.
+                Sklonuj swoje poczucie humoru, unikalny sposób argumentacji, zasady i wartości. Nikt nie zorientuje się, że rozmawia ze sztuczną inteligencją, bo to jesteś Ty.
               </p>
             </div>
             <div className="pt-2 text-xs font-mono text-purple-700 font-bold">
@@ -446,10 +451,10 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Filar 3: Suwerenność i pancerny skarbiec */}
-          <div className="luxe-card p-6 flex flex-col justify-between space-y-6 group">
+          {/* Karta 3 (5 kolumn): Suwerenność i pancerny skarbiec */}
+          <div className="lg:col-span-5 luxe-card p-6 flex flex-col justify-between space-y-6 group">
             <div className="space-y-4">
-              <div className="relative aspect-[16/10] rounded-2xl overflow-hidden shadow-md">
+              <div className="relative aspect-[16/9] rounded-2xl overflow-hidden shadow-md">
                 <Image
                   src="/images/security-vault.jpg"
                   alt="Pancerny skarbiec danych i suwerenność"
@@ -461,11 +466,34 @@ export default function HomePage() {
                 Prywatny skarbiec. Zero wycieków.
               </h3>
               <p className="text-sm text-slate-600 leading-relaxed">
-                Twoje dane to Twoja własność. Żadna korporacja nie trenuje na Tobie swoich modeli. Wszystko zabezpieczone bankową izolacją RLS i prawem do usunięcia.
+                Twoje dane to Twoja suwerenna własność. Żadna korporacja nie trenuje na Tobie swoich modeli. Wszystko zabezpieczone bankową izolacją RLS i prawem do usunięcia.
               </p>
             </div>
             <div className="pt-2 text-xs font-mono text-emerald-700 font-bold">
               Twoja własność · Pełna kontrola
+            </div>
+          </div>
+
+          {/* Karta 4 (Duża 7 kolumn): Ekosystem i synchronizacja na wszystkich urządzeniach */}
+          <div className="lg:col-span-7 relative rounded-[2.5rem] overflow-hidden shadow-xl border border-slate-200/80 min-h-[400px] flex flex-col justify-end p-8 text-white group">
+            <Image
+              src="/images/unified-ecosystem.jpg"
+              alt="Jeden umysł na wszystkich Twoich urządzeniach"
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-700"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/50 to-transparent pointer-events-none" />
+            
+            <div className="relative z-10 space-y-3">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-emerald-300 font-bold px-3 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/20 inline-block">
+                Ciągła synchronizacja · Ekosystem
+              </span>
+              <h3 className="text-2xl sm:text-3xl font-serif font-medium text-white editorial-display">
+                Jeden umysł. Wszystkie Twoje narzędzia.
+              </h3>
+              <p className="text-sm sm:text-base text-slate-200 leading-relaxed max-w-xl">
+                Komputer, telefon, komunikatory i systemy biznesowe. Twój cyfrowy sobowtór działa w tle wszędzie tam, gdzie podejmujesz decyzje, w pełnej harmonii z Twoim dniem.
+              </p>
             </div>
           </div>
 
@@ -492,7 +520,7 @@ export default function HomePage() {
               </h2>
 
               <p className="text-base sm:text-lg text-slate-300 leading-relaxed">
-                Biologiczny człowiek ma 24 godziny na dobę. Twoja cyfrowa kopia nie ma limitu. Może jednocześnie analizować raport, odpowiadać pięciu klientom, przygotowywać strategię i pilnować Twoich interesów.
+                Biologiczny człowiek ma 24 godziny na dobę. Twoja cyfrowa kopia nie ma limitu. Może jednocześnie analizować raport, odpowiadać pięciu partnerom, przygotowywać strategię i pilnować Twoich interesów.
               </p>
 
               <div className="pt-4">
@@ -507,7 +535,7 @@ export default function HomePage() {
             </div>
 
             <div className="lg:col-span-6">
-              <div className="relative aspect-[16/10] sm:aspect-[4/3] rounded-[2.5rem] overflow-hidden shadow-[0_20px_60px_rgba(41,112,255,0.3)] border-2 border-white/20 group">
+              <div className="relative aspect-[16/9] rounded-[2.5rem] overflow-hidden shadow-[0_20px_60px_rgba(41,112,255,0.3)] border-2 border-white/20 group">
                 <Image
                   src="/images/hero-multiverse.jpg"
                   alt="Zwielokrotniony umysł człowieka w galerii przyszłości"
@@ -528,28 +556,57 @@ export default function HomePage() {
 
       </section>
 
-      {/* 6. DOLNE WEZWANIE DO DZIAŁANIA (CTA) */}
-      <section className="py-24 max-w-5xl mx-auto px-4 text-center space-y-8">
-        <h2 className="text-4xl sm:text-5xl font-serif font-medium text-slate-950 editorial-display">
-          Gotowy przestać orać samemu?
-        </h2>
-        <p className="text-lg text-slate-600 max-w-xl mx-auto">
-          Zacznij od 5-minutowego wywiadu. Twoja AlterJa natychmiast zacznie uczyć się Twoich zasad i stylu myślenia.
-        </p>
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Link
-            href="/interview"
-            className="w-full sm:w-auto btn-luxe-primary text-base shadow-xl"
-          >
-            <span>Rozpocznij tworzenie kopii AI</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-          <Link
-            href="/dashboard"
-            className="w-full sm:w-auto btn-luxe-secondary text-base"
-          >
-            <span>Przejdź do pulpitu</span>
-          </Link>
+      {/* 6. MONUMENTALNE WEZWANIE DO DZIAŁANIA Z WIDOKIEM ZE SZCZYTU (PEAK-FREEDOM) */}
+      <section className="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <div className="relative rounded-[3rem] overflow-hidden shadow-[0_25px_80px_rgba(15,23,42,0.4)] border border-slate-800 text-white min-h-[540px] flex items-center justify-center p-8 sm:p-16 text-center group">
+          
+          {/* Obraz tła: Człowiek na szczycie o zachodzie słońca — pełna wolność */}
+          <Image
+            src="/images/peak-freedom.jpg"
+            alt="Wolność i przestrzeń na szczycie góry po uwolnieniu od ciągłej pracy ponad siły"
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-1000"
+          />
+
+          {/* Głęboki, elegancki gradient kinowy dla idealnego kontrastu i czytelności */}
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/70 to-slate-950/40 pointer-events-none" />
+
+          {/* Treść wezwania */}
+          <div className="relative z-10 max-w-2xl mx-auto space-y-8">
+            <span className="inline-flex items-center gap-2 text-[11px] font-mono uppercase tracking-widest text-blue-300 font-bold px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20">
+              <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
+              Czas na Twój ruch
+            </span>
+
+            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-medium text-white editorial-display leading-[1.08]">
+              Przestań brać wszystko na własne barki.
+            </h2>
+
+            <p className="text-base sm:text-lg text-slate-200 leading-relaxed font-normal">
+              Zacznij od kilkuminutowego wywiadu. Twoja AlterJa natychmiast zacznie uczyć się Twojego stylu myślenia, zasad i tempa działania.
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+              <Link
+                href="/interview"
+                className="w-full sm:w-auto btn-luxe-primary !py-4 !px-8 text-base bg-white text-slate-950 hover:bg-slate-100 shadow-[0_0_35px_rgba(255,255,255,0.35)]"
+              >
+                <span>Rozpocznij tworzenie kopii AI</span>
+                <ArrowRight className="w-4 h-4 text-slate-950" />
+              </Link>
+              <Link
+                href="/dashboard"
+                className="w-full sm:w-auto btn-luxe-secondary !py-4 !px-8 text-base text-white border-white/30 hover:border-white/60 bg-white/10 hover:bg-white/20 backdrop-blur-xl"
+              >
+                <span>Zobacz pulpit sobowtóra</span>
+              </Link>
+            </div>
+
+            <div className="pt-4 text-xs font-mono text-slate-400">
+              Pełna prywatność · Suwerenność danych · Zero korporacyjnego podglądu
+            </div>
+          </div>
+
         </div>
       </section>
 
