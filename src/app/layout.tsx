@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import { Navbar } from "@/components/navigation/Navbar";
 
 export const metadata: Metadata = {
   title: "AlterJa — Kontrolowany cyfrowy model człowieka",
@@ -21,7 +20,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#08090d",
+  themeColor: "#F8F9FB",
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
@@ -33,17 +32,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pl" className="dark scroll-smooth">
-      <body className="min-h-screen bg-alterja-darkest text-slate-100 flex flex-col font-sans">
-        <Navbar />
+    <html lang="pl" className="scroll-smooth bg-alterja-bg">
+      <body className="min-h-screen bg-alterja-bg text-slate-900 flex flex-col font-sans antialiased selection:bg-alterja-accent/15 selection:text-alterja-accent">
         <main className="flex-1 flex flex-col">{children}</main>
-        <footer className="border-t border-alterja-border py-8 text-center text-xs text-slate-500">
+        <footer className="border-t border-slate-200 bg-white py-8 text-center text-xs text-slate-500">
           <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
             <p>© 2026 AlterJa (alterja.pl). Wszelkie prawa zastrzeżone.</p>
-            <div className="flex items-center space-x-6 text-slate-400">
-              <span className="hover:text-slate-200">Zgodność z RODO i Aktem o AI</span>
-              <span className="hover:text-slate-200">WCAG 2.2 AA</span>
-              <span className="hover:text-slate-200">Brak reklam</span>
+            <div className="flex items-center space-x-6 text-slate-600">
+              <span className="hover:text-slate-900 transition-colors">Zgodność z RODO i Aktem o AI</span>
+              <span className="hover:text-slate-900 transition-colors">WCAG 2.2 AA</span>
+              <span className="hover:text-slate-900 transition-colors">Brak reklam</span>
             </div>
           </div>
         </footer>
