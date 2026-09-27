@@ -12,6 +12,7 @@ import {
   Archive,
   ArrowRight,
   CheckCircle2,
+  XCircle,
   Lock,
   Layers,
   Sparkles,
@@ -242,7 +243,8 @@ export default function HomePage() {
             {/* Zwykłe boty */}
             <div className="p-6 rounded-2xl bg-white border border-rose-200/80 shadow-sm space-y-2 opacity-90">
               <div className="flex items-center gap-2 text-rose-700 font-semibold text-xs font-mono uppercase tracking-wider">
-                <span>✕ Generyczne boty i obce awatary</span>
+                <XCircle className="w-4 h-4 text-rose-600" />
+                <span>Generyczne boty i obce awatary</span>
               </div>
               <p className="text-sm text-slate-700 leading-relaxed">
                 Mówią sztywnym, syntetycznym korpo-językiem. Zmyślają fakty, gdy czegoś nie wiedzą. Musisz im sto razy tłumaczyć, kim jesteś i czego wymagasz.
@@ -330,8 +332,9 @@ export default function HomePage() {
               {/* Zwykły bot */}
               <div className="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-mono uppercase text-rose-400 font-bold">
-                    ✕ Zwykły bot AI (Obcy)
+                  <span className="text-xs font-mono uppercase text-rose-400 font-bold flex items-center gap-1.5">
+                    <XCircle className="w-3.5 h-3.5 text-rose-400" />
+                    Zwykły bot AI (obcy)
                   </span>
                   <span className="text-[10px] font-mono text-slate-500">Lanie wody</span>
                 </div>
