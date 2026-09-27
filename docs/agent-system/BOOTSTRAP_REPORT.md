@@ -70,3 +70,4 @@ Każdy skill posiada plik `SKILL.md` z poprawnym nagłówkiem YAML frontmatter (
 - **Test limitów znaków reguł:** Wszystkie reguły mieszczą się w przedziale 1 162 – 2 175 znaków (limit Antigravity: 12 000 znaków).
 - **Próby analityczne A–G:** Wszystkie scenariusze (A. Granica etapu, B. Prawda i kontekst, C. Kontrola dostępu, D. Atak przez materiał, E. Polszczyzna i psychologia, F. Spuścizna, G. Jakość i uczciwość) zakończone wynikiem pozytywnym na poziomie specyfikacji i logiki procedur.
 - **Czystość repozytorium:** Poza wymienionymi wyżej plikami dokumentacji i konfiguracji agenta nie utworzono ani nie zmodyfikowano żadnych plików. Brak kodu aplikacji, brak paczek npm, brak baz danych, brak sekretów.
+- **Synchronizacja z GitHubem:** Na wyraźne polecenie użytkownika zainicjalizowano repozytorium git (`main`), dodano remote `origin` (`https://github.com/JanTDom/AlterJa.git`) i wykonano commit oraz push (root commit `f189cb3`).
