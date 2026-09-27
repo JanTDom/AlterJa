@@ -59,28 +59,115 @@
   line-height: 1.05;
 }
 
-/* Pływające elementy i animacje świetlne */
+/* Pływające elementy i zaawansowane animacje kinowe */
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-8px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes float-delayed {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-14px); }
 }
 
 @keyframes pulse-glow {
-  0%, 100% { opacity: 0.4; transform: scale(1); }
-  50% { opacity: 0.8; transform: scale(1.05); }
+  0%, 100% { opacity: 0.35; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.08); }
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes marquee-reverse {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0%); }
+}
+
+@keyframes scanline {
+  0% { transform: translateY(-100%); opacity: 0; }
+  20% { opacity: 0.8; }
+  80% { opacity: 0.8; }
+  100% { transform: translateY(500%); opacity: 0; }
+}
+
+@keyframes aurora-drift {
+  0%, 100% { transform: translate(0, 0) scale(1) rotate(0deg); }
+  33% { transform: translate(30px, -20px) scale(1.1) rotate(5deg); }
+  66% { transform: translate(-20px, 20px) scale(0.95) rotate(-5deg); }
+}
+
+@keyframes shimmer-slide {
+  0% { transform: translateX(-150%) skewX(-20deg); }
+  100% { transform: translateX(250%) skewX(-20deg); }
+}
+
+@keyframes bar-wave {
+  0%, 100% { height: 6px; }
+  50% { height: 26px; }
 }
 
 .animate-float {
-  animation: float 6s ease-in-out infinite;
+  animation: float 5s ease-in-out infinite;
 }
 
 .animate-float-delayed {
-  animation: float 7s ease-in-out 2s infinite;
+  animation: float-delayed 6.5s ease-in-out 1.5s infinite;
 }
 
 .animate-pulse-glow {
-  animation: pulse-glow 4s ease-in-out infinite;
+  animation: pulse-glow 3.5s ease-in-out infinite;
 }
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 28s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+.animate-marquee-reverse {
+  display: flex;
+  width: max-content;
+  animation: marquee-reverse 32s linear infinite;
+}
+
+.animate-marquee-reverse:hover {
+  animation-play-state: paused;
+}
+
+.animate-scanline {
+  animation: scanline 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.animate-aurora {
+  animation: aurora-drift 14s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.animate-shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+  animation: shimmer-slide 3.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.bar-equalizer-1 { animation: bar-wave 1.1s ease-in-out infinite; }
+.bar-equalizer-2 { animation: bar-wave 1.4s ease-in-out 0.2s infinite; }
+.bar-equalizer-3 { animation: bar-wave 0.9s ease-in-out 0.4s infinite; }
+.bar-equalizer-4 { animation: bar-wave 1.3s ease-in-out 0.1s infinite; }
 
 /* Luksusowa Karta Obiektowa (Haute-Couture Card) */
 .luxe-card {
