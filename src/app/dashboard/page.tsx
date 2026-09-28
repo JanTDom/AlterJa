@@ -126,56 +126,89 @@ export default function DashboardPage() {
         </div>
       )}
 
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 w-full space-y-10">
-        
-        {/* Nagłówek w normalnym, mocnym języku */}
-        <section className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-200/80 pb-8">
-          <div className="space-y-3 max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-slate-200 shadow-sm text-xs font-mono">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 animate-pulse" />
-              <span className="text-slate-800 font-bold uppercase tracking-wider text-[11px]">
-                Centrum dowodzenia · Twoja kopia AI jest aktywna
-              </span>
+      {/* PEŁNOFORMATOWA KINOWA SCENA FOTOGRAFICZNA (COSMIC-MIND) */}
+      <section className="relative w-full min-h-[460px] md:min-h-[520px] flex items-center overflow-hidden bg-slate-950">
+        <Image
+          src="/images/cosmic-mind.jpg"
+          alt="Kosmiczny umysł i konstelacje pamięci AlterJa"
+          fill
+          priority
+          className="object-cover object-center scale-[1.02] filter brightness-95 contrast-105"
+        />
+
+        {/* Dynamiczny skaner biometryczny */}
+        <div className="absolute inset-0 scanline-bar opacity-30 pointer-events-none" />
+
+        {/* Kurtyna asymetryczna z lewej i od dołu */}
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/80 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent pointer-events-none" />
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 w-full flex flex-col md:flex-row md:items-end justify-between gap-8 text-white">
+          <div className="max-w-2xl space-y-4">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/90 border border-white/20 text-emerald-400 text-xs font-mono backdrop-blur-md">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>Centrum dowodzenia · Twoja kopia AI czuwa</span>
             </div>
-            
-            <h1 className="text-3xl sm:text-5xl font-serif font-medium tracking-tight text-slate-950 editorial-display">
+
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-medium tracking-tight text-white editorial-display leading-tight">
               Pulpit Twojego sobowtóra
             </h1>
-            
-            <p className="text-sm sm:text-base text-slate-600 font-normal leading-relaxed max-w-2xl">
-              Twoja AlterJa działa 24/7 na Twoich zasadach. Tutaj sprawdzasz, czego się nauczyła, testujesz jej odpowiedzi i potwierdzasz kluczowe wytyczne.
+
+            <p className="text-sm sm:text-base text-slate-200 font-normal leading-relaxed max-w-xl">
+              Nie daj sobą orać. Twoja AlterJa przejmuje powtarzalne rozmowy, analizuje dokumenty i podejmuje decyzje dokładnie tak, jak Ty. Ty odpoczywasz — ona pracuje.
             </p>
+
+            <div className="pt-2 flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/15 text-xs font-mono text-slate-200">
+                <Brain className="w-3.5 h-3.5 text-blue-300" />
+                <span>{memories.length} potwierdzonych reguł</span>
+              </div>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/15 text-xs font-mono text-emerald-300">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Bankowa izolacja RLS</span>
+              </div>
+            </div>
           </div>
 
-          {/* Szybkie przełączniki suwerenności */}
-          <div className="flex items-center gap-3 shrink-0">
+          {/* Szybkie przełączniki suwerenności w szkle */}
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 shrink-0 p-3 rounded-2xl bg-slate-900/80 backdrop-blur-xl border border-white/15 shadow-2xl">
             <button
               onClick={togglePause}
-              className={`btn-luxe-secondary !py-2.5 !px-4 text-xs ${
-                profile.learning_paused ? "!bg-amber-50 !border-amber-300 !text-amber-900" : ""
+              className={`px-4 py-2.5 rounded-xl text-xs font-medium flex items-center gap-2 transition-all ${
+                profile.learning_paused
+                  ? "bg-amber-500/20 text-amber-200 border border-amber-400/40"
+                  : "bg-white/10 text-white hover:bg-white/20 border border-white/15"
               }`}
             >
-              {profile.learning_paused ? <Play className="w-3.5 h-3.5 text-amber-700 fill-amber-700" /> : <Pause className="w-3.5 h-3.5 text-slate-600" />}
+              {profile.learning_paused ? (
+                <Play className="w-3.5 h-3.5 text-amber-300 fill-amber-300" />
+              ) : (
+                <Pause className="w-3.5 h-3.5 text-slate-300" />
+              )}
               <span>{profile.learning_paused ? "Wznów pracę AI" : "Wstrzymaj pracę AI"}</span>
             </button>
 
             <button
               onClick={toggleQuietHours}
-              className={`btn-luxe-secondary !py-2.5 !px-4 text-xs ${
-                profile.quiet_hours_enabled ? "!bg-blue-50 !border-blue-300 !text-alterja-blue" : ""
+              className={`px-4 py-2.5 rounded-xl text-xs font-medium flex items-center gap-2 transition-all ${
+                profile.quiet_hours_enabled
+                  ? "bg-blue-500/20 text-blue-200 border border-blue-400/40"
+                  : "bg-white/10 text-white hover:bg-white/20 border border-white/15"
               }`}
             >
-              <Clock className="w-3.5 h-3.5 text-alterja-blue" />
-              <span>{profile.quiet_hours_enabled ? "Cisza aktywna" : "Godziny ciszy"}</span>
+              <Clock className="w-3.5 h-3.5 text-blue-300" />
+              <span>{profile.quiet_hours_enabled ? "Cisza nocna aktywna" : "Godziny ciszy"}</span>
             </button>
           </div>
-        </section>
+        </div>
+      </section>
 
+      {/* OBSZAR ROBOCZY - PRZENIKANIE DO KART */}
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 w-full space-y-10 relative z-20 -mt-8 sm:-mt-12">
         {/* BENTO GRID: KARTY Z GŁĘBIĄ I ENERGIĄ */}
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          
           {/* Bento 1: Główna Karta Gotowości Sobowtóra (8 kolumn) */}
-          <div className="lg:col-span-8 luxe-card p-8 sm:p-10 flex flex-col justify-between space-y-8 relative overflow-hidden">
+          <div className="lg:col-span-8 luxe-card p-8 sm:p-10 flex flex-col justify-between space-y-8 relative overflow-hidden bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-xl rounded-3xl">
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-6">
               <div className="space-y-1">
                 <span className="text-[10px] font-mono tracking-widest uppercase text-slate-500 font-bold block">
@@ -252,7 +285,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Bento 2: Hebanowy Skarbiec Prywatności (4 kolumny) */}
-          <div className="lg:col-span-4 p-8 rounded-[1.75rem] bg-gradient-to-b from-[#141A28] to-[#0A0D15] text-white shadow-2xl flex flex-col justify-between space-y-6 relative overflow-hidden border border-slate-800">
+          <div className="lg:col-span-4 p-8 rounded-3xl bg-gradient-to-b from-[#141A28] to-[#0A0D15] text-white shadow-2xl flex flex-col justify-between space-y-6 relative overflow-hidden border border-slate-800">
             <div className="space-y-3 relative z-10">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-blue-300 text-[10px] font-mono uppercase tracking-widest font-bold">
                 <Lock className="w-3 h-3 text-blue-400" />
@@ -293,7 +326,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Bento 3: Symulator Reakcji w Czasie Rzeczywistym (6 kolumn) */}
-          <div className="lg:col-span-6 luxe-card p-8 flex flex-col justify-between space-y-6">
+          <div className="lg:col-span-6 luxe-card p-8 flex flex-col justify-between space-y-6 bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-xl rounded-3xl">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-mono uppercase tracking-widest text-alterja-blue font-bold">
@@ -344,7 +377,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Bento 4: Zatwierdzanie nowych zasad (6 kolumn) */}
-          <div className="lg:col-span-6 luxe-card p-8 flex flex-col justify-between space-y-6">
+          <div className="lg:col-span-6 luxe-card p-8 flex flex-col justify-between space-y-6 bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-xl rounded-3xl">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-mono uppercase tracking-widest text-purple-700 font-bold">
@@ -414,7 +447,7 @@ export default function DashboardPage() {
         <section className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-4">
           <Link
             href="/interview"
-            className="luxe-card p-6 flex items-center justify-between group hover:border-alterja-blue"
+            className="luxe-card p-6 flex items-center justify-between group hover:border-alterja-blue bg-white/95 rounded-2xl border border-slate-200 shadow-md"
           >
             <div className="space-y-1.5">
               <span className="text-[10px] font-mono uppercase tracking-widest text-slate-500 font-bold block">
@@ -430,7 +463,7 @@ export default function DashboardPage() {
 
           <Link
             href="/sources"
-            className="luxe-card p-6 flex items-center justify-between group hover:border-alterja-blue"
+            className="luxe-card p-6 flex items-center justify-between group hover:border-alterja-blue bg-white/95 rounded-2xl border border-slate-200 shadow-md"
           >
             <div className="space-y-1.5">
               <span className="text-[10px] font-mono uppercase tracking-widest text-slate-500 font-bold block">
@@ -446,7 +479,7 @@ export default function DashboardPage() {
 
           <Link
             href="/style-lab"
-            className="luxe-card p-6 flex items-center justify-between group hover:border-alterja-blue"
+            className="luxe-card p-6 flex items-center justify-between group hover:border-alterja-blue bg-white/95 rounded-2xl border border-slate-200 shadow-md"
           >
             <div className="space-y-1.5">
               <span className="text-[10px] font-mono uppercase tracking-widest text-slate-500 font-bold block">

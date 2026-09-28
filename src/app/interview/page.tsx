@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import Navbar from "@/components/navigation/Navbar";
 import {
   Sparkles,
@@ -9,6 +10,7 @@ import {
   SkipForward,
   Brain,
   HelpCircle,
+  Fingerprint,
 } from "lucide-react";
 import { globalStore, DEMO_USER_ID } from "@/lib/db/store";
 
@@ -92,32 +94,61 @@ export default function InterviewPage() {
   };
 
   return (
-    <div className="min-h-screen bg-alterja-bg text-slate-900 flex flex-col font-sans">
+    <div className="min-h-screen bg-alterja-bg text-slate-900 flex flex-col font-sans selection:bg-alterja-blue/15 selection:text-alterja-blue">
       <Navbar />
 
-      <main className="flex-1 max-w-4xl mx-auto px-4 sm:px-6 py-10 w-full space-y-8">
-        {/* Nagłówek */}
-        <div className="pb-6 border-b border-slate-200">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-900 text-xs font-mono font-medium mb-2">
-            <Sparkles className="w-3.5 h-3.5 text-alterja-blue" />
-            <span>Studio adaptacyjnego wywiadu · Szanowanie granic</span>
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-slate-950">
-            Mikropytania o wysokiej wartości poznawczej
-          </h1>
-          <p className="text-sm text-slate-600 mt-1 max-w-2xl">
-            Odpowiadaj tylko na pytania, na które masz ochotę. Pomięcie pytania jest w pełni naturalnym wyborem i uczy model szacunku dla Twoich granic.
-          </p>
-        </div>
+      {/* PEŁNOFORMATOWA KINOWA SCENA FOTOGRAFICZNA (AVATAR-PORTRAIT) */}
+      <section className="relative w-full min-h-[380px] md:min-h-[440px] flex items-center overflow-hidden bg-slate-950">
+        <Image
+          src="/images/avatar-portrait.jpg"
+          alt="Twarz człowieka przechodząca w świetlisty profil cyfrowej kopii AI"
+          fill
+          priority
+          className="object-cover object-center scale-[1.02] filter brightness-90 contrast-105"
+        />
 
-        {isDone ? (
-          <div className="p-12 rounded-3xl bg-white border border-slate-200 shadow-card text-center space-y-4">
-            <div className="w-14 h-14 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center justify-center mx-auto">
-              <CheckCircle2 className="w-8 h-8" />
+        {/* Dynamiczny skaner biometryczny */}
+        <div className="absolute inset-0 scanline-bar opacity-30 pointer-events-none" />
+
+        {/* Kurtyna asymetryczna */}
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/80 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent pointer-events-none" />
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full flex flex-col md:flex-row md:items-end justify-between gap-6 text-white">
+          <div className="max-w-2xl space-y-3">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/90 border border-white/20 text-purple-300 text-xs font-mono backdrop-blur-md">
+              <span className="w-2 h-2 rounded-full bg-purple-400 animate-pulse" />
+              <span>Studio wywiadu · Klonowanie tożsamości i myślenia</span>
             </div>
-            <h2 className="text-2xl font-semibold text-slate-950">Seria wywiadu zakończona</h2>
+
+            <h1 className="text-3xl sm:text-5xl font-serif font-medium tracking-tight text-white editorial-display leading-tight">
+              Wytrenuj swojego sobowtóra, by myślał jak Ty
+            </h1>
+
+            <p className="text-sm sm:text-base text-slate-200 font-normal leading-relaxed max-w-xl">
+              Nie trać czasu na tłumaczenie w kółko tego samego. Kilka szczerych odpowiedzi sprawi, że Twoja kopia AI przejmie Twoje zasady, styl i priorytety decyzyjne.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-900/80 backdrop-blur-xl border border-white/15 text-xs font-mono text-slate-300 shadow-xl">
+            <Fingerprint className="w-4 h-4 text-purple-400" />
+            <span>Szanowanie granic i odmowy</span>
+          </div>
+        </div>
+      </section>
+
+      {/* OBSZAR ROBOCZY - KARTA WYWIADU */}
+      <main className="flex-1 max-w-4xl mx-auto px-4 sm:px-6 py-8 w-full space-y-8 relative z-20 -mt-10 sm:-mt-12">
+        {isDone ? (
+          <div className="p-12 rounded-3xl bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-2xl text-center space-y-5">
+            <div className="w-16 h-16 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center justify-center mx-auto shadow-inner">
+              <CheckCircle2 className="w-9 h-9" />
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-serif font-medium text-slate-950 editorial-display">
+              Seria wywiadu zakończona
+            </h2>
             <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
-              Zapisano {answersCount} nowych odpowiedzi bezpośrednio w Twojej strukturze pamięci. Model uwzględni je w kolejnych dialogach.
+              Zapisano {answersCount} nowych odpowiedzi bezpośrednio w Twojej strukturze pamięci. Model uwzględni je w kolejnych dialogach i decyzjach.
             </p>
             <div className="pt-4 flex justify-center gap-3">
               <button
@@ -125,56 +156,65 @@ export default function InterviewPage() {
                   setCurrentIdx(0);
                   setIsDone(false);
                 }}
-                className="px-5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium text-slate-800 hover:bg-slate-50"
+                className="px-6 py-3 rounded-2xl bg-slate-950 hover:bg-slate-800 text-white text-xs font-medium transition-all shadow-md active:scale-95"
               >
                 Rozpocznij kolejną sesję
               </button>
             </div>
           </div>
         ) : (
-          <div className="p-6 sm:p-10 rounded-3xl bg-white border border-slate-200 shadow-card space-y-6">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-mono uppercase px-3 py-1 rounded-md bg-slate-100 text-slate-700 font-semibold">
-                Kategoria: {currentQ.category}
+          <div className="p-6 sm:p-10 rounded-3xl bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-2xl space-y-6">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+              <span className="text-[11px] font-mono uppercase px-3 py-1 rounded-full bg-slate-100 text-slate-700 font-semibold border border-slate-200">
+                Obszar: {currentQ.category}
               </span>
-              <span className="text-xs font-mono text-slate-600">
+              <span className="text-xs font-mono text-slate-500 font-medium">
                 Pytanie {currentIdx + 1} z {SAMPLE_QUESTIONS.length}
               </span>
             </div>
 
-            <div className="space-y-2">
-              <span className="text-xs font-medium text-alterja-blue block">{currentQ.topic}</span>
-              <h2 className="text-xl sm:text-2xl font-semibold text-slate-950 leading-snug">
+            <div className="space-y-3">
+              <span className="text-xs font-mono uppercase tracking-widest text-alterja-blue font-bold block">
+                {currentQ.topic}
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-serif font-medium text-slate-950 leading-snug editorial-display">
                 „{currentQ.question}”
               </h2>
-              <p className="text-xs text-slate-600 italic">{currentQ.context}</p>
+              <p className="text-xs sm:text-sm text-slate-500 italic font-sans leading-relaxed">
+                {currentQ.context}
+              </p>
             </div>
 
             <form onSubmit={handleSaveAnswer} className="space-y-4 pt-2">
-              <textarea
-                rows={4}
-                value={answerText}
-                onChange={(e) => setAnswerText(e.target.value)}
-                placeholder="Wpisz szczerą odpowiedź własnymi słowami..."
-                className="w-full p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-alterja-blue font-serif leading-relaxed"
-              />
+              <div>
+                <label className="block text-xs font-mono text-slate-600 mb-1.5 font-medium">
+                  Twoja odpowiedź lub zasada (własnymi słowami)
+                </label>
+                <textarea
+                  rows={4}
+                  value={answerText}
+                  onChange={(e) => setAnswerText(e.target.value)}
+                  placeholder="Napisz szczerze, jak postępujesz. Twój sobowtór AI przejmie dokładnie ten sposób myślenia..."
+                  className="w-full p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-alterja-blue focus:bg-white shadow-inner transition-all font-medium"
+                />
+              </div>
 
               <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
                 <button
                   type="button"
                   onClick={handleSkip}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+                  className="w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-mono text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors flex items-center justify-center gap-1.5"
                 >
                   <SkipForward className="w-3.5 h-3.5" />
-                  <span>Pomiń to pytanie</span>
+                  <span>Pomiń to pytanie (szanuj swój czas)</span>
                 </button>
 
                 <button
                   type="submit"
                   disabled={!answerText.trim()}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 disabled:opacity-40 text-white text-xs font-medium transition-colors shadow-sm"
+                  className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-slate-950 hover:bg-slate-800 disabled:opacity-40 text-white text-xs font-medium flex items-center justify-center gap-2 transition-all shadow-md active:scale-95 shrink-0"
                 >
-                  <span>Zapisz w pamięci modelu</span>
+                  <span>Zapisz w pamięci sobowtóra</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import Image from "next/image";
 import Navbar from "@/components/navigation/Navbar";
 import {
   MessageSquare,
@@ -29,7 +30,6 @@ export default function ChatPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentConvId, setCurrentConvId] = useState<string>("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const abortControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     const convs = globalStore.getConversations(DEMO_USER_ID);
@@ -157,12 +157,53 @@ ${memorySnippet}
   };
 
   return (
-    <div className="min-h-screen bg-alterja-bg text-slate-900 flex flex-col font-sans">
+    <div className="min-h-screen bg-alterja-bg text-slate-900 flex flex-col font-sans selection:bg-alterja-blue/15 selection:text-alterja-blue">
       <Navbar />
 
-      <main className="flex-1 max-w-5xl mx-auto px-4 sm:px-6 py-6 w-full flex flex-col h-[calc(100vh-5rem)]">
+      {/* PEŁNOFORMATOWA KINOWA SCENA FOTOGRAFICZNA (TWIN-STREAM) */}
+      <section className="relative w-full min-h-[340px] md:min-h-[400px] flex items-center overflow-hidden bg-slate-950">
+        <Image
+          src="/images/twin-stream.jpg"
+          alt="Człowiek i jego świetlisty sobowtór AI połączeni strumieniem pamięci"
+          fill
+          priority
+          className="object-cover object-center scale-[1.02] filter brightness-90 contrast-105"
+        />
+
+        {/* Dynamiczny skaner biometryczny */}
+        <div className="absolute inset-0 scanline-bar opacity-30 pointer-events-none" />
+
+        {/* Kurtyna asymetryczna */}
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/80 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent pointer-events-none" />
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full flex flex-col md:flex-row md:items-end justify-between gap-6 text-white">
+          <div className="max-w-2xl space-y-3">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/90 border border-white/20 text-blue-300 text-xs font-mono backdrop-blur-md">
+              <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
+              <span>Studio dialogu · Bezpośrednie połączenie z Twoją AlterJą</span>
+            </div>
+
+            <h1 className="text-3xl sm:text-5xl font-serif font-medium tracking-tight text-white editorial-display leading-tight">
+              Rozmowa z Twoją niezniszczalną wersją
+            </h1>
+
+            <p className="text-sm sm:text-base text-slate-200 font-normal leading-relaxed max-w-xl">
+              Sprawdź, jak Twój sobowtór odpowiada Twoim głosem, humorem i kryteriami. Przetestuj trudne sytuacje, zanim podejmiesz decyzję w świecie realnym.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-900/80 backdrop-blur-xl border border-white/15 text-xs font-mono text-slate-300 shadow-xl">
+            <ShieldCheck className="w-4 h-4 text-emerald-400" />
+            <span>100% uziemienia w dowodach</span>
+          </div>
+        </div>
+      </section>
+
+      {/* OBSZAR ROBOCZY - STUDIO DIALOGU */}
+      <main className="flex-1 max-w-5xl mx-auto px-4 sm:px-6 py-6 w-full flex flex-col h-[calc(100vh-14rem)] min-h-[550px] relative z-20 -mt-10 sm:-mt-12">
         {/* Przełącznik 3 trybów */}
-        <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-2xl bg-white border border-slate-200 shadow-sm mb-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-2xl bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-xl mb-4">
           <div className="flex items-center gap-1.5">
             <button
               onClick={() => setMode("reconstruction")}
@@ -209,7 +250,7 @@ ${memorySnippet}
         </div>
 
         {/* Kontener konwersacji */}
-        <div className="flex-1 overflow-y-auto space-y-4 p-4 sm:p-6 rounded-3xl bg-white border border-slate-200 shadow-card">
+        <div className="flex-1 overflow-y-auto space-y-4 p-4 sm:p-6 rounded-3xl bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-xl">
           {messages.map((m) => {
             const isUser = m.role === "user";
             return (
@@ -220,7 +261,7 @@ ${memorySnippet}
                 <div
                   className={`max-w-2xl px-4 py-3 rounded-2xl text-xs sm:text-sm leading-relaxed ${
                     isUser
-                      ? "bg-slate-950 text-white rounded-br-sm"
+                      ? "bg-slate-950 text-white rounded-br-sm shadow-md"
                       : "bg-slate-50 border border-slate-200 text-slate-900 rounded-bl-sm"
                   }`}
                 >
@@ -250,14 +291,14 @@ ${memorySnippet}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Zadaj pytanie swojemu modelowi..."
-            className="flex-1 px-4 py-3 rounded-xl bg-white border border-slate-200 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-alterja-blue shadow-sm font-medium"
+            className="flex-1 px-4 py-3.5 rounded-2xl bg-white border border-slate-200 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-alterja-blue shadow-md font-medium"
           />
           <button
             type="submit"
             disabled={!input.trim() || isGenerating}
-            className="px-5 py-3 rounded-xl bg-slate-950 hover:bg-slate-800 disabled:opacity-40 text-white text-xs font-medium flex items-center gap-2 transition-all shadow-sm shrink-0"
+            className="px-6 py-3.5 rounded-2xl bg-slate-950 hover:bg-slate-800 disabled:opacity-40 text-white text-xs font-medium flex items-center gap-2 transition-all shadow-md shrink-0 active:scale-95"
           >
-            <span>Wyślij</span>
+            <span>{isGenerating ? "Odpowiadam..." : "Wyślij"}</span>
             <Send className="w-3.5 h-3.5" />
           </button>
         </form>

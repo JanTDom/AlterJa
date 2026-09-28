@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import Navbar from "@/components/navigation/Navbar";
 import {
   Sparkles,
@@ -8,6 +9,8 @@ import {
   CheckCircle2,
   Scale,
   SlidersHorizontal,
+  Flame,
+  Zap,
 } from "lucide-react";
 import { globalStore, DEMO_USER_ID } from "@/lib/db/store";
 import { geminiClient } from "@/lib/gemini/client";
@@ -52,7 +55,7 @@ export default function StyleLabPage() {
     setOptionB("");
     setJustification("");
     setDecisions([...globalStore.getDecisions(DEMO_USER_ID)]);
-    showNotice("Przypadek decyzyjny został zapisany w profilu.");
+    showNotice("Wzorzec decyzyjny został zapisany w profilu.");
   };
 
   const handleTestStyle = async (e: React.FormEvent) => {
@@ -62,7 +65,7 @@ export default function StyleLabPage() {
     setTransformedStyle(null);
 
     try {
-      const systemPrompt = `Jesteś silnikiem stylu AlterJa. Przekształć surowy szkic w charakterystyczny ton użytkownika: zwięzły, konkretny, oparty na faktach i precyzji leksykalnej. Bez dekoracyjnych emoji.`;
+      const systemPrompt = `Jesteś silnikiem stylu AlterJa. Przekształć surowy szkic w charakterystyczny ton użytkownika: zwięzły, konkretny, cięty, oparty na faktach i precyzji leksykalnej. Bez zbędnego lania wody, bez fałszywych ugrzecznień, zero dekoracyjnych emoji.`;
       const result = await geminiClient.generateStructured(sampleDraft, systemPrompt);
       setTransformedStyle(result.trim());
     } catch {
@@ -78,39 +81,70 @@ export default function StyleLabPage() {
   };
 
   return (
-    <div className="min-h-screen bg-alterja-bg text-slate-900 flex flex-col font-sans">
+    <div className="min-h-screen bg-alterja-bg text-slate-900 flex flex-col font-sans selection:bg-alterja-blue/15 selection:text-alterja-blue">
       <Navbar />
 
       {notice && (
-        <div className="fixed bottom-6 right-6 z-50 bg-slate-950 text-white text-xs px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 animate-in fade-in">
-          <span className="w-2 h-2 rounded-full bg-blue-400" />
-          <span>{notice}</span>
+        <div className="fixed bottom-6 right-6 z-50 bg-slate-950 text-white text-xs px-5 py-3.5 rounded-full shadow-2xl border border-white/20 flex items-center gap-3 animate-in fade-in">
+          <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
+          <span className="font-medium tracking-tight">{notice}</span>
         </div>
       )}
 
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-8">
-        {/* Nagłówek */}
-        <div className="pb-6 border-b border-slate-200">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-900 text-xs font-mono font-medium mb-2">
-            <SlidersHorizontal className="w-3.5 h-3.5 text-alterja-blue" />
-            <span>Ekspresja językowa i wzorce wyborów A/B</span>
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-slate-950">
-            Laboratorium stylu i decyzji
-          </h1>
-          <p className="text-sm text-slate-600 mt-1 max-w-2xl">
-            Kalibruj sposób formułowania myśli oraz preferencje w dylematach. Model uczy się Twojej argumentacji, a nie powierzchownego tonu.
-          </p>
-        </div>
+      {/* PEŁNOFORMATOWA KINOWA SCENA FOTOGRAFICZNA (RADIANT-AVATAR) */}
+      <section className="relative w-full min-h-[400px] md:min-h-[460px] flex items-center overflow-hidden bg-slate-950">
+        <Image
+          src="/images/radiant-avatar.jpg"
+          alt="Świetlisty awatar wznoszący się do gwiazd"
+          fill
+          priority
+          className="object-cover object-center scale-[1.02] filter brightness-90 contrast-105"
+        />
 
+        {/* Dynamiczny skaner biometryczny */}
+        <div className="absolute inset-0 scanline-bar opacity-30 pointer-events-none" />
+
+        {/* Kurtyna asymetryczna */}
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/80 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent pointer-events-none" />
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full flex flex-col md:flex-row md:items-end justify-between gap-6 text-white">
+          <div className="max-w-2xl space-y-3">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/90 border border-white/20 text-purple-300 text-xs font-mono backdrop-blur-md">
+              <span className="w-2 h-2 rounded-full bg-purple-400 animate-pulse" />
+              <span>Laboratorium tożsamości · Zero korpo-bełkotu</span>
+            </div>
+
+            <h1 className="text-3xl sm:text-5xl font-serif font-medium tracking-tight text-white editorial-display leading-tight">
+              Laboratorium stylu i decyzji
+            </h1>
+
+            <p className="text-sm sm:text-base text-slate-200 font-normal leading-relaxed max-w-xl">
+              Cięty język, zero sztucznych ugrzecznień i autorskie kryteria wyboru. Spraw, by Twój cyfrowy sobowtór pisał i argumentował z taką samą bezkompromisowością, jak Ty.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-900/80 backdrop-blur-xl border border-white/15 text-xs font-mono text-slate-300 shadow-xl">
+            <SlidersHorizontal className="w-4 h-4 text-purple-400" />
+            <span>{decisions.length} zapisanych reguł wyboru</span>
+          </div>
+        </div>
+      </section>
+
+      {/* OBSZAR ROBOCZY */}
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-8 relative z-20 -mt-10 sm:-mt-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Kolumna lewa: Formularz dylematu decyzyjnego A/B */}
-          <div className="lg:col-span-6 p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-card space-y-6">
+          <div className="lg:col-span-6 p-6 sm:p-8 rounded-3xl bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-xl space-y-6">
             <div className="space-y-1">
-              <span className="text-[10px] font-mono uppercase text-alterja-blue font-bold">Modelowanie decyzji</span>
-              <h2 className="text-xl font-semibold text-slate-950">Wprowadź rozstrzygnięty dylemat (A/B)</h2>
+              <span className="text-[10px] font-mono uppercase text-alterja-blue font-bold tracking-wider">
+                Modelowanie decyzji
+              </span>
+              <h2 className="text-xl sm:text-2xl font-serif font-medium text-slate-950 editorial-display">
+                Wprowadź rozstrzygnięty dylemat (A/B)
+              </h2>
               <p className="text-xs text-slate-600">
-                Pokaż modelowi, jak wybrałeś między dwiema alternatywami i dlaczego.
+                Pokaż modelowi, jak wybrałeś między dwiema alternatywami i jaka wartość przeważyła.
               </p>
             </div>
 
@@ -123,7 +157,7 @@ export default function StyleLabPage() {
                   value={situation}
                   onChange={(e) => setSituation(e.target.value)}
                   placeholder="np. Wybór architektury bazodanowej w projekcie"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-alterja-blue font-medium"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-alterja-blue font-medium shadow-inner"
                 />
               </div>
 
@@ -136,7 +170,7 @@ export default function StyleLabPage() {
                     value={optionA}
                     onChange={(e) => setOptionA(e.target.value)}
                     placeholder="Wariant pierwszy..."
-                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 shadow-inner"
                   />
                 </div>
                 <div className="space-y-1">
@@ -147,7 +181,7 @@ export default function StyleLabPage() {
                     value={optionB}
                     onChange={(e) => setOptionB(e.target.value)}
                     placeholder="Wariant drugi..."
-                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 shadow-inner"
                   />
                 </div>
               </div>
@@ -186,14 +220,14 @@ export default function StyleLabPage() {
                   value={justification}
                   onChange={(e) => setJustification(e.target.value)}
                   placeholder="Co przesądziło o tym wyborze? Jakie wartości przeważyły?"
-                  className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-alterja-blue leading-relaxed font-serif"
+                  className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-alterja-blue leading-relaxed font-sans shadow-inner"
                 />
               </div>
 
               <div className="pt-2 flex justify-end">
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 text-white text-xs font-medium transition-all shadow-sm"
+                  className="px-6 py-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 text-white text-xs font-medium transition-all shadow-md active:scale-95"
                 >
                   Zapisz przypadek decyzyjny
                 </button>
@@ -202,10 +236,14 @@ export default function StyleLabPage() {
           </div>
 
           {/* Kolumna prawa: Test transformacji stylu w locie */}
-          <div className="lg:col-span-6 p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-card space-y-6">
+          <div className="lg:col-span-6 p-6 sm:p-8 rounded-3xl bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-xl space-y-6">
             <div className="space-y-1">
-              <span className="text-[10px] font-mono uppercase text-purple-700 font-bold">Laboratorium stylu</span>
-              <h2 className="text-xl font-semibold text-slate-950">Przetestuj transformację szkicu</h2>
+              <span className="text-[10px] font-mono uppercase text-purple-700 font-bold tracking-wider">
+                Laboratorium stylu
+              </span>
+              <h2 className="text-xl sm:text-2xl font-serif font-medium text-slate-950 editorial-display">
+                Przetestuj transformację szkicu
+              </h2>
               <p className="text-xs text-slate-600">
                 Wpisz roboczy tekst. Model nada mu Twoją składnię, rytm i ton wypowiedzi.
               </p>
@@ -218,14 +256,14 @@ export default function StyleLabPage() {
                   rows={4}
                   value={sampleDraft}
                   onChange={(e) => setSampleDraft(e.target.value)}
-                  className="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-600 font-serif leading-relaxed"
+                  className="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-600 font-sans leading-relaxed shadow-inner"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={isTransforming}
-                className="w-full px-5 py-2.5 rounded-xl bg-alterja-blue hover:bg-blue-700 disabled:opacity-50 text-white text-xs font-medium transition-all shadow-sm flex items-center justify-center gap-2"
+                className="w-full px-5 py-3 rounded-2xl bg-alterja-blue hover:bg-blue-700 disabled:opacity-50 text-white text-xs font-medium transition-all shadow-md flex items-center justify-center gap-2 active:scale-95"
               >
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>{isTransforming ? "Przekształcanie..." : "Zastosuj mój styl"}</span>
@@ -233,7 +271,7 @@ export default function StyleLabPage() {
             </form>
 
             {transformedStyle && (
-              <div className="p-4 rounded-2xl bg-purple-50/70 border border-purple-200 text-xs text-slate-900 space-y-1 animate-in fade-in">
+              <div className="p-5 rounded-2xl bg-purple-50/80 border border-purple-200 text-xs text-slate-900 space-y-1.5 animate-in fade-in">
                 <span className="text-[10px] font-mono uppercase text-purple-700 font-bold tracking-wider block">
                   Wynik po transformacji stylu:
                 </span>
@@ -246,9 +284,11 @@ export default function StyleLabPage() {
         </div>
 
         {/* Lista zapisanych decyzji */}
-        <section className="space-y-4">
+        <section className="space-y-4 pt-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-slate-950">Zapisane wzorce decyzji (baza wyboru)</h2>
+            <h2 className="text-lg font-serif font-medium text-slate-950 editorial-display">
+              Zapisane wzorce decyzji (baza wyboru)
+            </h2>
             <span className="text-xs font-mono text-slate-500">{decisions.length} przypadków</span>
           </div>
 
@@ -256,7 +296,7 @@ export default function StyleLabPage() {
             {decisions.map((dec) => (
               <div
                 key={dec.id}
-                className="p-5 rounded-2xl bg-white border border-slate-200 shadow-card space-y-3"
+                className="p-5 rounded-3xl bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-md space-y-3"
               >
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-slate-950">{dec.situation}</span>

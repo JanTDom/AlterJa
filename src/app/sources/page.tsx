@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import Navbar from "@/components/navigation/Navbar";
 import {
   FileText,
@@ -12,6 +13,7 @@ import {
   ArrowRight,
   Shield,
   FileCheck,
+  FolderSync,
 } from "lucide-react";
 import { globalStore, DEMO_USER_ID } from "@/lib/db/store";
 import { SourceItem } from "@/domains/types";
@@ -95,38 +97,65 @@ export default function SourcesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-alterja-bg text-slate-900 flex flex-col font-sans">
+    <div className="min-h-screen bg-alterja-bg text-slate-900 flex flex-col font-sans selection:bg-alterja-blue/15 selection:text-alterja-blue">
       <Navbar />
 
       {notice && (
-        <div className="fixed bottom-6 right-6 z-50 bg-slate-950 text-white text-xs px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 animate-in fade-in">
-          <span className="w-2 h-2 rounded-full bg-blue-400" />
-          <span>{notice}</span>
+        <div className="fixed bottom-6 right-6 z-50 bg-slate-950 text-white text-xs px-5 py-3.5 rounded-full shadow-2xl border border-white/20 flex items-center gap-3 animate-in fade-in">
+          <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
+          <span className="font-medium tracking-tight">{notice}</span>
         </div>
       )}
 
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-8">
-        {/* Nagłówek */}
-        <div className="pb-6 border-b border-slate-200">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-900 text-xs font-mono font-medium mb-2">
-            <FileText className="w-3.5 h-3.5 text-alterja-blue" />
-            <span>Kontrolowane pozyskiwanie danych · RODO art. 13</span>
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-slate-950">
-            Źródła wiedzy i zasilanie tożsamości
-          </h1>
-          <p className="text-sm text-slate-600 mt-1 max-w-2xl">
-            Importuj dokumenty, wywiady i wypowiedzi. Każde źródło przechodzi wstępną weryfikację autorstwa i kwalifikację przed włączeniem do grafu pamięci.
-          </p>
-        </div>
+      {/* PEŁNOFORMATOWA KINOWA SCENA FOTOGRAFICZNA (MIND-LANDSCAPE) */}
+      <section className="relative w-full min-h-[400px] md:min-h-[460px] flex items-center overflow-hidden bg-slate-950">
+        <Image
+          src="/images/mind-landscape.jpg"
+          alt="Świecąca góra wiedzy i krystaliczne miasto pamięci AlterJa"
+          fill
+          priority
+          className="object-cover object-center scale-[1.02] filter brightness-90 contrast-105"
+        />
 
-        {/* Panel dodawania źródła */}
-        <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-card space-y-6">
+        {/* Dynamiczny skaner biometryczny */}
+        <div className="absolute inset-0 scanline-bar opacity-30 pointer-events-none" />
+
+        {/* Kurtyna asymetryczna */}
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/80 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent pointer-events-none" />
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full flex flex-col md:flex-row md:items-end justify-between gap-6 text-white">
+          <div className="max-w-2xl space-y-3">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/90 border border-white/20 text-emerald-300 text-xs font-mono backdrop-blur-md">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>Zasilanie tożsamości · Autentyczne materiały</span>
+            </div>
+
+            <h1 className="text-3xl sm:text-5xl font-serif font-medium tracking-tight text-white editorial-display leading-tight">
+              Twoje źródła wiedzy i notatki
+            </h1>
+
+            <p className="text-sm sm:text-base text-slate-200 font-normal leading-relaxed max-w-xl">
+              Wgraj swoje maile, notatki, artykuły i zasady. Niech Twoja kopia uczy się wyłącznie na Twoich autentycznych materiałach, a nie na korporacyjnym bełkocie.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-900/80 backdrop-blur-xl border border-white/15 text-xs font-mono text-slate-300 shadow-xl">
+            <FolderSync className="w-4 h-4 text-emerald-400" />
+            <span>{sources.length} podłączonych źródeł</span>
+          </div>
+        </div>
+      </section>
+
+      {/* OBSZAR ROBOCZY */}
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-8 relative z-20 -mt-10 sm:-mt-12">
+        {/* Panel dodawania źródła w luksusowym szkle */}
+        <div className="p-6 sm:p-8 rounded-3xl bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-xl space-y-6">
           <div className="flex items-center gap-2 border-b border-slate-100 pb-4">
             <button
               onClick={() => setActiveTab("paste")}
               className={`px-4 py-2 rounded-xl text-xs font-medium transition-all ${
-                activeTab === "paste" ? "bg-slate-950 text-white" : "text-slate-600 hover:bg-slate-100"
+                activeTab === "paste" ? "bg-slate-950 text-white shadow-sm" : "text-slate-600 hover:bg-slate-100"
               }`}
             >
               Wklej tekst lub notatkę
@@ -134,7 +163,7 @@ export default function SourcesPage() {
             <button
               onClick={() => setActiveTab("upload")}
               className={`px-4 py-2 rounded-xl text-xs font-medium transition-all ${
-                activeTab === "upload" ? "bg-slate-950 text-white" : "text-slate-600 hover:bg-slate-100"
+                activeTab === "upload" ? "bg-slate-950 text-white shadow-sm" : "text-slate-600 hover:bg-slate-100"
               }`}
             >
               Prześlij plik (PDF, TXT, MD)
@@ -142,7 +171,7 @@ export default function SourcesPage() {
             <button
               onClick={() => setActiveTab("voice")}
               className={`px-4 py-2 rounded-xl text-xs font-medium transition-all ${
-                activeTab === "voice" ? "bg-slate-950 text-white" : "text-slate-600 hover:bg-slate-100"
+                activeTab === "voice" ? "bg-slate-950 text-white shadow-sm" : "text-slate-600 hover:bg-slate-100"
               }`}
             >
               Nagraj głos
@@ -158,8 +187,8 @@ export default function SourcesPage() {
                   required
                   value={pasteTitle}
                   onChange={(e) => setPasteTitle(e.target.value)}
-                  placeholder="np. Dziennik przemyśleń o architekturze oprogramowania"
-                  className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-alterja-blue"
+                  placeholder="np. Moje zasady negocjacji kontraktów IT"
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-alterja-blue shadow-inner"
                 />
               </div>
 
@@ -171,7 +200,7 @@ export default function SourcesPage() {
                   value={pasteContent}
                   onChange={(e) => setPasteContent(e.target.value)}
                   placeholder="Wklej surowy tekst notatek, eseju, korespondencji..."
-                  className="w-full p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-alterja-blue font-mono leading-relaxed"
+                  className="w-full p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-alterja-blue font-sans leading-relaxed shadow-inner"
                 />
               </div>
 
@@ -206,7 +235,7 @@ export default function SourcesPage() {
               <div className="pt-2 flex justify-end">
                 <button
                   type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 text-white text-xs font-medium transition-all shadow-sm"
+                  className="px-6 py-3 rounded-2xl bg-slate-950 hover:bg-slate-800 text-white text-xs font-medium transition-all shadow-md active:scale-95"
                 >
                   Generuj podgląd importu
                 </button>
@@ -227,7 +256,7 @@ export default function SourcesPage() {
                   setPasteContent("Przykładowa treść wyekstrahowana z zaimportowanego pliku dokumentu.");
                   setActiveTab("paste");
                 }}
-                className="px-4 py-2 rounded-xl bg-white border border-slate-200 text-xs font-medium text-slate-800 hover:bg-slate-50 shadow-sm"
+                className="px-5 py-2.5 rounded-2xl bg-white border border-slate-200 text-xs font-medium text-slate-800 hover:bg-slate-50 shadow-sm active:scale-95"
               >
                 Wybierz plik z dysku
               </button>
@@ -247,7 +276,7 @@ export default function SourcesPage() {
                   setPasteContent("Nagranie: Ważne jest, abyśmy w architekturze zawsze oddzielali domenę od infrastruktury.");
                   setActiveTab("paste");
                 }}
-                className="px-5 py-2.5 rounded-xl bg-alterja-blue hover:bg-blue-700 text-white text-xs font-medium shadow-sm"
+                className="px-6 py-2.5 rounded-2xl bg-alterja-blue hover:bg-blue-700 text-white text-xs font-medium shadow-md active:scale-95"
               >
                 Rozpocznij nagrywanie
               </button>
@@ -257,11 +286,15 @@ export default function SourcesPage() {
 
         {/* Modal podglądu importu (Ingestion Preview) */}
         {previewData && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm animate-in fade-in">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in">
             <div className="max-w-xl w-full bg-white rounded-3xl p-6 sm:p-8 space-y-5 shadow-2xl border border-slate-200">
               <div className="space-y-1">
-                <span className="text-[10px] font-mono uppercase text-alterja-blue font-bold">Kwalifikacja danych</span>
-                <h3 className="text-xl font-semibold text-slate-950">Podgląd importu źródła</h3>
+                <span className="text-[10px] font-mono uppercase text-alterja-blue font-bold tracking-wider">
+                  Kwalifikacja danych
+                </span>
+                <h3 className="text-xl font-serif font-medium text-slate-950 editorial-display">
+                  Podgląd importu źródła
+                </h3>
               </div>
 
               <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2 text-xs">
@@ -281,7 +314,7 @@ export default function SourcesPage() {
                 </button>
                 <button
                   onClick={handleConfirmImport}
-                  className="px-5 py-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 text-white text-xs font-medium shadow-sm"
+                  className="px-5 py-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 text-white text-xs font-medium shadow-md active:scale-95"
                 >
                   Zatwierdź i włącz do pamięci
                 </button>
@@ -291,9 +324,11 @@ export default function SourcesPage() {
         )}
 
         {/* Lista podłączonych źródeł */}
-        <section className="space-y-4">
+        <section className="space-y-4 pt-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-slate-950">Podłączone źródła wiedzy</h2>
+            <h2 className="text-lg font-serif font-medium text-slate-950 editorial-display">
+              Podłączone źródła wiedzy
+            </h2>
             <span className="text-xs font-mono text-slate-500">{sources.length} aktywnych źródeł</span>
           </div>
 
@@ -301,12 +336,12 @@ export default function SourcesPage() {
             {sources.map((src) => (
               <div
                 key={src.id}
-                className="p-5 rounded-2xl bg-white border border-slate-200 shadow-card hover:shadow-float transition-all flex flex-col justify-between space-y-3"
+                className="p-5 rounded-3xl bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-md hover:shadow-xl transition-all flex flex-col justify-between space-y-3"
               >
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold text-slate-950">{src.title}</span>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-600">
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
                       {src.is_synthetic_ai ? "Treść AI" : src.is_third_party ? "Osoba trzecia" : "Tekst własny"}
                     </span>
                   </div>
@@ -319,7 +354,7 @@ export default function SourcesPage() {
                   <span>{new Date(src.created_at).toLocaleDateString("pl-PL")}</span>
                   <button
                     onClick={() => handleDelete(src.id)}
-                    className="p-1.5 rounded-lg hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition-colors"
+                    className="p-1.5 rounded-xl hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition-colors"
                     title="Usuń źródło"
                   >
                     <Trash2 className="w-4 h-4" />

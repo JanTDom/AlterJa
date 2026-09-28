@@ -1,10 +1,23 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import Navbar from "@/components/navigation/Navbar";
 import { store } from "@/lib/db/store";
-import { Shield, Lock, Download, Trash2, CheckCircle2, AlertTriangle, FileText, RefreshCw, KeyRound, ExternalLink } from "lucide-react";
-import Link from "next/link";
+import {
+  Shield,
+  Lock,
+  Download,
+  Trash2,
+  CheckCircle2,
+  AlertTriangle,
+  FileText,
+  RefreshCw,
+  KeyRound,
+  ExternalLink,
+  ShieldCheck,
+} from "lucide-react";
 
 export default function PrivacyPage() {
   const profile = store.getProfile();
@@ -55,18 +68,20 @@ export default function PrivacyPage() {
   if (isDeleted) {
     return (
       <div className="min-h-screen bg-alterja-bg text-slate-900 flex flex-col justify-center items-center px-4">
-        <div className="max-w-md w-full p-8 rounded-2xl bg-white border border-slate-200 shadow-card text-center space-y-4">
-          <div className="w-12 h-12 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center mx-auto">
-            <CheckCircle2 className="w-6 h-6" />
+        <div className="max-w-md w-full p-8 rounded-3xl bg-white border border-slate-200 shadow-2xl text-center space-y-4">
+          <div className="w-14 h-14 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center mx-auto shadow-inner">
+            <CheckCircle2 className="w-7 h-7" />
           </div>
-          <h1 className="text-xl font-serif font-medium tracking-tight text-slate-900">Dane zostały trwale usunięte</h1>
+          <h1 className="text-2xl font-serif font-medium tracking-tight text-slate-900 editorial-display">
+            Dane zostały trwale usunięte
+          </h1>
           <p className="text-xs text-slate-600 leading-relaxed">
             Zgodnie z procedurą RODO (art. 17 — prawo do bycia zapomnianym), wszystkie warstwy pamięci, rekonstrukcja stylu, wywiady, logi i klucze API powiązane z tym profilem zostały nieodwracalnie wyczyszczone.
           </p>
           <div className="pt-4">
             <Link
               href="/"
-              className="inline-flex items-center justify-center w-full px-4 py-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-xs font-medium text-white transition-colors"
+              className="inline-flex items-center justify-center w-full px-5 py-3 rounded-2xl bg-slate-950 hover:bg-slate-800 text-xs font-medium text-white transition-all shadow-md active:scale-95"
             >
               Powrót do strony głównej
             </Link>
@@ -122,53 +137,80 @@ export default function PrivacyPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-alterja-bg text-slate-900 flex flex-col selection:bg-alterja-accent/15 selection:text-alterja-accent">
+    <div className="min-h-screen bg-alterja-bg text-slate-900 flex flex-col font-sans selection:bg-alterja-accent/15 selection:text-alterja-accent">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-8">
-        {/* Nagłówek */}
-        <div className="border-b border-slate-200 pb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-mono uppercase tracking-wider mb-2">
-              <Shield className="w-3.5 h-3.5" />
-              Kontrola suwerenności danych · RODO i AI Act
+      {/* PEŁNOFORMATOWA KINOWA SCENA FOTOGRAFICZNA (TREE-OF-MIND) */}
+      <section className="relative w-full min-h-[400px] md:min-h-[460px] flex items-center overflow-hidden bg-slate-950">
+        <Image
+          src="/images/tree-of-mind.jpg"
+          alt="Kosmiczne drzewo umysłu i nienaruszalny skarbiec AlterJa"
+          fill
+          priority
+          className="object-cover object-center scale-[1.02] filter brightness-90 contrast-105"
+        />
+
+        {/* Dynamiczny skaner biometryczny */}
+        <div className="absolute inset-0 scanline-bar opacity-30 pointer-events-none" />
+
+        {/* Kurtyna asymetryczna */}
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/80 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent pointer-events-none" />
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full flex flex-col md:flex-row md:items-end justify-between gap-6 text-white">
+          <div className="max-w-2xl space-y-3">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/90 border border-white/20 text-emerald-400 text-xs font-mono backdrop-blur-md">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>Pancerny skarbiec · Zero korporacyjnego treningu</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-serif font-medium tracking-tight text-slate-900">Centrum prywatności i zgód</h1>
-            <p className="text-sm text-slate-600 mt-1 max-w-2xl">
-              Pełna kontrola nad celami przetwarzania, prawem do bycia zapomnianym oraz audytowalnym rejestrem zdarzeń. Wszystkie dane są izolowane na poziomie bazy danych z politykami Row Level Security.
+
+            <h1 className="text-3xl sm:text-5xl font-serif font-medium tracking-tight text-white editorial-display leading-tight">
+              Prywatność i absolutna suwerenność
+            </h1>
+
+            <p className="text-sm sm:text-base text-slate-200 font-normal leading-relaxed max-w-xl">
+              Twoja wiedza to Twoja wyłączna własność. Żadna korporacja nie trenuje na Tobie swoich modeli, a wszystkie dane są chronione bankową izolacją RLS.
             </p>
           </div>
-          <div className="flex items-center gap-3">
+
+          <div className="flex flex-wrap items-center gap-3 shrink-0">
             <button
               onClick={handleExportData}
               disabled={exportState === "preparing"}
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-xs font-medium text-slate-700 shadow-sm transition-colors"
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-white text-slate-950 hover:bg-slate-100 text-xs font-semibold shadow-2xl transition-all active:scale-95"
             >
               {exportState === "preparing" ? (
-                <RefreshCw className="w-4 h-4 animate-spin text-alterja-accent" />
+                <RefreshCw className="w-4 h-4 animate-spin text-slate-950" />
               ) : (
-                <Download className="w-4 h-4 text-slate-500" />
+                <Download className="w-4 h-4 text-slate-950" />
               )}
-              {exportState === "preparing" ? "Przygotowywanie..." : exportState === "ready" ? "Pobrano archiwum RODO" : "Eksport danych (JSON)"}
+              <span>{exportState === "preparing" ? "Przygotowywanie..." : exportState === "ready" ? "Pobrano archiwum RODO" : "Eksport danych (JSON)"}</span>
             </button>
             <button
               onClick={() => setDeleteModalOpen(true)}
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-rose-50 hover:bg-rose-100 border border-rose-200 text-xs font-medium text-rose-700 transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-3 rounded-2xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-400/40 text-xs font-medium text-rose-200 transition-all active:scale-95"
             >
-              <Trash2 className="w-4 h-4" />
-              Usuń tożsamość cyfrową
+              <Trash2 className="w-4 h-4 text-rose-300" />
+              <span>Usuń tożsamość</span>
             </button>
           </div>
         </div>
+      </section>
 
-        {/* 5 Zgód operacyjnych */}
+      {/* OBSZAR ROBOCZY */}
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-8 relative z-20 -mt-10 sm:-mt-12">
+        {/* 5 Zgód operacyjnych w luksusowych kartach */}
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-serif font-medium text-slate-900 tracking-tight">Cele przetwarzania i zgody formalne</h2>
-              <p className="text-xs text-slate-500">Możesz wycofać każdą z powyższych zgód w dowolnym momencie z natychmiastowym skutkiem prawnym i technicznym.</p>
+              <h2 className="text-xl font-serif font-medium text-slate-950 editorial-display">
+                Cele przetwarzania i zgody formalne
+              </h2>
+              <p className="text-xs text-slate-500">
+                Możesz wycofać każdą ze zgód w dowolnym momencie z natychmiastowym skutkiem technicznym.
+              </p>
             </div>
-            <span className="text-xs text-slate-500 font-mono">5 aktywnych obszarów</span>
+            <span className="text-xs font-mono text-slate-500">5 aktywnych obszarów</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -178,17 +220,21 @@ export default function PrivacyPage() {
               return (
                 <div
                   key={item.key}
-                  className={`p-5 rounded-xl border transition-all ${
-                    active ? "bg-white border-slate-200 shadow-card" : "bg-white/60 border-slate-200/60 opacity-80"
+                  className={`p-6 rounded-3xl border transition-all ${
+                    active
+                      ? "bg-white/95 backdrop-blur-xl border-slate-200/90 shadow-md"
+                      : "bg-white/60 border-slate-200/60 opacity-80"
                   }`}
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-slate-900">{item.title}</span>
+                        <span className="text-sm font-semibold text-slate-900">{item.title}</span>
                         <span
-                          className={`text-[10px] px-2 py-0.5 rounded-full font-mono ${
-                            active ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-slate-100 text-slate-500"
+                          className={`text-[10px] px-2.5 py-0.5 rounded-full font-mono ${
+                            active
+                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold"
+                              : "bg-slate-100 text-slate-500"
                           }`}
                         >
                           {active ? "Aktywna" : "Wycofana"}
@@ -202,7 +248,7 @@ export default function PrivacyPage() {
                       disabled={isSaving}
                       aria-label={`Przełącz zgodę dla: ${item.title}`}
                       className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-alterja-accent focus:ring-offset-2 focus:ring-offset-white ${
-                        active ? "bg-alterja-accent" : "bg-slate-200"
+                        active ? "bg-slate-950" : "bg-slate-200"
                       }`}
                     >
                       <span
@@ -213,7 +259,7 @@ export default function PrivacyPage() {
                     </button>
                   </div>
 
-                  <p className="text-xs text-slate-600 mt-3 leading-relaxed">{item.description}</p>
+                  <p className="text-xs text-slate-600 mt-3 leading-relaxed font-sans">{item.description}</p>
 
                   <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-500 flex items-center gap-1.5">
                     <AlertTriangle className="w-3.5 h-3.5 text-amber-500 shrink-0" />
@@ -227,43 +273,45 @@ export default function PrivacyPage() {
 
         {/* Architektura bezpieczeństwa i gwarancje */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="p-5 rounded-xl bg-white border border-slate-200 shadow-card space-y-2">
-            <div className="flex items-center gap-2 text-alterja-accent text-sm font-medium">
+          <div className="p-6 rounded-3xl bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-md space-y-2">
+            <div className="flex items-center gap-2 text-alterja-blue text-sm font-semibold">
               <Lock className="w-4 h-4" />
-              Izolacja Row Level Security
+              <span>Izolacja Row Level Security</span>
             </div>
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <p className="text-xs text-slate-600 leading-relaxed font-sans">
               Każde zapytanie do bazy PostgreSQL jest ograniczone filtrem <code className="text-slate-800 font-mono text-[11px] bg-slate-100 px-1 py-0.5 rounded">auth.uid() = user_id</code>. Żaden inny użytkownik ani klient API nie ma fizycznego dostępu do Twojej przestrzeni danych.
             </p>
           </div>
 
-          <div className="p-5 rounded-xl bg-white border border-slate-200 shadow-card space-y-2">
-            <div className="flex items-center gap-2 text-purple-700 text-sm font-medium">
+          <div className="p-6 rounded-3xl bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-md space-y-2">
+            <div className="flex items-center gap-2 text-purple-700 text-sm font-semibold">
               <KeyRound className="w-4 h-4" />
-              Brak treningu modeli bazowych
+              <span>Brak treningu modeli bazowych</span>
             </div>
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <p className="text-xs text-slate-600 leading-relaxed font-sans">
               Twoje wypowiedzi, transkrypcje i biografie nie są wykorzystywane do publicznego douczania modeli Google Gemini ani żadnych innych modeli komercyjnych. Dane służą wyłącznie do wnioskowania w locie (RAG).
             </p>
           </div>
 
-          <div className="p-5 rounded-xl bg-white border border-slate-200 shadow-card space-y-2">
-            <div className="flex items-center gap-2 text-emerald-700 text-sm font-medium">
+          <div className="p-6 rounded-3xl bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-md space-y-2">
+            <div className="flex items-center gap-2 text-emerald-700 text-sm font-semibold">
               <CheckCircle2 className="w-4 h-4" />
-              Standardy UE i polskie normy
+              <span>Standardy UE i polskie normy</span>
             </div>
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <p className="text-xs text-slate-600 leading-relaxed font-sans">
               Zgodność z RODO (w tym prawo do wyjaśnienia i art. 22 o profilowaniu), unijnym AI Act dla modeli wysokiego zaufania oraz wytycznymi UODO dotyczącymi systemów generatywnych.
             </p>
           </div>
         </section>
 
         {/* Dziennik audytu i operacji na danych */}
-        <section className="p-6 rounded-2xl bg-white border border-slate-200 shadow-card space-y-4">
+        <section className="p-6 rounded-3xl bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-md space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <FileText className="w-4 h-4 text-slate-500" />
-              <h2 className="text-base font-serif font-medium text-slate-900 tracking-tight">Dziennik audytowy operacji prywatności</h2>
+              <h2 className="text-base font-serif font-medium text-slate-900 tracking-tight editorial-display">
+                Dziennik audytowy operacji prywatności
+              </h2>
             </div>
             <span className="text-xs text-slate-500 font-mono">Wszystkie wpisy są niezmienne (append-only)</span>
           </div>
@@ -298,15 +346,17 @@ export default function PrivacyPage() {
       {/* Modal potwierdzenia usunięcia konta */}
       {deleteModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in">
-          <div className="max-w-md w-full bg-white border border-rose-200 rounded-2xl p-6 space-y-4 shadow-float">
+          <div className="max-w-md w-full bg-white border border-rose-200 rounded-3xl p-6 sm:p-8 space-y-4 shadow-2xl">
             <div className="flex items-center gap-3 text-rose-600">
               <AlertTriangle className="w-6 h-6 shrink-0" />
-              <h3 className="text-base font-serif font-medium text-slate-900 tracking-tight">Trwałe usunięcie tożsamości cyfrowej</h3>
+              <h3 className="text-lg font-serif font-medium text-slate-900 tracking-tight">
+                Trwałe usunięcie tożsamości cyfrowej
+              </h3>
             </div>
             <p className="text-xs text-slate-600 leading-relaxed">
               Ta operacja jest <strong className="text-slate-900 font-semibold">nieodwracalna</strong>. Spowoduje natychmiastowe usunięcie:
             </p>
-            <ul className="text-xs text-slate-600 list-disc list-inside space-y-1">
+            <ul className="text-xs text-slate-600 list-disc list-inside space-y-1 font-sans">
               <li>Wszystkich 7 warstw pamięci autobiograficznej</li>
               <li>Wszystkich nagrań, transkrypcji i podłączonych źródeł</li>
               <li>Sformułowanych hipotez i wzorców stylu</li>
@@ -323,7 +373,7 @@ export default function PrivacyPage() {
                 value={deleteConfirmationText}
                 onChange={(e) => setDeleteConfirmationText(e.target.value)}
                 placeholder="USUŃ WSZYSTKIE DANE"
-                className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-rose-500 focus:bg-white"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-rose-500 focus:bg-white shadow-inner font-mono font-bold"
               />
             </div>
 
@@ -331,7 +381,7 @@ export default function PrivacyPage() {
               <button
                 type="button"
                 onClick={() => setDeleteModalOpen(false)}
-                className="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs font-medium text-slate-700 transition-colors"
+                className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-medium text-slate-700 transition-colors"
               >
                 Anuluj
               </button>
@@ -339,7 +389,7 @@ export default function PrivacyPage() {
                 type="button"
                 onClick={handleDeleteAccount}
                 disabled={deleteConfirmationText !== "USUŃ WSZYSTKIE DANE"}
-                className="px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-medium text-white transition-colors"
+                className="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-medium text-white transition-all shadow-md active:scale-95"
               >
                 Potwierdzam trwałe usunięcie
               </button>
