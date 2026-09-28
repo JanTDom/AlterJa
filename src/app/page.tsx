@@ -124,7 +124,7 @@ export default function HomePage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
             <Link
               href="/interview"
-              className="w-full sm:w-auto btn-luxe-primary !py-4 !px-8 text-base bg-white text-slate-950 hover:bg-slate-100 shadow-[0_0_40px_rgba(255,255,255,0.35)] animate-shimmer"
+              className="w-full sm:w-auto btn-luxe-light !py-4 !px-8 text-base shadow-[0_0_40px_rgba(255,255,255,0.35)] animate-shimmer"
             >
               <span>Stwórz swoją kopię AI</span>
               <span className="w-6 h-6 rounded-full bg-slate-900/10 flex items-center justify-center">
@@ -134,9 +134,9 @@ export default function HomePage() {
 
             <Link
               href="/dashboard"
-              className="w-full sm:w-auto btn-luxe-secondary !py-4 !px-8 text-base text-white border-white/30 hover:border-white/60 bg-slate-950/60 hover:bg-slate-900/80 backdrop-blur-2xl"
+              className="w-full sm:w-auto btn-luxe-glass !py-4 !px-8 text-base"
             >
-              <Zap className="w-4 h-4 text-alterja-blue" />
+              <Zap className="w-4 h-4 text-blue-400" />
               <span>Zobacz pulpit swojego sobowtóra</span>
             </Link>
           </div>
@@ -508,14 +508,14 @@ export default function HomePage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
             <Link
               href="/interview"
-              className="w-full sm:w-auto btn-luxe-primary !py-4 !px-8 text-base bg-white text-slate-950 hover:bg-slate-100 shadow-[0_0_40px_rgba(255,255,255,0.4)] animate-shimmer"
+              className="w-full sm:w-auto btn-luxe-light !py-4 !px-8 text-base shadow-[0_0_40px_rgba(255,255,255,0.4)] animate-shimmer"
             >
               <span>Rozpocznij tworzenie kopii AI</span>
               <ArrowRight className="w-4 h-4 text-slate-950" />
             </Link>
             <Link
               href="/dashboard"
-              className="w-full sm:w-auto btn-luxe-secondary !py-4 !px-8 text-base text-white border-white/30 hover:border-white/60 bg-slate-950/70 hover:bg-slate-900/90 backdrop-blur-xl"
+              className="w-full sm:w-auto btn-luxe-glass !py-4 !px-8 text-base"
             >
               <span>Zobacz pulpit sobowtóra</span>
             </Link>

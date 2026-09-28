@@ -154,7 +154,7 @@ export default function DeveloperPage() {
             <Link
               href="/api/v1/openapi.json"
               target="_blank"
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-white text-slate-950 hover:bg-slate-100 text-xs font-semibold shadow-2xl transition-all active:scale-95"
+              className="btn-luxe-light !py-3 !px-5 text-xs shadow-2xl active:scale-95"
             >
               <Code className="w-4 h-4 text-alterja-blue" />
               <span>Specyfikacja OpenAPI 3.1</span>

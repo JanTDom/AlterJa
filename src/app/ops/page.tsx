@@ -100,9 +100,9 @@ export default function OpsPage() {
           <div className="flex items-center gap-3 shrink-0">
             <button
               onClick={handleRefresh}
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-white text-slate-950 hover:bg-slate-100 text-xs font-semibold shadow-2xl transition-all active:scale-95"
+              className="btn-luxe-light !py-3 !px-5 text-xs shadow-2xl active:scale-95"
             >
-              <RefreshCw className={`w-4 h-4 text-alterja-blue ${isRefreshing ? "animate-spin" : ""}`} />
+              <RefreshCw className={`w-4 h-4 text-slate-950 ${isRefreshing ? "animate-spin" : ""}`} />
               <span>Odśwież wskaźniki na żywo</span>
             </button>
           </div>
