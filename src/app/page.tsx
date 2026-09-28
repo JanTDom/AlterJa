@@ -71,13 +71,13 @@ export default function HomePage() {
     <div className="min-h-screen bg-slate-950 text-white flex flex-col font-sans selection:bg-alterja-blue/25 selection:text-blue-200 overflow-x-hidden">
       <Navbar />
 
-      {/* 1. SCENA HERO: PEŁNOEKRANOWA PRZESTRZEŃ ZE ŚWIETLISTYM SOBOWTÓREM (TWIN-TOUCH) */}
+      {/* 1. SCENA HERO: PORTAL DO NIEZNISZCZALNEGO SOBOWTÓRA (PORTAL-MIRROR) */}
       <section className="photo-stage min-h-[92vh] sm:min-h-screen justify-center text-center">
         
         {/* Zdjęcie na całą szerokość i wysokość tła */}
         <Image
-          src="/images/twin-touch.jpg"
-          alt="Spotkanie ze świetlistym cyfrowym sobowtórem AI"
+          src="/images/portal-mirror.jpg"
+          alt="Spotkanie z własnym cyfrowym sobowtórem w portalu światła i pamięci"
           fill
           className="object-cover object-center transition-transform duration-1000 scale-[1.02] hover:scale-105"
           priority
@@ -86,7 +86,7 @@ export default function HomePage() {
         {/* Dynamiczny promień skanujący na cały ekran */}
         <div className="absolute inset-x-0 h-24 bg-gradient-to-b from-blue-400/0 via-blue-400/30 to-blue-400/0 border-b border-blue-300/80 pointer-events-none animate-scanline" />
 
-        {/* Nastrojowa kurtyna kinowa */}
+        {/* Nastrojowa kurtyna kinowa dla idealnej czytelności */}
         <div className="absolute inset-0 photo-overlay-center pointer-events-none" />
 
         {/* Warstwa treści unosząca się w centrum sceny */}
@@ -182,13 +182,13 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* 3. SCENA WOLNOŚCI W PODRÓŻY: PEŁNOFORMATOWE ZDJĘCIE LOTNISKA (TRAVEL-WORK) */}
-      <section className="photo-stage min-h-[90vh]">
+      {/* 3. SCENA ZWIELOKROTNIONEJ ENERGII: ŚWIETLISTY SOBOWTÓR W AKCJI (RADIANT-AVATAR) */}
+      <section className="photo-stage min-h-[92vh]">
         
         {/* Zdjęcie na pełną szerokość tła */}
         <Image
-          src="/images/travel-work.jpg"
-          alt="Kobieta podróżuje, podczas gdy jej kopia AI domyka kontrakty"
+          src="/images/radiant-avatar.jpg"
+          alt="Świetlisty cyfrowy sobowtór unoszący się z wiedzą i technologią do gwiazd"
           fill
           className="object-cover object-center transition-transform duration-1000 scale-[1.02] hover:scale-105"
         />
@@ -196,29 +196,29 @@ export default function HomePage() {
         {/* Kurtyna asymetryczna z lewej strony */}
         <div className="absolute inset-0 photo-overlay-left pointer-events-none" />
 
-        {/* Zawartość osadzona bezpośrednio w panoramie lotniska */}
+        {/* Zawartość osadzona bezpośrednio w kadrze */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full">
           <div className="max-w-2xl space-y-8">
             
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-950/80 backdrop-blur-md border border-white/20 text-white text-[11px] font-mono">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              Terminal podróży · Salon biznesowy · 14:20
+              Nieskończona skala · 24 godziny na dobę
             </div>
 
             <div className="space-y-4">
               <span className="text-[11px] font-mono uppercase tracking-widest text-blue-400 font-bold block">
-                SUWERENNOŚĆ W PODRÓŻY
+                ZWIELOKROTNIONY POTĘCJAŁ
               </span>
               
               <h2 className="text-3xl sm:text-5xl font-serif font-medium text-white editorial-display leading-tight">
-                „Ty pijesz kawę na lotnisku. <br />
+                „Podczas gdy Ty odpoczywasz, <br />
                 <span className="italic text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-indigo-200 to-white">
-                  Twoja AlterJa odpowiada na maile i domyka kontrakty.”
+                  Twoja AlterJa domyka setki spraw.”
                 </span>
               </h2>
 
               <p className="text-base sm:text-lg text-slate-200 leading-relaxed font-normal">
-                Po co uczyć obcego bota, skoro możesz sklonować siebie? Zwykłe boty brzmią jak sztywny korpo-podręcznik i nie mają pojęcia o Twoim stylu. AlterJa myśli, pisze i decyduje w Twoim autentycznym stylu, pilnując Twoich stawek i granic.
+                Biologiczny człowiek potrzebuje snu i regeneracji. Twoja cyfrowa kopia nie zna zmęczenia. Analizuje umowy, odpowiada kluczowym partnerom, przygotowuje oferty handlowe i pilnuje Twoich interesów bez utraty ostrości umysłu.
               </p>
             </div>
 
@@ -230,7 +230,7 @@ export default function HomePage() {
                   <span>Generyczny bot (obcy)</span>
                 </div>
                 <p className="text-xs text-slate-300 leading-relaxed">
-                  Lanie wody, sztywne korpo-formułki, zmyślanie faktów w kluczowych negocjacjach.
+                  Lanie wody, sztywne korpo-formułki, zmyślanie faktów i brak zrozumienia Twoich realiów.
                 </p>
               </div>
 
@@ -240,7 +240,7 @@ export default function HomePage() {
                   <span>Twoja niezniszczalna AlterJa</span>
                 </div>
                 <p className="text-xs text-slate-200 leading-relaxed">
-                  Twarde zasady, decyzje w 30 sekund, pełna wierność Twojemu charakterowi.
+                  Twarde zasady, natychmiastowe decyzje, 100% wierności Twojemu stylowi myślenia.
                 </p>
               </div>
             </div>
@@ -250,13 +250,13 @@ export default function HomePage() {
 
       </section>
 
-      {/* 4. CIEMNA ARENA KOGNITYWNA: PEŁNOEKRANOWY POJEDYNEK (HERO-MULTIVERSE) */}
+      {/* 4. KOSMICZNA KATEDRA PAMIĘCI I POJEDYNEK W LOCIE (MEMORY-CATHEDRAL) */}
       <section className="photo-stage min-h-[95vh] border-y border-white/10">
         
-        {/* Zdjęcie wielowymiarowej galerii sobowtórów w tle */}
+        {/* Zdjęcie monumentalnej katedry pamięci w tle */}
         <Image
-          src="/images/hero-multiverse.jpg"
-          alt="Wielowymiarowy umysł i galeria wcieleń"
+          src="/images/memory-cathedral.jpg"
+          alt="Kosmiczna katedra pamięci i spiralne pierścienie wiedzy"
           fill
           className="object-cover object-center transition-transform duration-1000 scale-[1.02] hover:scale-105"
         />
@@ -295,7 +295,7 @@ export default function HomePage() {
             ))}
           </div>
 
-          {/* Okno pojedynku bezpośrednio na tle multiwersum */}
+          {/* Okno pojedynku bezpośrednio na tle katedry pamięci */}
           <div className="glass-panel-luxe p-8 sm:p-12 rounded-3xl space-y-8">
             
             <div className="space-y-1 pb-4 border-b border-white/15">
@@ -376,68 +376,18 @@ export default function HomePage() {
 
       </section>
 
-      {/* 5. SCENA ODZYSKANEGO ŻYCIA: PEŁNOFORMATOWY RELAKS Z BLISKIMI (LIFE-TOGETHER) */}
-      <section className="photo-stage min-h-[88vh]">
+      {/* 5. SCENA DRZEWA UMYSŁU: SUWERENNY SKARBIEC WIEDZY (TREE-OF-MIND) */}
+      <section className="photo-stage min-h-[90vh]">
         
-        {/* Zdjęcie na pełną szerokość tła */}
+        {/* Zdjęcie kosmicznego drzewa umysłu na pełną szerokość tła */}
         <Image
-          src="/images/life-together.jpg"
-          alt="Czas z rodziną i odzyskane wieczory"
+          src="/images/tree-of-mind.jpg"
+          alt="Kosmiczne drzewo umysłu i pamięci tworzące profil człowieka"
           fill
           className="object-cover object-center transition-transform duration-1000 scale-[1.02] hover:scale-105"
         />
 
-        {/* Kurtyna asymetryczna */}
-        <div className="absolute inset-0 photo-overlay-left pointer-events-none" />
-
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full">
-          <div className="max-w-2xl space-y-6 text-white">
-            
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-950/80 backdrop-blur-md border border-white/20 text-blue-300 text-xs font-mono w-max">
-              <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
-              Czas dla Ciebie · Bez stresu
-            </div>
-
-            <h2 className="text-3xl sm:text-5xl font-serif font-medium text-white editorial-display leading-tight">
-              Odzyskaj wolne wieczory i weekendy.
-            </h2>
-
-            <p className="text-base sm:text-lg text-slate-200 leading-relaxed">
-              Koniec ze sprawdzaniem maili przy kolacji i odpisywaniem w nocy. Twoja AlterJa przejmuje bieżące ustalenia, dając Ci przestrzeń na to, co w życiu naprawdę ważne.
-            </p>
-
-            <div className="pt-4 grid grid-cols-2 sm:grid-cols-3 gap-4">
-              <div className="p-4 rounded-2xl bg-slate-950/70 backdrop-blur-xl border border-white/15">
-                <span className="text-xl font-bold font-mono text-white block">0h</span>
-                <span className="text-xs text-slate-400">Nocnego ślęczenia</span>
-              </div>
-              <div className="p-4 rounded-2xl bg-slate-950/70 backdrop-blur-xl border border-white/15">
-                <span className="text-xl font-bold font-mono text-emerald-400 block">100%</span>
-                <span className="text-xs text-slate-400">Spokoju ducha</span>
-              </div>
-              <div className="p-4 rounded-2xl bg-slate-950/70 backdrop-blur-xl border border-white/15 col-span-2 sm:col-span-1">
-                <span className="text-xl font-bold font-mono text-blue-400 block">24/7</span>
-                <span className="text-xs text-slate-400">Cicha asysta w tle</span>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-      </section>
-
-      {/* 6. SCENA DOWODZENIA: PEŁNOFORMATOWY ZINTEGROWANY EKOSYSTEM (UNIFIED-ECOSYSTEM) */}
-      <section className="photo-stage min-h-[88vh]">
-        
-        {/* Zdjęcie centrum dowodzenia na pełną szerokość tła */}
-        <Image
-          src="/images/unified-ecosystem.jpg"
-          alt="Jeden umysł na wszystkich Twoich urządzeniach"
-          fill
-          className="object-cover object-center transition-transform duration-1000 scale-[1.02] hover:scale-105"
-        />
-
-        {/* Kurtyna asymetryczna */}
+        {/* Kurtyna asymetryczna z lewej strony */}
         <div className="absolute inset-0 photo-overlay-left pointer-events-none" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full">
@@ -445,26 +395,29 @@ export default function HomePage() {
             
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-950/80 backdrop-blur-md border border-white/20 text-emerald-300 text-xs font-mono w-max">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              Ciągła synchronizacja · Ekosystem
+              Pancerny skarbiec · Zero korporacyjnego treningu
             </div>
 
             <h2 className="text-3xl sm:text-5xl font-serif font-medium text-white editorial-display leading-tight">
-              Jeden umysł. Wszystkie Twoje narzędzia.
+              Twoja wiedza to Twoja wyłączna własność.
             </h2>
 
             <p className="text-base sm:text-lg text-slate-200 leading-relaxed">
-              Komputer, telefon, komunikatory i systemy biznesowe. Twój cyfrowy sobowtór działa w tle wszędzie tam, gdzie podejmujesz decyzje, w pełnej harmonii z Twoim dniem.
+              Żadna globalna korporacja nie trenuje na Tobie swoich modeli. Wszystkie Twoje notatki, zasady, wspomnienia i decyzje są chronione bankową izolacją RLS i podlegają prawu do natychmiastowego usunięcia.
             </p>
 
-            <div className="pt-4 flex flex-wrap gap-4 text-xs font-mono text-slate-300">
-              <div className="px-4 py-2 rounded-full bg-slate-950/80 backdrop-blur-md border border-white/15">
-                Synchronizacja w czasie rzeczywistym
+            <div className="pt-4 grid grid-cols-2 sm:grid-cols-3 gap-4">
+              <div className="p-4 rounded-2xl bg-slate-950/70 backdrop-blur-xl border border-white/15">
+                <span className="text-xl font-bold font-mono text-white block">100%</span>
+                <span className="text-xs text-slate-400">Prywatności</span>
               </div>
-              <div className="px-4 py-2 rounded-full bg-slate-950/80 backdrop-blur-md border border-white/15">
-                Szyfrowanie end-to-end
+              <div className="p-4 rounded-2xl bg-slate-950/70 backdrop-blur-xl border border-white/15">
+                <span className="text-xl font-bold font-mono text-emerald-400 block">0</span>
+                <span className="text-xs text-slate-400">Wycieków danych</span>
               </div>
-              <div className="px-4 py-2 rounded-full bg-slate-950/80 backdrop-blur-md border border-white/15">
-                Bankowa izolacja danych RLS
+              <div className="p-4 rounded-2xl bg-slate-950/70 backdrop-blur-xl border border-white/15 col-span-2 sm:col-span-1">
+                <span className="text-xl font-bold font-mono text-blue-400 block">RLS</span>
+                <span className="text-xs text-slate-400">Izolacja rekordów</span>
               </div>
             </div>
 
@@ -473,13 +426,63 @@ export default function HomePage() {
 
       </section>
 
-      {/* 7. SCENA FINAŁOWA: PEŁNOFORMATOWY SZCZYT GÓRY O ZACHODZIE SŁOŃCA (PEAK-FREEDOM) */}
-      <section className="photo-stage min-h-[92vh] justify-center text-center">
+      {/* 6. SCENA HYBRYDOWEGO PORTRETU: AUTENTYCZNY CHARAKTER (AVATAR-PORTRAIT) */}
+      <section className="photo-stage min-h-[90vh]">
         
-        {/* Zdjęcie szczytu góry na pełną szerokość tła */}
+        {/* Zdjęcie portretu przejścia człowieka w świetlistą sieć neuronową */}
         <Image
-          src="/images/peak-freedom.jpg"
-          alt="Wolność i przestrzeń na szczycie góry po uwolnieniu od ciągłej pracy ponad siły"
+          src="/images/avatar-portrait.jpg"
+          alt="Twarz człowieka przechodząca w świetlisty profil cyfrowej kopii AI"
+          fill
+          className="object-cover object-center transition-transform duration-1000 scale-[1.02] hover:scale-105"
+        />
+
+        {/* Kurtyna asymetryczna z lewej strony */}
+        <div className="absolute inset-0 photo-overlay-left pointer-events-none" />
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full">
+          <div className="max-w-2xl space-y-6 text-white">
+            
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-950/80 backdrop-blur-md border border-white/20 text-purple-300 text-xs font-mono w-max">
+              <span className="w-2 h-2 rounded-full bg-purple-400 animate-pulse" />
+              Autentyczność · Twój podpis intelektualny
+            </div>
+
+            <h2 className="text-3xl sm:text-5xl font-serif font-medium text-white editorial-display leading-tight">
+              To nie jest obcy awatar. <br />
+              <span className="italic text-transparent bg-clip-text bg-gradient-to-r from-purple-300 via-indigo-200 to-white">
+                To jesteś Ty w wersji niezniszczalnej.
+              </span>
+            </h2>
+
+            <p className="text-base sm:text-lg text-slate-200 leading-relaxed">
+              Nie buduj bezdusznych botów, które brzmią jak szary podręcznik. AlterJa przejmuje Twoje poczucie humoru, unikalny sposób argumentacji, riposty i wartości. Nikt nie zorientuje się, że rozmawia ze sztuczną inteligencją, bo to jesteś Ty.
+            </p>
+
+            <div className="pt-4 flex flex-wrap gap-4 text-xs font-mono text-slate-300">
+              <div className="px-4 py-2 rounded-full bg-slate-950/80 backdrop-blur-md border border-white/15">
+                Cięty rytm wypowiedzi
+              </div>
+              <div className="px-4 py-2 rounded-full bg-slate-950/80 backdrop-blur-md border border-white/15">
+                Autorskie zasady decyzyjne
+              </div>
+              <div className="px-4 py-2 rounded-full bg-slate-950/80 backdrop-blur-md border border-white/15">
+                Zero fałszywych ugrzecznień
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </section>
+
+      {/* 7. SCENA FINAŁOWA: SCHODY DO WOLNOŚCI (STAIRWAY-AVATAR) */}
+      <section className="photo-stage min-h-[95vh] justify-center text-center">
+        
+        {/* Zdjęcie kryształowych schodów do niebiańskiego sobowtóra */}
+        <Image
+          src="/images/stairway-avatar.jpg"
+          alt="Wejście po kryształowych schodach pamięci do niezniszczalnego sobowtóra AI"
           fill
           className="object-cover object-center transition-transform duration-1000 scale-[1.02] hover:scale-105"
         />
