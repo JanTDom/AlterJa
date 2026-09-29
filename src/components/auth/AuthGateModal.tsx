@@ -120,11 +120,11 @@ export default function AuthGateModal() {
           <div className="relative z-10 flex flex-col items-center gap-2">
             <div className="relative w-48 h-12">
               <Image
-                src="/alterja-logo.png"
+                src="/alterja-logo-white.png"
                 alt="Logo AlterJa"
                 fill
                 priority
-                className="object-contain filter drop-shadow-[0_4px_20px_rgba(59,130,246,0.35)]"
+                className="object-contain filter drop-shadow-[0_4px_24px_rgba(56,189,248,0.4)]"
               />
             </div>
             <span className="text-[10px] font-mono tracking-widest uppercase text-slate-300 px-3 py-0.5 rounded-full bg-slate-950/80 border border-slate-700/80 backdrop-blur-md">

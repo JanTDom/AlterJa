@@ -54,11 +54,11 @@ export function Navbar() {
         <Link href="/" className="flex items-center gap-3.5 group py-2">
           <div className="relative h-11 w-36 sm:w-44 transition-transform duration-300 ease-out group-hover:scale-[1.03]">
             <Image
-              src="/alterja-logo.png"
+              src={isLandingPage ? "/alterja-logo-white.png" : "/alterja-logo.png"}
               alt="AlterJa"
               fill
               priority
-              className="object-contain object-left filter drop-shadow-[0_2px_12px_rgba(56,189,248,0.2)]"
+              className="object-contain object-left filter drop-shadow-[0_2px_16px_rgba(56,189,248,0.3)]"
             />
           </div>
           <span
