@@ -69,21 +69,37 @@ export default function AuthGateModal() {
       className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-slate-950/85 backdrop-blur-xl animate-in fade-in duration-300"
     >
       <div className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-slate-700/60 bg-gradient-to-b from-slate-900/95 via-slate-950/98 to-slate-950 shadow-2xl text-slate-100 flex flex-col">
-        {/* Górna scena artystyczna — Sfera Poznania */}
-        <div className="relative h-48 w-full overflow-hidden border-b border-slate-800">
+        {/* Górna scena artystyczna z oficjalnym logo AlterJa */}
+        <div className="relative h-48 w-full overflow-hidden border-b border-slate-800 flex items-center justify-center">
           <Image
             src="/images/alterja-sphere.jpg"
             alt="Szklana sfera lewitująca nad wodą reprezentująca jądro tożsamości AlterJa"
             fill
             priority
-            className="object-cover object-center filter brightness-90 contrast-110 scale-105"
+            className="object-cover object-center filter brightness-[0.55] contrast-110 scale-105"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-slate-950/20" />
+
+          {/* Oficjalne Logo AlterJa w centrum nagłówka */}
+          <div className="relative z-10 flex flex-col items-center gap-2">
+            <div className="relative w-48 h-12">
+              <Image
+                src="/alterja-logo.png"
+                alt="Logo AlterJa"
+                fill
+                priority
+                className="object-contain filter drop-shadow-[0_4px_20px_rgba(59,130,246,0.35)]"
+              />
+            </div>
+            <span className="text-[10px] font-mono tracking-widest uppercase text-slate-300 px-3 py-0.5 rounded-full bg-slate-950/80 border border-slate-700/80 backdrop-blur-md">
+              alterja.pl · Autoryzowany dostęp
+            </span>
+          </div>
 
           {/* Oznaczenie statusu bramki */}
-          <div className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1 rounded-full bg-slate-950/70 backdrop-blur-md border border-slate-700/80 text-[10px] font-mono tracking-wider text-alterja-gold uppercase">
+          <div className="absolute top-4 left-4 flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-950/80 backdrop-blur-md border border-slate-700/80 text-[10px] font-mono tracking-wider text-alterja-gold uppercase">
             <Lock className="w-3 h-3 text-alterja-gold" />
-            Bramka tożsamości AlterJa
+            <span>Bramka tożsamości</span>
           </div>
         </div>
 

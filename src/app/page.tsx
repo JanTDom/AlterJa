@@ -10,7 +10,6 @@ import {
   Sparkles,
   ArrowRight,
   Lock,
-  Flame,
   CheckCircle2,
   XCircle,
   Layers,
@@ -23,32 +22,18 @@ import {
 } from "lucide-react";
 
 export default function LandingPage() {
-  const [activeLens, setActiveLens] = useState<"matrix" | "campus" | "core">("matrix");
   const [selectedCase, setSelectedCase] = useState<number>(0);
 
-  const lenses = {
-    matrix: {
-      title: "Katedra pamięci i cytowań",
-      subtitle: "7 warstw faktów z twardym uziemieniem w dowodach",
-      desc: "Model AlterJa nie konfabuluje. Każda odpowiedź posiada sygnaturę źródłową i cytat z Twoich prawdziwych notatek, wywiadów lub dokumentów.",
-      image: "/images/alterja-matrix.jpg",
-      tag: "100% uziemienia",
-    },
-    campus: {
-      title: "Sanktuarium architektury umysłu",
-      subtitle: "Wielopawilonowy ekosystem: pamięć, etyka, głos",
-      desc: "Zorganizowana przestrzeń kognitywna, w której rozdzielono tryb rekonstrukcji osoby od asystenta i krytycznego partnera.",
-      image: "/images/alterja-campus.jpg",
-      tag: "Izolacja ról",
-    },
-    core: {
-      title: "Kwantowy monolit inferencji",
-      subtitle: "Transfer wiedzy w bezpieczne API i integracje",
-      desc: "Podłącz swoją AlterJę do poczty, komunikatorów i systemów firmy. Niech decyduje w Twoim imieniu 24/7 z autorskimi kryteriami.",
-      image: "/images/alterja-core.jpg",
-      tag: "API v1 & RLS",
-    },
-  };
+  const tickerItems = [
+    "Nie daj sobą orać",
+    "Twoja kopia nigdy się nie męczy",
+    "Pełna suwerenność danych",
+    "Zero korporacyjnych modeli",
+    "Decyzje w Twoim imieniu 24/7",
+    "Autentyczny styl i Twoje zasady",
+    "Koniec z pracą po nocach",
+    "Niezniszczalny cyfrowy sobowtór",
+  ];
 
   const simulationCases = [
     {
@@ -72,36 +57,49 @@ export default function LandingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-alterja-blue/25 selection:text-blue-200 overflow-x-hidden">
+    <div className="min-h-screen bg-slate-950 text-white flex flex-col font-sans selection:bg-alterja-blue/25 selection:text-blue-200 overflow-x-hidden">
       <Navbar />
 
-      {/* 1. SCENA HERO: ARCHITEKTONICZNY PRZEKRÓJ TOŻSAMOŚCI (ALTERJA-FINGERPRINT) */}
-      <section className="relative min-h-[90vh] flex items-center justify-center py-20 px-4 sm:px-6 lg:px-8 border-b border-slate-800/80 overflow-hidden bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
-        {/* Subtelne światłocienie tła */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-alterja-blue/15 blur-[140px] pointer-events-none rounded-full" />
+      {/* 1. SCENA HERO: SZEROKIE KINOWE TŁO TOŻSAMOŚCI (ALTERJA-FINGERPRINT) */}
+      <section className="photo-stage min-h-[92vh] sm:min-h-screen">
+        {/* Zdjęcie na całą szerokość i wysokość ekranu */}
+        <Image
+          src="/images/alterja-fingerprint.jpg"
+          alt="Świetlisty biometryczny odcisk palca rozpadający się w sieć neuronową i metropolię myśli"
+          fill
+          priority
+          className="object-cover object-center scale-[1.02] filter brightness-90 contrast-105"
+        />
 
-        <div className="relative z-10 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          {/* Lewa kolumna: Tekst i wezwanie do działania */}
-          <div className="lg:col-span-7 space-y-8 text-left">
-            <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-slate-900/90 border border-slate-700/80 shadow-2xl text-xs font-mono backdrop-blur-md">
+        {/* Dynamiczny promień skanujący */}
+        <div className="absolute inset-x-0 h-28 bg-gradient-to-b from-blue-400/0 via-blue-400/25 to-blue-400/0 border-b border-blue-300/70 pointer-events-none animate-scanline" />
+
+        {/* Asymetryczna kurtyna kinowa dla idealnej czytelności */}
+        <div className="absolute inset-0 photo-overlay-left pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent pointer-events-none" />
+
+        {/* Treść unosząca się bezpośrednio w kadrze */}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full">
+          <div className="max-w-2xl space-y-8">
+            <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-slate-950/80 backdrop-blur-xl border border-white/20 shadow-2xl text-xs font-mono">
               <span className="w-2.5 h-2.5 rounded-full bg-alterja-gold animate-pulse" />
               <span className="text-white font-bold uppercase tracking-wider text-[11px]">
-                Suwerenność kognitywna
+                Koniec z pracą ponad siły
               </span>
-              <span className="text-slate-500">·</span>
-              <span className="text-blue-300 font-medium text-[11px]">Twój niezniszczalny sobowtór</span>
+              <span className="text-slate-400">·</span>
+              <span className="text-blue-300 font-semibold text-[11px]">Twój cyfrowy sobowtór</span>
             </div>
 
             <div className="space-y-4">
-              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-serif font-medium tracking-tight text-white editorial-display leading-[1.05]">
+              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-serif font-medium tracking-tight text-white editorial-display leading-[1.04]">
                 Nie daj sobą orać. <br />
                 <span className="italic font-normal text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-indigo-200 to-amber-200">
                   Stwórz swoją kopię AI.
                 </span>
               </h1>
 
-              <p className="text-base sm:text-lg text-slate-300 font-normal leading-relaxed max-w-xl">
-                Człowiek potrzebuje snu, regeneracji i spokoju. Twoja AlterJa uczy się Twojego autentycznego stylu, poczucia humoru, zasad i kryteriów decyzyjnych. Przejmuje trudne konwersacje i pilnuje Twoich spraw 24/7.
+              <p className="text-base sm:text-lg text-slate-200 font-normal leading-relaxed max-w-xl">
+                Biologiczny człowiek potrzebuje snu i regeneracji. Twoja AlterJa uczy się Twojego autentycznego stylu, poczucia humoru, zasad i kryteriów decyzyjnych. Przejmuje powtarzalne rozmowy i pilnuje Twoich spraw 24 godziny na dobę.
               </p>
             </div>
 
@@ -109,14 +107,14 @@ export default function LandingPage() {
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
               <Link
                 href="/interview"
-                className="px-8 py-4 rounded-2xl bg-white hover:bg-slate-100 text-slate-950 font-medium text-sm transition-all shadow-xl shadow-white/10 active:scale-95 flex items-center justify-center gap-2.5"
+                className="btn-luxe-light !py-4 !px-8 text-base shadow-[0_0_35px_rgba(255,255,255,0.35)] animate-shimmer"
               >
                 <span>Rozpocznij wywiad tożsamości</span>
                 <ArrowRight className="w-4 h-4 text-slate-950" />
               </Link>
               <Link
                 href="/chat"
-                className="px-8 py-4 rounded-2xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700 text-white font-medium text-sm transition-all backdrop-blur-xl active:scale-95 flex items-center justify-center gap-2"
+                className="btn-luxe-glass !py-4 !px-8 text-base"
               >
                 <Brain className="w-4 h-4 text-alterja-gold" />
                 <span>Rozmawiaj z modelem live</span>
@@ -124,7 +122,7 @@ export default function LandingPage() {
             </div>
 
             {/* Gwarancje epistemiczne */}
-            <div className="pt-4 grid grid-cols-3 gap-4 border-t border-slate-800/80 text-[11px] font-mono text-slate-400">
+            <div className="pt-4 grid grid-cols-3 gap-4 border-t border-white/15 text-[11px] font-mono text-slate-300">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                 <span>Zero konfabulacji</span>
@@ -139,285 +137,331 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
-
-          {/* Prawa kolumna: Nowatorski pryzmat biometryczny (alterja-fingerprint.jpg) */}
-          <div className="lg:col-span-5 relative">
-            <div className="relative aspect-[4/5] rounded-3xl overflow-hidden border border-slate-700/80 shadow-[0_0_60px_rgba(59,130,246,0.15)] group">
-              <Image
-                src="/images/alterja-fingerprint.jpg"
-                alt="Monumentalny świetlisty odcisk palca rozpadający się w sieć neuronową łączącą się ze świetlistą metropolią"
-                fill
-                priority
-                className="object-cover object-center filter brightness-95 contrast-110 group-hover:scale-105 transition-transform duration-700"
-              />
-
-              {/* Dynamiczny promień skanera */}
-              <div className="absolute inset-0 scanline-bar opacity-30 pointer-events-none" />
-
-              {/* Kurtyna nastrojowa */}
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-slate-950/20 pointer-events-none" />
-
-              {/* Nakładka telemetryczna */}
-              <div className="absolute bottom-6 inset-x-6 p-4 rounded-2xl bg-slate-950/80 backdrop-blur-xl border border-slate-700 text-xs space-y-2">
-                <div className="flex items-center justify-between text-[10px] font-mono text-alterja-gold uppercase tracking-wider">
-                  <span>Biometryczny profil tożsamości</span>
-                  <span className="flex items-center gap-1 text-emerald-400">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-                    Zsynchronizowany
-                  </span>
-                </div>
-                <p className="text-[11px] text-slate-300 font-sans leading-relaxed">
-                  Podpis kognitywny nie jest kopiowany przez modele zewnętrzne. Twoja pamięć jest uwięziona wyłącznie w Twojej instancji.
-                </p>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
-      {/* 2. INTERAKTYWNY TRYPTYK POZNANIA (BENTO VIEWPORT: MATRIX, CAMPUS, CORE) */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full space-y-12">
-        <div className="text-center space-y-4 max-w-3xl mx-auto">
-          <span className="text-[11px] font-mono uppercase tracking-widest text-alterja-gold font-bold px-3 py-1 rounded-full bg-slate-900 border border-slate-800">
-            Architektura 3 wymiarów
-          </span>
-          <h2 className="text-3xl sm:text-5xl font-serif font-medium text-white editorial-display">
-            Wymiary Twojego cyfrowego alter ego
-          </h2>
-          <p className="text-sm sm:text-base text-slate-400 leading-relaxed">
-            Wybierz aspekt kognitywny, aby obejrzeć strukturę pamięci, sanktuarium umysłu oraz serwerowy monolit API.
-          </p>
-        </div>
-
-        {/* Przyciski przełączania soczewek */}
-        <div className="flex flex-wrap justify-center gap-3">
-          {(["matrix", "campus", "core"] as const).map((key) => (
-            <button
-              key={key}
-              onClick={() => setActiveLens(key)}
-              className={`px-6 py-3 rounded-2xl text-xs font-mono font-medium transition-all border ${
-                activeLens === key
-                  ? "bg-white text-slate-950 border-white shadow-xl shadow-white/10 scale-105"
-                  : "bg-slate-900 text-slate-400 border-slate-800 hover:text-white hover:bg-slate-850"
-              }`}
-            >
-              <span>{lenses[key].title}</span>
-            </button>
+      {/* 2. PŁYNĄCA WSTĘGA MANIFESTU NA PEŁNĄ SZEROKOŚĆ (MARQUEE) */}
+      <div className="py-4 bg-slate-950 border-y border-white/10 text-white overflow-hidden relative z-20">
+        <div className="animate-marquee whitespace-nowrap flex items-center gap-8">
+          {[...tickerItems, ...tickerItems].map((item, idx) => (
+            <div key={idx} className="flex items-center gap-8 text-xs font-mono uppercase tracking-[0.18em]">
+              <span className="text-slate-300 font-medium hover:text-white transition-colors">{item}</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+            </div>
           ))}
         </div>
+      </div>
 
-        {/* Nowatorski ekran panoramiczny wybranej soczewki */}
-        <div className="relative rounded-3xl overflow-hidden border border-slate-800 bg-slate-900/90 shadow-2xl grid grid-cols-1 lg:grid-cols-12 min-h-[480px]">
-          {/* Obraz soczewki */}
-          <div className="lg:col-span-7 relative min-h-[300px] lg:min-h-full overflow-hidden">
-            <Image
-              src={lenses[activeLens].image}
-              alt={lenses[activeLens].title}
-              fill
-              className="object-cover object-center filter brightness-95 contrast-105 transition-all duration-700"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-slate-900/90 hidden lg:block" />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 to-transparent lg:hidden" />
+      {/* 3. SCENA DUALIZMU KOGNITYWNEGO: POJEDYNEK W LOCIE (ALTERJA-DUALITY) */}
+      <section className="photo-stage min-h-[95vh] border-b border-white/10">
+        {/* Szerokie tło horyzontu dualizmu */}
+        <Image
+          src="/images/alterja-duality.jpg"
+          alt="Kosmiczny horyzont dualizmu: organiczna świadomość biologiczna i cybernetyczna precyzja"
+          fill
+          className="object-cover object-center scale-[1.02] filter brightness-90 contrast-105"
+        />
+
+        {/* Nastrojowa kurtyna kinowa */}
+        <div className="absolute inset-0 photo-overlay-center pointer-events-none" />
+
+        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full space-y-10">
+          <div className="text-center space-y-3">
+            <span className="text-[11px] font-mono uppercase tracking-widest text-blue-400 font-bold px-3 py-1 rounded-full bg-slate-950/80 border border-white/15">
+              Horyzont dualizmu · Test decyzyjny w locie
+            </span>
+            <h2 className="text-3xl sm:text-5xl font-serif font-medium text-white editorial-display">
+              Zobacz, jak myśli Twoja kopia
+            </h2>
+            <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl mx-auto">
+              Wybierz dylemat biznesowy i zobacz różnicę między bezdusznym botem a odpowiedzią Twojej uziemionej AlterJi.
+            </p>
           </div>
 
-          {/* Opis architektoniczny soczewki */}
-          <div className="lg:col-span-5 p-8 sm:p-12 flex flex-col justify-between space-y-6">
-            <div className="space-y-4">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-alterja-gold font-bold px-3 py-1 rounded-full bg-slate-950 border border-slate-800 inline-block">
-                {lenses[activeLens].tag}
-              </span>
-
-              <h3 className="text-2xl sm:text-3xl font-serif font-medium text-white">
-                {lenses[activeLens].title}
-              </h3>
-
-              <p className="text-xs font-mono text-blue-300">
-                {lenses[activeLens].subtitle}
-              </p>
-
-              <p className="text-sm text-slate-300 leading-relaxed font-sans">
-                {lenses[activeLens].desc}
-              </p>
-            </div>
-
-            <div className="pt-6 border-t border-slate-800 flex items-center justify-between">
-              <Link
-                href={activeLens === "matrix" ? "/memory" : activeLens === "campus" ? "/dashboard" : "/developer"}
-                className="inline-flex items-center gap-2 text-xs font-mono text-white hover:text-blue-300 transition-colors"
+          {/* Przyciski wyboru dylematu */}
+          <div className="flex flex-wrap justify-center gap-3">
+            {simulationCases.map((c, idx) => (
+              <button
+                key={idx}
+                onClick={() => setSelectedCase(idx)}
+                className={`px-5 py-2.5 rounded-2xl text-xs font-mono transition-all border ${
+                  selectedCase === idx
+                    ? "bg-white text-slate-950 border-white shadow-xl shadow-white/10 font-bold scale-105"
+                    : "bg-slate-950/80 backdrop-blur-md text-slate-300 border-white/15 hover:border-white/30"
+                }`}
               >
-                <span>Otwórz dedykowany moduł</span>
-                <ChevronRight className="w-4 h-4" />
-              </Link>
-              <span className="text-[10px] font-mono text-slate-500">AlterJa 2026</span>
-            </div>
+                <span>Dylemat {idx + 1}: {c.title.slice(0, 32)}...</span>
+              </button>
+            ))}
           </div>
-        </div>
-      </section>
 
-      {/* 3. SCENA DUALIZMU KOGNITYWNEGO: CZŁOWIEK VS CYFROWY SOBOWTÓR (ALTERJA-DUALITY) */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 border-y border-slate-800 bg-slate-900/40 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto space-y-12">
-          {/* Panoramiczny kadr dualizmu wkomponowany jako soczewka horyzontu */}
-          <div className="relative rounded-3xl overflow-hidden border border-slate-800 shadow-2xl h-[320px] sm:h-[400px]">
-            <Image
-              src="/images/alterja-duality.jpg"
-              alt="Horyzont dualizmu: organiczna tożsamość człowieka po lewej i cybernetyczny kryształowy sobowtór po prawej"
-              fill
-              className="object-cover object-center filter brightness-90 contrast-110"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
-
-            <div className="absolute bottom-8 left-8 right-8 flex flex-col md:flex-row md:items-end justify-between gap-6 text-white">
-              <div className="space-y-2 max-w-xl">
-                <span className="text-[10px] font-mono uppercase tracking-widest text-alterja-gold font-bold">
-                  Horyzont dualizmu
-                </span>
-                <h3 className="text-2xl sm:text-4xl font-serif font-medium">
-                  Organiczna myśl ↔ Cyfrowa precyzja
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                  Porównaj w locie, czym różni się odpowiedź generycznego bota od uziemionej w Twoich zasadach AlterJi.
+          {/* Konfrontacja odpowiedzi */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+            {/* Generyczny asystent */}
+            <div className="p-6 sm:p-8 rounded-3xl bg-slate-950/85 backdrop-blur-xl border border-rose-500/30 space-y-4 flex flex-col justify-between shadow-2xl">
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-rose-400 text-xs font-mono font-bold uppercase tracking-wider">
+                  <XCircle className="w-4 h-4" />
+                  <span>Generyczny bot korporacyjny</span>
+                </div>
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-sans italic">
+                  „{simulationCases[selectedCase].aiGeneric}”
                 </p>
               </div>
-
-              <div className="flex items-center gap-2 bg-slate-950/80 px-4 py-2 rounded-2xl border border-slate-700 text-xs font-mono text-emerald-400">
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                <span>Test dynamiczny</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Symulator sytuacji decyzyjnych A/B */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            {/* Lewa kolumna: Wybór kazusu */}
-            <div className="lg:col-span-4 space-y-3">
-              <span className="text-xs font-mono uppercase text-slate-400 font-bold block mb-2">
-                Wybierz dylemat biznesowy:
+              <span className="text-[11px] font-mono text-rose-400/80 pt-3 border-t border-white/10">
+                Wada: unikanie decyzji, lanie wody, brak twardych granic.
               </span>
-              {simulationCases.map((c, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setSelectedCase(idx)}
-                  className={`w-full text-left p-4 rounded-2xl border transition-all text-xs flex flex-col gap-1.5 ${
-                    selectedCase === idx
-                      ? "bg-white text-slate-950 border-white shadow-lg shadow-white/10"
-                      : "bg-slate-900 text-slate-400 border-slate-800 hover:bg-slate-850 hover:text-white"
-                  }`}
-                >
-                  <span className="font-semibold text-sm">{c.title}</span>
-                  <span className={`text-[11px] ${selectedCase === idx ? "text-slate-600" : "text-slate-500"}`}>
-                    Dotknij, aby zobaczyć konfrontację
-                  </span>
-                </button>
-              ))}
             </div>
 
-            {/* Prawa kolumna: Bezpośrednie zderzenie odpowiedzi */}
-            <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Generyczny bot */}
-              <div className="p-6 rounded-3xl bg-slate-900 border border-rose-500/30 space-y-3 flex flex-col justify-between">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-rose-400 text-xs font-mono font-bold uppercase">
-                    <XCircle className="w-4 h-4" />
-                    <span>Generyczny asystent (obcy)</span>
-                  </div>
-                  <p className="text-xs text-slate-300 leading-relaxed font-sans italic">
-                    „{simulationCases[selectedCase].aiGeneric}”
-                  </p>
+            {/* Twoja AlterJa */}
+            <div className="p-6 sm:p-8 rounded-3xl bg-slate-950/90 backdrop-blur-xl border border-blue-400/50 space-y-4 flex flex-col justify-between shadow-2xl shadow-blue-500/10">
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-blue-300 text-xs font-mono font-bold uppercase tracking-wider">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <span>Twoja niezniszczalna AlterJa</span>
                 </div>
-                <span className="text-[10px] font-mono text-rose-400/80 pt-2 border-t border-slate-800">
-                  Wada: unikanie decyzji, lanie wody, brak twardych granic.
-                </span>
+                <p className="text-xs sm:text-sm text-white leading-relaxed font-sans font-medium">
+                  „{simulationCases[selectedCase].alterjaReply}”
+                </p>
               </div>
-
-              {/* Twoja AlterJa */}
-              <div className="p-6 rounded-3xl bg-slate-900 border border-blue-500/40 shadow-xl space-y-3 flex flex-col justify-between relative overflow-hidden">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-blue-300 text-xs font-mono font-bold uppercase">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                    <span>Twoja AlterJa (rekonstrukcja)</span>
-                  </div>
-                  <p className="text-xs text-white leading-relaxed font-sans font-medium">
-                    „{simulationCases[selectedCase].alterjaReply}”
-                  </p>
-                </div>
-                <div className="pt-2 border-t border-slate-800 text-[10px] font-mono text-alterja-gold">
-                  {simulationCases[selectedCase].rationale}
-                </div>
+              <div className="pt-3 border-t border-white/10 text-[11px] font-mono text-alterja-gold">
+                {simulationCases[selectedCase].rationale}
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 4. SCENA CYFROWEJ SPUŚCIZNY I OBSERWATORIUM (ALTERJA-CONSTELLATION) */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
-        <div className="relative rounded-3xl overflow-hidden border border-slate-800 bg-slate-900 shadow-2xl grid grid-cols-1 lg:grid-cols-12 items-center">
-          <div className="lg:col-span-7 relative min-h-[360px] lg:min-h-[460px]">
-            <Image
-              src="/images/alterja-constellation.jpg"
-              alt="Kosmiczna konstelacja pamięci i sfery wiedzy zawieszone w przestrzeni dla przyszłych pokoleń"
-              fill
-              className="object-cover object-center filter brightness-95 contrast-105"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-slate-900/90 hidden lg:block" />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 to-transparent lg:hidden" />
-          </div>
+      {/* 4. SCENA KATEDRY PAMIĘCI: 7 WARSTW WIEDZY (ALTERJA-MATRIX) */}
+      <section className="photo-stage min-h-[92vh] border-b border-white/10">
+        {/* Zdjęcie monumentalnej katedry pamięci na całą szerokość */}
+        <Image
+          src="/images/alterja-matrix.jpg"
+          alt="Monumentalna katedra pamięci i lewitujące sześciany faktów AlterJa"
+          fill
+          className="object-cover object-center scale-[1.02] filter brightness-90 contrast-105"
+        />
 
-          <div className="lg:col-span-5 p-8 sm:p-12 space-y-6">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-purple-400 font-bold px-3 py-1 rounded-full bg-purple-950/60 border border-purple-800 inline-block">
-              Wieczność i testament cyfrowy
-            </span>
+        {/* Asymetryczna kurtyna z lewej strony */}
+        <div className="absolute inset-0 photo-overlay-left pointer-events-none" />
 
-            <h3 className="text-3xl sm:text-4xl font-serif font-medium text-white leading-tight">
-              Zachowaj swoje życiowe dzieło i mądrość
-            </h3>
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full">
+          <div className="max-w-2xl space-y-8">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-950/80 backdrop-blur-md border border-white/20 text-blue-300 text-xs font-mono">
+              <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
+              Skarbiec prawdy · 7 warstw kognitywnych
+            </div>
 
-            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-sans">
-              To nie tylko narzędzie na dziś. AlterJa umożliwia sporządzenie dyspozycji za życia. Wskazujesz zaufane osoby, które po Twojej śmierci otrzymają bezpieczny wgląd w archiwum myśli, nagrań i zasad, bez ryzyka zniekształcenia Twojej tożsamości.
-            </p>
+            <div className="space-y-4">
+              <h2 className="text-3xl sm:text-5xl font-serif font-medium text-white editorial-display leading-tight">
+                Pamięć uziemiona w twardych dowodach.
+              </h2>
+
+              <p className="text-base sm:text-lg text-slate-200 leading-relaxed font-normal">
+                AlterJa nie generuje fikcji. Każda teza, pogląd czy deklaracja pochodzi z konkretnego cytatu, notatki, wywiadu lub dokumentu w Twojej bibliotece. Jeśli czegoś nie ma w pamięci — model otwarcie o tym informuje.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+              <div className="p-4 rounded-2xl bg-slate-950/80 backdrop-blur-xl border border-white/15">
+                <span className="text-xs font-mono uppercase text-blue-400 font-bold block">Warstwa 1-2</span>
+                <span className="text-sm font-semibold text-white">Biografia i Wiedza</span>
+              </div>
+              <div className="p-4 rounded-2xl bg-slate-950/80 backdrop-blur-xl border border-white/15">
+                <span className="text-xs font-mono uppercase text-emerald-400 font-bold block">Warstwa 3-4</span>
+                <span className="text-sm font-semibold text-white">Wartości i Styl</span>
+              </div>
+              <div className="p-4 rounded-2xl bg-slate-950/80 backdrop-blur-xl border border-white/15">
+                <span className="text-xs font-mono uppercase text-amber-400 font-bold block">Warstwa 5-6</span>
+                <span className="text-sm font-semibold text-white">Nawyki i Decyzje</span>
+              </div>
+              <div className="p-4 rounded-2xl bg-slate-950/80 backdrop-blur-xl border border-white/15">
+                <span className="text-xs font-mono uppercase text-purple-400 font-bold block">Warstwa 7</span>
+                <span className="text-sm font-semibold text-white">Kontekst i Granice</span>
+              </div>
+            </div>
 
             <div className="pt-2">
               <Link
-                href="/legacy"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-white hover:bg-slate-100 text-slate-950 text-xs font-medium transition-all shadow-md active:scale-95"
+                href="/memory"
+                className="btn-luxe-glass !py-3.5 !px-6 text-xs"
               >
-                <span>Skonfiguruj cyfrową spuściznę</span>
-                <ArrowRight className="w-3.5 h-3.5 text-slate-950" />
+                <span>Eksploruj bibliotekę pamięci</span>
+                <ArrowRight className="w-4 h-4 text-white" />
               </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 5. FINAŁOWA BRAMKA WEJŚCIOWA (ALTERJA-PORTAL) */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto w-full text-center space-y-8">
-        <div className="p-8 sm:p-14 rounded-3xl border border-slate-800 bg-gradient-to-b from-slate-900/90 to-slate-950 shadow-2xl space-y-6">
-          <span className="text-[10px] font-mono uppercase tracking-widest text-blue-300 font-bold px-3 py-1 rounded-full bg-slate-800 border border-slate-700">
+      {/* 5. SCENA SANKTUARIUM ARCHITEKTURY UMYSŁU (ALTERJA-CAMPUS) */}
+      <section className="photo-stage min-h-[92vh] border-b border-white/10">
+        {/* Zdjęcie kampusu architektury umysłu na całą szerokość */}
+        <Image
+          src="/images/alterja-campus.jpg"
+          alt="Sanktuarium i kampus architektury umysłu AlterJa: połączone pawilony pamięci, dźwięku i etyki"
+          fill
+          className="object-cover object-center scale-[1.02] filter brightness-90 contrast-105"
+        />
+
+        {/* Asymetryczna kurtyna z lewej strony */}
+        <div className="absolute inset-0 photo-overlay-left pointer-events-none" />
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full">
+          <div className="max-w-2xl space-y-8">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-950/80 backdrop-blur-md border border-white/20 text-emerald-300 text-xs font-mono">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              Architektura bez kompromisów · Zero korpo-bełkotu
+            </div>
+
+            <div className="space-y-4">
+              <h2 className="text-3xl sm:text-5xl font-serif font-medium text-white editorial-display leading-tight">
+                Podczas gdy Ty odpoczywasz, <br />
+                <span className="italic text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-teal-200 to-white">
+                  Twoja AlterJa pilnuje spraw.
+                </span>
+              </h2>
+
+              <p className="text-base sm:text-lg text-slate-200 leading-relaxed font-normal">
+                Rozdzieliliśmy rolę rekonstrukcji osoby od asystenta i krytycznego partnera. Dzięki temu Twój cyfrowy model zachowuje absolutną dyskrecję, nie zgaduje Twoich decyzji i odciąża Cię dokładnie tam, gdzie powtarzalne konwersacje kradną Twój cenny czas.
+              </p>
+            </div>
+
+            <div className="pt-2 flex flex-wrap gap-3">
+              <Link
+                href="/dashboard"
+                className="btn-luxe-light !py-3.5 !px-6 text-xs"
+              >
+                <span>Otwórz pulpit dowodzenia</span>
+                <ArrowRight className="w-4 h-4 text-slate-950" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. SCENA KWANTOWEGO MONOLITU INTEGRACJI I API (ALTERJA-CORE) */}
+      <section className="photo-stage min-h-[92vh] border-b border-white/10">
+        {/* Zdjęcie kwantowego monolitu API na całą szerokość */}
+        <Image
+          src="/images/alterja-core.jpg"
+          alt="Kwantowy monolit i serwerowa bramka API AlterJa"
+          fill
+          className="object-cover object-center scale-[1.02] filter brightness-90 contrast-105"
+        />
+
+        {/* Asymetryczna kurtyna z lewej strony */}
+        <div className="absolute inset-0 photo-overlay-left pointer-events-none" />
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full">
+          <div className="max-w-2xl space-y-8">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-950/80 backdrop-blur-md border border-white/20 text-purple-300 text-xs font-mono">
+              <span className="w-2 h-2 rounded-full bg-purple-400 animate-pulse" />
+              Platforma API v1 · Szybkość i prywatność
+            </div>
+
+            <div className="space-y-4">
+              <h2 className="text-3xl sm:text-5xl font-serif font-medium text-white editorial-display leading-tight">
+                Wepnij sobowtóra do systemów firmy.
+              </h2>
+
+              <p className="text-base sm:text-lg text-slate-200 leading-relaxed font-normal">
+                Dzięki bezpiecznym tokenom dostępu i deterministycznej kontroli RLS, Twoja AlterJa może odpowiadać na zapytania w Slacku, poczcie elektronicznej czy wewnętrznym CRM. Opóźnienie poniżej 120 ms i pełna wierność zasadom.
+              </p>
+            </div>
+
+            <div className="pt-2 flex flex-wrap gap-3">
+              <Link
+                href="/developer"
+                className="btn-luxe-glass !py-3.5 !px-6 text-xs"
+              >
+                <span>Dokumentacja OpenAPI 3.1</span>
+                <ArrowRight className="w-4 h-4 text-white" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 7. SCENA KOSMICZNEJ KONSTELACJI I SPUŚCIZNY (ALTERJA-CONSTELLATION) */}
+      <section className="photo-stage min-h-[92vh] border-b border-white/10">
+        {/* Zdjęcie kosmicznej konstelacji na całą szerokość */}
+        <Image
+          src="/images/alterja-constellation.jpg"
+          alt="Kosmiczna konstelacja pamięci i sfery wiedzy zachowujące tożsamość na wieczność"
+          fill
+          className="object-cover object-center scale-[1.02] filter brightness-90 contrast-105"
+        />
+
+        {/* Nastrojowa kurtyna kinowa */}
+        <div className="absolute inset-0 photo-overlay-center pointer-events-none" />
+
+        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center space-y-8">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-950/80 backdrop-blur-xl border border-white/20 text-purple-300 text-xs font-mono">
+            <span className="w-2 h-2 rounded-full bg-purple-400 animate-pulse" />
+            Wieczność · Dyspozycja za życia
+          </div>
+
+          <h2 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-medium text-white editorial-display leading-tight">
+            Zachowaj swoje życiowe dzieło i mądrość.
+          </h2>
+
+          <p className="text-base sm:text-lg text-slate-200 leading-relaxed max-w-2xl mx-auto font-normal">
+            To nie tylko narzędzie na dziś. AlterJa umożliwia sporządzenie dyspozycji pośmiertnej. Wskazujesz zaufane osoby, które otrzymają wgląd w archiwum Twoich myśli, zasad i nagrań, chroniąc bliskich przed zapomnieniem.
+          </p>
+
+          <div className="flex justify-center pt-2">
+            <Link
+              href="/legacy"
+              className="btn-luxe-light !py-4 !px-8 text-sm"
+            >
+              <span>Skonfiguruj cyfrową spuściznę</span>
+              <ArrowRight className="w-4 h-4 text-slate-950" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* 8. FINAŁOWA BRAMKA WEJŚCIOWA: PORTAL DO NIEZNISZCZALNEGO SOBOWTÓRA (ALTERJA-PORTAL) */}
+      <section className="photo-stage min-h-[95vh] justify-center text-center">
+        {/* Zdjęcie kosmicznego portalu na pełną szerokość tła */}
+        <Image
+          src="/images/alterja-portal.jpg"
+          alt="Kosmiczny portal wejścia do cyfrowego modelu człowieka AlterJa"
+          fill
+          className="object-cover object-center scale-[1.02] filter brightness-90 contrast-105"
+        />
+
+        {/* Nastrojowa kurtyna kinowa */}
+        <div className="absolute inset-0 photo-overlay-center pointer-events-none" />
+
+        <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20 space-y-8">
+          <span className="inline-flex items-center gap-2 text-[11px] font-mono uppercase tracking-widest text-blue-300 font-bold px-4 py-1.5 rounded-full bg-slate-950/80 backdrop-blur-md border border-white/20">
+            <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
             Czas na Twój ruch
           </span>
 
-          <h2 className="text-3xl sm:text-5xl font-serif font-medium text-white editorial-display">
+          <h2 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-medium text-white editorial-display leading-[1.08]">
             Przestań brać wszystko na własne barki.
           </h2>
 
-          <p className="text-xs sm:text-sm text-slate-400 max-w-xl mx-auto leading-relaxed">
+          <p className="text-base sm:text-lg text-slate-200 leading-relaxed font-normal max-w-xl mx-auto">
             Zacznij od kilkuminutowego wywiadu. Twoja AlterJa natychmiast uziemi pierwsze karty pamięci i skalibruje styl odpowiedzi.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
             <Link
               href="/interview"
-              className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-white hover:bg-slate-100 text-slate-950 font-medium text-xs tracking-wide transition-all shadow-xl active:scale-95 flex items-center justify-center gap-2"
+              className="w-full sm:w-auto btn-luxe-light !py-4 !px-8 text-base shadow-[0_0_40px_rgba(255,255,255,0.4)] animate-shimmer"
             >
               <span>Rozpocznij wywiad autobiograficzny</span>
-              <ArrowRight className="w-3.5 h-3.5 text-slate-950" />
+              <ArrowRight className="w-4 h-4 text-slate-950" />
             </Link>
             <Link
               href="/dashboard"
-              className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-slate-900 hover:bg-slate-850 border border-slate-700 text-white font-medium text-xs tracking-wide transition-all active:scale-95 flex items-center justify-center gap-2"
+              className="w-full sm:w-auto btn-luxe-glass !py-4 !px-8 text-base"
             >
-              <span>Zobacz pulpit demonstracyjny</span>
+              <span>Zobacz pulpit sobowtóra</span>
             </Link>
           </div>
         </div>

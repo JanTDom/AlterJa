@@ -208,21 +208,9 @@ export default function ChatPage() {
             </p>
           </div>
 
-          {/* Dyskretna soczewka dualizmu świadomości */}
-          <div className="hidden lg:flex items-center gap-4 p-3 rounded-2xl bg-slate-900/90 border border-slate-800 backdrop-blur-xl shadow-2xl">
-            <div className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-slate-700">
-              <Image
-                src="/images/alterja-duality.jpg"
-                alt="Dualizm świadomości: organiczna i cybernetyczna"
-                fill
-                className="object-cover"
-              />
-            </div>
-            <div className="text-[11px] font-mono space-y-0.5 pr-2">
-              <span className="text-alterja-gold block font-semibold">Dualizm kognitywny</span>
-              <span className="text-slate-400 block">Biologia ↔ Model cyfrowy</span>
-              <span className="text-emerald-400 block">Stan: Uziemiony w faktach</span>
-            </div>
+          <div className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-900/90 backdrop-blur-xl border border-slate-800 text-xs font-mono text-slate-300 shadow-xl">
+            <ShieldCheck className="w-4 h-4 text-emerald-400" />
+            <span>100% uziemienia w dowodach</span>
           </div>
         </div>
       </section>
