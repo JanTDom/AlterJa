@@ -104,6 +104,7 @@ export interface MemoryEvidence {
   char_start?: number | null;
   char_end?: number | null;
   source_title?: string;
+  evidence_weight?: number;
   created_at: string;
 }
 

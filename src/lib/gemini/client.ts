@@ -186,8 +186,24 @@ function getSyntheticDialogueReply(prompt: string, systemInstruction: string): s
 }
 
 function getSyntheticStructuredFallback<T>(prompt: string, schema: z.ZodSchema<T>): T {
-  // Próba zwrotu bezpiecznego obiektu minimalnego
-  const dummyData = {
+  // Próba zwrotu bezpiecznego obiektu minimalnego zgodnego ze schematami ekstrakcji i dialogu
+  const dummyExtraction = {
+    summary: "Dokument poddany dekompozycji faktograficznej w systemie AlterJa.",
+    style_profile: {
+      tone: "Wyważony, analityczny",
+      syntax_cadence: "Zdania precyzyjne, powściągliwa ekspresja",
+      characteristic_vocabulary: ["weryfikacja", "źródło", "fakt"],
+    },
+    facts: [
+      {
+        layer: "knowledge",
+        title: "Rzetelność poznawcza i analiza źródeł",
+        content: "Autor kieruje się prymatem dowodów i weryfikacji faktów w źródłach pierwotnych.",
+        epistemic_status: "user_declaration",
+        confidence: "confirmed",
+        exact_quote: prompt.slice(0, 120),
+      },
+    ],
     memories: [
       {
         layer: "preferences",
@@ -206,10 +222,13 @@ function getSyntheticStructuredFallback<T>(prompt: string, schema: z.ZodSchema<T
   };
 
   try {
-    return schema.parse(dummyData);
+    return schema.parse(dummyExtraction);
   } catch {
-    // Jeżeli schemat ma inny kształt, tworzymy pusty obiekt spełniający schema
-    return schema.parse({} as unknown as T);
+    try {
+      return schema.parse({} as unknown as T);
+    } catch (e) {
+      throw new Error(`Nie udało się sparsować syntetycznego fallbacku: ${e}`);
+    }
   }
 }
 

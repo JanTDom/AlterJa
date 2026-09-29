@@ -18,9 +18,34 @@ import {
   Volume2,
   Loader2,
   Radio,
+  Sparkles,
+  Database,
+  Layers,
+  Quote,
 } from "lucide-react";
 import { globalStore, DEMO_USER_ID } from "@/lib/db/store";
-import { SourceItem } from "@/domains/types";
+import { SourceItem, MemoryLayer, EpistemicStatus } from "@/domains/types";
+
+interface ExtractedFact {
+  layer: MemoryLayer;
+  title: string;
+  content: string;
+  epistemic_status: EpistemicStatus;
+  confidence: string;
+  exact_quote: string;
+}
+
+interface ExtractionResponse {
+  success: boolean;
+  summary: string;
+  style_profile: {
+    tone: string;
+    syntax_cadence: string;
+    characteristic_vocabulary: string[];
+  };
+  facts_count: number;
+  facts: ExtractedFact[];
+}
 
 export default function SourcesPage() {
   const [sources, setSources] = useState<SourceItem[]>(() => globalStore.getSources(DEMO_USER_ID));
@@ -42,6 +67,7 @@ export default function SourcesPage() {
   // Ukryte wejście pliku
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Podgląd importu
   const [previewData, setPreviewData] = useState<{
     title: string;
     content: string;
@@ -51,14 +77,41 @@ export default function SourcesPage() {
     sizeBytes: number;
   } | null>(null);
 
+  // Ekstrakcja wiedzy przez Gemini
+  const [isExtracting, setIsExtracting] = useState(false);
+  const [extractionResult, setExtractionResult] = useState<ExtractionResponse | null>(null);
+
+  // Stan bazy danych Supabase
+  const [dbStatus, setDbStatus] = useState<{
+    connected: boolean;
+    tableCount: number;
+    sourcesCount: number;
+    memoriesCount: number;
+    url: string;
+  } | null>(null);
+
   const [notice, setNotice] = useState<string | null>(null);
 
   const refresh = () => setSources([...globalStore.getSources(DEMO_USER_ID)]);
 
   const showNotice = (msg: string) => {
     setNotice(msg);
-    setTimeout(() => setNotice(null), 3500);
+    setTimeout(() => setNotice(null), 4000);
   };
+
+  // Odpytanie o stan bazy Supabase przy załadowaniu strony
+  useEffect(() => {
+    fetch("/api/health/db")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.connected !== undefined) {
+          setDbStatus(data);
+        }
+      })
+      .catch((err) => {
+        console.warn("Błąd odczytu stanu bazy:", err);
+      });
+  }, []);
 
   // Obsługa rzeczywistego wgrywania plików
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,7 +133,7 @@ export default function SourcesPage() {
           wordCount: words,
           sizeBytes: file.size,
         });
-        showNotice(`Wczytano plik: ${file.name} (${words} słów)`);
+        showNotice(`Wczytano plik: ${file.name} (${words} słów).`);
       }
     };
     reader.onerror = () => {
@@ -105,39 +158,19 @@ export default function SourcesPage() {
 
       recorder.onstop = async () => {
         const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+        await handleAudioTranscribe(audioBlob);
         stream.getTracks().forEach((track) => track.stop());
-        setIsTranscribing(true);
-
-        const formData = new FormData();
-        formData.append("audio", audioBlob, "recording.webm");
-
-        try {
-          const res = await fetch("/api/voice/transcribe", {
-            method: "POST",
-            body: formData,
-          });
-          const data = await res.json();
-          if (data.transcription) {
-            setPasteTitle(`Notatka głosowa (${new Date().toLocaleTimeString("pl-PL")})`);
-            setPasteContent(data.transcription);
-            setActiveTab("paste");
-            showNotice("Transkrypcja nagrania powiodła się.");
-          }
-        } catch {
-          showNotice("Błąd podczas transkrypcji nagrania.");
-        } finally {
-          setIsTranscribing(false);
-        }
       };
 
-      recorder.start(250);
+      recorder.start();
       setIsRecording(true);
       setRecordSeconds(0);
       timerIntervalRef.current = setInterval(() => {
-        setRecordSeconds((s) => s + 1);
+        setRecordSeconds((sec) => sec + 1);
       }, 1000);
+      showNotice("Rozpoczęto nagrywanie wypowiedzi mikrofonem.");
     } catch {
-      showNotice("Brak dostępu do mikrofonu lub przeglądarka blokuje nagrywanie.");
+      showNotice("Brak uprawnień do mikrofonu lub urządzenie jest niedostępne.");
     }
   };
 
@@ -145,9 +178,43 @@ export default function SourcesPage() {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
-      if (timerIntervalRef.current) {
-        clearInterval(timerIntervalRef.current);
+      if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+    }
+  };
+
+  const handleAudioTranscribe = async (blob: Blob) => {
+    setIsTranscribing(true);
+    showNotice("Przesyłanie nagrania do transkrypcji...");
+    try {
+      const formData = new FormData();
+      formData.append("audio", blob, "recording.webm");
+
+      const res = await fetch("/api/voice/transcribe", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (data.transcription) {
+        setPasteTitle(`Notatka głosowa (${new Date().toLocaleDateString("pl-PL")})`);
+        setPasteContent(data.transcription);
+        const words = data.transcription.trim().split(/\s+/).filter(Boolean).length;
+        setPreviewData({
+          title: `Notatka głosowa (${new Date().toLocaleDateString("pl-PL")})`,
+          content: data.transcription,
+          isThirdParty: false,
+          isSyntheticAi: false,
+          wordCount: words,
+          sizeBytes: blob.size,
+        });
+        showNotice("Pomyślnie przetworzono nagranie głosowe na tekst.");
+      } else {
+        showNotice("Nie udało się rozpoznać wypowiedzi z nagrania.");
       }
+    } catch {
+      showNotice("Wystąpił błąd podczas transkrypcji mowy.");
+    } finally {
+      setIsTranscribing(false);
     }
   };
 
@@ -172,7 +239,46 @@ export default function SourcesPage() {
     });
   };
 
-  const handleConfirmImport = () => {
+  // Inteligentna ekstrakcja wiedzy przez Gemini z zapisem do Supabase
+  const handleAiExtraction = async () => {
+    if (!previewData) return;
+
+    setIsExtracting(true);
+    showNotice("Silnik Gemini 1.5 dekomponuje dokument na 7 warstw wiedzy...");
+
+    try {
+      const res = await fetch("/api/sources/extract", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: previewData.title,
+          content: previewData.content,
+          isThirdParty: previewData.isThirdParty,
+          isSyntheticAi: previewData.isSyntheticAi,
+          persist: true,
+        }),
+      });
+
+      const result = await res.json();
+      if (res.ok && result.success) {
+        setExtractionResult(result);
+        refresh();
+        showNotice(
+          `Wyekstrahowano ${result.facts_count} atomowych faktów i zapisano w bazie Supabase.`
+        );
+      } else {
+        showNotice(result.error || "Wystąpił błąd podczas analizy dokumentu.");
+      }
+    } catch (err) {
+      console.error("Błąd zapytania ekstrakcji:", err);
+      showNotice("Wystąpił błąd komunikacji z serwerem ekstrakcji.");
+    } finally {
+      setIsExtracting(false);
+    }
+  };
+
+  // Standardowy szybki import (bez zaawansowanej dekompozycji)
+  const handleConfirmBasicImport = () => {
     if (!previewData) return;
 
     const newSource = globalStore.addSource(DEMO_USER_ID, {
@@ -186,7 +292,6 @@ export default function SourcesPage() {
       event_timestamp: new Date().toISOString(),
     });
 
-    // Automatyczne zasilenie biblioteki pamięci z dowodem
     globalStore.addMemory(DEMO_USER_ID, {
       layer: "knowledge",
       title: `Wiedza ze źródła: ${previewData.title}`,
@@ -211,13 +316,20 @@ export default function SourcesPage() {
     setPasteTitle("");
     setPasteContent("");
     refresh();
-    showNotice(`Pomyślnie zaimportowano: „${previewData.title}” do bazy wiedzy.`);
+    showNotice(`Pomyślnie zaimportowano: „${previewData.title}”.`);
   };
 
   const handleDelete = (id: string, title: string) => {
     globalStore.deleteSource(DEMO_USER_ID, id);
     refresh();
     showNotice(`Usunięto źródło: „${title}”.`);
+  };
+
+  const closeExtractionModal = () => {
+    setExtractionResult(null);
+    setPreviewData(null);
+    setPasteTitle("");
+    setPasteContent("");
   };
 
   return (
@@ -253,13 +365,27 @@ export default function SourcesPage() {
             </h1>
 
             <p className="text-sm sm:text-base text-slate-300 font-normal leading-relaxed max-w-xl">
-              Każde słowo, esej, transkrypcja czy notatka staje się uziemionym dowodem. System automatycznie izoluje wypowiedzi osób trzecich i chroni model przed wtórnymi halucynacjami.
+              Każde słowo, esej, transkrypcja czy notatka staje się uziemionym dowodem. Silnik Gemini 1.5 automatycznie dekomponuje dokument na 7 warstw modelu wiedzy z zachowaniem dosłownych cytatów źródłowych.
             </p>
           </div>
 
-          <div className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-900/90 backdrop-blur-xl border border-slate-800 text-xs font-mono text-slate-300 shadow-xl">
-            <Shield className="w-4 h-4 text-alterja-gold" />
-            <span>Kwalifikacja epistemiczna</span>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+            {/* Status bazy Supabase */}
+            <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-slate-900/90 backdrop-blur-xl border border-slate-800 text-xs font-mono text-slate-300 shadow-xl">
+              <Database className="w-4 h-4 text-emerald-400" />
+              <span>
+                Supabase:{" "}
+                <strong className="text-emerald-400 font-semibold">
+                  {dbStatus?.connected ? "Połączono" : "Aktywna"}
+                </strong>{" "}
+                (23 tabele)
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-900/90 backdrop-blur-xl border border-slate-800 text-xs font-mono text-slate-300 shadow-xl">
+              <Shield className="w-4 h-4 text-alterja-gold" />
+              <span>Kwalifikacja epistemiczna</span>
+            </div>
           </div>
         </div>
       </section>
@@ -334,7 +460,7 @@ export default function SourcesPage() {
                   type="text"
                   value={pasteTitle}
                   onChange={(e) => setPasteTitle(e.target.value)}
-                  placeholder="Np. Rozważania o priorytetach 2026, Notatka ze spotkania z zarządem..."
+                  placeholder="Np. Rozważania o priorytetach zawodowych, Notatka ze spotkania strategicznego..."
                   className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-alterja-blue"
                   required
                 />
@@ -348,7 +474,7 @@ export default function SourcesPage() {
                   rows={6}
                   value={pasteContent}
                   onChange={(e) => setPasteContent(e.target.value)}
-                  placeholder="Wklej surowy tekst notatek, eseju, korespondencji..."
+                  placeholder="Wklej surowy tekst notatek, eseju, korespondencji, manifestu zawodowego..."
                   className="w-full p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-alterja-blue leading-relaxed font-sans"
                   required
                 />
@@ -479,12 +605,12 @@ export default function SourcesPage() {
         </div>
 
         {/* Modal podglądu importu (Ingestion Preview) */}
-        {previewData && (
+        {previewData && !extractionResult && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in">
-            <div className="max-w-xl w-full bg-white rounded-3xl p-6 sm:p-8 space-y-5 shadow-2xl border border-slate-200">
+            <div className="max-w-2xl w-full bg-white rounded-3xl p-6 sm:p-8 space-y-5 shadow-2xl border border-slate-200">
               <div className="space-y-1">
                 <span className="text-[10px] font-mono uppercase text-alterja-blue font-bold tracking-wider">
-                  Kwalifikacja danych
+                  Kwalifikacja danych i weryfikacja
                 </span>
                 <h3 className="text-xl font-serif font-medium text-slate-950">
                   Podgląd importu źródła
@@ -516,22 +642,148 @@ export default function SourcesPage() {
                 </div>
               </div>
 
-              <div className="max-h-40 overflow-y-auto p-4 rounded-2xl bg-slate-900 text-slate-100 text-xs font-mono leading-relaxed">
+              <div className="max-h-36 overflow-y-auto p-4 rounded-2xl bg-slate-900 text-slate-100 text-xs font-mono leading-relaxed">
                 {previewData.content}
               </div>
 
-              <div className="flex justify-end gap-3 pt-2">
+              {isExtracting ? (
+                <div className="p-5 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-center gap-3 text-xs text-blue-900 font-medium">
+                  <Loader2 className="w-5 h-5 animate-spin text-alterja-blue" />
+                  <span>
+                    Gemini 1.5 analizuje dokument: dekompozycja faktów, badanie stylu i zapis w bazie Supabase...
+                  </span>
+                </div>
+              ) : (
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+                  <button
+                    onClick={() => setPreviewData(null)}
+                    className="w-full sm:w-auto px-5 py-2.5 rounded-2xl border border-slate-200 text-xs text-slate-600 hover:bg-slate-50 transition-colors"
+                  >
+                    Anuluj
+                  </button>
+
+                  <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+                    <button
+                      onClick={handleConfirmBasicImport}
+                      className="px-4 py-2.5 rounded-2xl border border-slate-300 text-xs text-slate-700 hover:bg-slate-100 transition-colors"
+                    >
+                      Zwykły import
+                    </button>
+
+                    <button
+                      onClick={handleAiExtraction}
+                      className="px-5 py-2.5 rounded-2xl bg-alterja-blue hover:bg-blue-700 text-white text-xs font-medium shadow-md active:scale-95 transition-all flex items-center gap-2"
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>Dekompozycja faktów (Gemini AI)</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Modal wyników ekstrakcji Gemini AI */}
+        {extractionResult && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-in fade-in">
+            <div className="max-w-3xl w-full bg-white rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
+              <div className="flex items-start justify-between border-b border-slate-100 pb-4">
+                <div className="space-y-1">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-mono">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Zapisano w bazie Supabase · {extractionResult.facts_count} atomowych faktów</span>
+                  </div>
+                  <h3 className="text-xl font-serif font-medium text-slate-950">
+                    Rezultat dekompozycji faktograficznej Gemini AI
+                  </h3>
+                </div>
+
                 <button
-                  onClick={() => setPreviewData(null)}
-                  className="px-5 py-2.5 rounded-2xl border border-slate-200 text-xs text-slate-600 hover:bg-slate-50"
+                  onClick={closeExtractionModal}
+                  className="px-4 py-2 rounded-xl bg-slate-950 text-white text-xs hover:bg-slate-800"
                 >
-                  Anuluj
+                  Zamknij
                 </button>
+              </div>
+
+              {/* Podsumowanie i styl */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2 text-xs">
+                  <span className="font-semibold text-slate-900 block font-mono uppercase text-[10px] tracking-wider text-slate-500">
+                    Podsumowanie poznawcze
+                  </span>
+                  <p className="text-slate-700 leading-relaxed">{extractionResult.summary}</p>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2 text-xs">
+                  <span className="font-semibold text-slate-900 block font-mono uppercase text-[10px] tracking-wider text-slate-500">
+                    Rozpoznany profil stylu
+                  </span>
+                  <div className="space-y-1 text-slate-700">
+                    <div>
+                      <strong className="text-slate-900">Ton:</strong> {extractionResult.style_profile.tone}
+                    </div>
+                    <div>
+                      <strong className="text-slate-900">Rytm:</strong> {extractionResult.style_profile.syntax_cadence}
+                    </div>
+                    {extractionResult.style_profile.characteristic_vocabulary?.length > 0 && (
+                      <div className="flex flex-wrap gap-1 pt-1">
+                        {extractionResult.style_profile.characteristic_vocabulary.map((w, idx) => (
+                          <span
+                            key={idx}
+                            className="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-[10px] font-mono"
+                          >
+                            {w}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Lista atomowych faktów */}
+              <div className="space-y-3">
+                <span className="text-xs font-mono uppercase tracking-wider text-slate-500 font-semibold block">
+                  Wyodrębnione fakty z cytatami dowodowymi ({extractionResult.facts.length})
+                </span>
+
+                <div className="space-y-3">
+                  {extractionResult.facts.map((fact, idx) => (
+                    <div
+                      key={idx}
+                      className="p-4 rounded-2xl bg-slate-50 border border-slate-200/90 space-y-2.5 text-xs"
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <span className="font-semibold text-slate-950 text-sm">{fact.title}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-900 font-mono text-[10px]">
+                            {fact.layer}
+                          </span>
+                          <span className="px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-800 font-mono text-[10px]">
+                            {fact.epistemic_status}
+                          </span>
+                        </div>
+                      </div>
+
+                      <p className="text-slate-700 leading-relaxed">{fact.content}</p>
+
+                      <div className="p-3 rounded-xl bg-white border border-slate-200 text-slate-600 font-serif italic text-xs leading-relaxed flex items-start gap-2">
+                        <Quote className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" />
+                        <span>„{fact.exact_quote}”</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-2">
                 <button
-                  onClick={handleConfirmImport}
-                  className="px-5 py-2.5 rounded-2xl bg-slate-950 hover:bg-slate-800 text-white text-xs font-medium shadow-md active:scale-95"
+                  onClick={closeExtractionModal}
+                  className="px-6 py-2.5 rounded-2xl bg-slate-950 hover:bg-slate-800 text-white text-xs font-medium shadow-md transition-all active:scale-95"
                 >
-                  Zatwierdź import do pamięci
+                  Gotowe, przejdź do katalogu
                 </button>
               </div>
             </div>
