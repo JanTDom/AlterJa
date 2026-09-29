@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import Navbar from "@/components/navigation/Navbar";
 import HeroInteractiveSimulator from "@/components/landing/HeroInteractiveSimulator";
+import KineticNeuralCanvas from "@/components/landing/KineticNeuralCanvas";
 import GroundedComparisonDemo from "@/components/landing/GroundedComparisonDemo";
 import IdentityAssemblyPhases from "@/components/landing/IdentityAssemblyPhases";
 import {
@@ -65,6 +66,9 @@ export default function LandingPage() {
           <div className="absolute inset-0 bg-radial-gradient from-transparent via-slate-950/70 to-slate-950 pointer-events-none" />
           <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-slate-950 to-transparent pointer-events-none" />
         </div>
+
+        {/* 60fps GPU Canvas z polem kognitywnym, cząstkami i synapsami reagującymi na kursor */}
+        <KineticNeuralCanvas />
 
         {/* Dynamiczny promień telemetryczny */}
         <div className="absolute inset-x-0 h-32 bg-gradient-to-b from-sky-400/0 via-sky-400/20 to-sky-400/0 border-b border-sky-300/40 pointer-events-none animate-scanline z-10" />
