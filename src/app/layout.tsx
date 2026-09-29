@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, Playfair_Display, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import AuthGateModal from "@/components/auth/AuthGateModal";
 
 const sans = Plus_Jakarta_Sans({
   subsets: ["latin", "latin-ext"],
@@ -53,6 +54,7 @@ export default function RootLayout({
   return (
     <html lang="pl" className={`scroll-smooth ${sans.variable} ${serif.variable} ${mono.variable}`}>
       <body className="min-h-screen bg-alterja-bg text-slate-900 flex flex-col font-sans antialiased selection:bg-alterja-blue/15 selection:text-alterja-blue">
+        <AuthGateModal />
         <main className="flex-1 flex flex-col">{children}</main>
         <footer className="border-t border-slate-200/80 bg-white/70 backdrop-blur-md py-8 text-center text-xs text-slate-500">
           <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">

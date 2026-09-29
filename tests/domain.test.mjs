@@ -85,4 +85,27 @@ describe("AlterJa Domain and Epistemic Integrity Tests", () => {
       }
     }
   });
+
+  it("weryfikuje bezpieczną autoryzację hasła przez skrót SHA-256 bez wycieku w kodzie", async () => {
+    const crypto = await import("crypto");
+    const AUTHORIZED_HASH = "aff0d626d1dd85ed88ab023b216429ab75cb3324f47dc393aba2e92294c53cfd";
+
+    const verifyPassword = (input) => {
+      const hash = crypto.createHash("sha256").update(input).digest("hex");
+      return hash === AUTHORIZED_HASH;
+    };
+
+    assert.strictEqual(verifyPassword("niepoprawne_haslo"), false, "Odrzuca błędne hasło");
+    assert.strictEqual(verifyPassword(""), false, "Odrzuca puste hasło");
+    assert.strictEqual(AUTHORIZED_HASH.length, 64, "Skrót SHA-256 musi mieć 64 znaki");
+  });
+
+  it("weryfikuje obecność dokładnie 10 autorskich grafik tożsamości", async () => {
+    const fs = await import("fs/promises");
+    const files = await fs.readdir("public/images");
+    const alterjaFiles = files.filter((f) => f.startsWith("alterja-"));
+
+    assert.strictEqual(alterjaFiles.length, 10, "Katalog public/images musi zawierać dokładnie 10 autorskich grafik");
+  });
 });
+

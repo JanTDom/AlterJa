@@ -94,11 +94,11 @@ export default function StyleLabPage() {
       {/* PEŁNOFORMATOWA KINOWA SCENA FOTOGRAFICZNA (RADIANT-AVATAR) */}
       <section className="relative w-full min-h-[400px] md:min-h-[460px] flex items-center overflow-hidden bg-slate-950">
         <Image
-          src="/images/radiant-avatar.jpg"
-          alt="Świetlisty awatar wznoszący się do gwiazd"
+          src="/images/alterja-duality.jpg"
+          alt="Horyzont dualizmu: organiczna tożsamość człowieka i cyfrowy model alter ego"
           fill
           priority
-          className="object-cover object-center scale-[1.02] filter brightness-90 contrast-105"
+          className="object-cover object-center filter brightness-90 contrast-110 scale-[1.01]"
         />
 
         {/* Dynamiczny skaner biometryczny */}

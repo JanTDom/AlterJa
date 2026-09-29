@@ -129,11 +129,11 @@ export default function DashboardPage() {
       {/* PEŁNOFORMATOWA KINOWA SCENA FOTOGRAFICZNA (COSMIC-MIND) */}
       <section className="relative w-full min-h-[460px] md:min-h-[520px] flex items-center overflow-hidden bg-slate-950">
         <Image
-          src="/images/cosmic-mind.jpg"
-          alt="Kosmiczny umysł i konstelacje pamięci AlterJa"
+          src="/images/alterja-campus.jpg"
+          alt="Sanktuarium i kampus architektury umysłu AlterJa: połączone pawilony pamięci, dźwięku i wiedzy"
           fill
           priority
-          className="object-cover object-center scale-[1.02] filter brightness-95 contrast-105"
+          className="object-cover object-center filter brightness-95 contrast-105 scale-[1.01]"
         />
 
         {/* Dynamiczny skaner biometryczny */}

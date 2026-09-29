@@ -67,11 +67,11 @@ export default function OpsPage() {
       {/* PEŁNOFORMATOWA KINOWA SCENA FOTOGRAFICZNA (STAIRWAY-AVATAR) */}
       <section className="relative w-full min-h-[400px] md:min-h-[460px] flex items-center overflow-hidden bg-slate-950">
         <Image
-          src="/images/stairway-avatar.jpg"
-          alt="Schody pamięci do cyfrowego sobowtóra i telemetria operacyjna"
+          src="/images/alterja-tree.jpg"
+          alt="Żywe drzewo ekosystemu AlterJa: korzenie telemetrii i gałęzie infrastruktury operacyjnej"
           fill
           priority
-          className="object-cover object-center scale-[1.02] filter brightness-90 contrast-105"
+          className="object-cover object-center filter brightness-90 contrast-110 scale-[1.01]"
         />
 
         {/* Dynamiczny skaner biometryczny */}

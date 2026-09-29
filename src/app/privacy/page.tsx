@@ -143,11 +143,11 @@ export default function PrivacyPage() {
       {/* PEŁNOFORMATOWA KINOWA SCENA FOTOGRAFICZNA (TREE-OF-MIND) */}
       <section className="relative w-full min-h-[400px] md:min-h-[460px] flex items-center overflow-hidden bg-slate-950">
         <Image
-          src="/images/tree-of-mind.jpg"
-          alt="Kosmiczne drzewo umysłu i nienaruszalny skarbiec AlterJa"
+          src="/images/alterja-fingerprint.jpg"
+          alt="Świetlisty biometryczny odcisk tożsamości przechodzący w sieć neuronową suwerenności"
           fill
           priority
-          className="object-cover object-center scale-[1.02] filter brightness-90 contrast-105"
+          className="object-cover object-center filter brightness-90 contrast-110 scale-[1.01]"
         />
 
         {/* Dynamiczny skaner biometryczny */}

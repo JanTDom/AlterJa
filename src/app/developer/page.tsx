@@ -120,11 +120,11 @@ export default function DeveloperPage() {
       {/* PEŁNOFORMATOWA KINOWA SCENA FOTOGRAFICZNA (PORTAL-MIRROR) */}
       <section className="relative w-full min-h-[400px] md:min-h-[460px] flex items-center overflow-hidden bg-slate-950">
         <Image
-          src="/images/portal-mirror.jpg"
-          alt="Gwiezdny portal integracji i platforma API AlterJa"
+          src="/images/alterja-core.jpg"
+          alt="Kwantowy rdzeń obliczeniowy i bezpieczna bramka API AlterJa"
           fill
           priority
-          className="object-cover object-center scale-[1.02] filter brightness-90 contrast-105"
+          className="object-cover object-center filter brightness-90 contrast-110 scale-[1.01]"
         />
 
         {/* Dynamiczny skaner biometryczny */}
