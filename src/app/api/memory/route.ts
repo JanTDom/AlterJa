@@ -8,6 +8,8 @@ import { getLiveMemories, persistMemoryWithEvidence, deleteLiveMemory } from "@/
 import { DEMO_USER_ID } from "@/lib/db/store";
 import { MemoryLayer, EpistemicStatus, ConfidenceLevel } from "@/domains/types";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const userId = searchParams.get("userId") || DEMO_USER_ID;

@@ -7,6 +7,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getLiveLegacyDirective, persistLegacyDirective } from "@/lib/supabase/db";
 import { DEMO_USER_ID } from "@/lib/db/store";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const userId = searchParams.get("userId") || DEMO_USER_ID;

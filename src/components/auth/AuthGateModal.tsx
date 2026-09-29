@@ -2,14 +2,20 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { Lock, KeyRound, Eye, EyeOff, ShieldCheck, ArrowRight, AlertCircle, Loader2 } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Lock, KeyRound, Eye, EyeOff, ShieldCheck, ArrowRight, AlertCircle, Loader2, X } from "lucide-react";
 
 export default function AuthGateModal() {
+  const pathname = usePathname();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [manualOpen, setManualOpen] = useState(false);
+
+  // Trasy publiczne, które nie wymuszają natychmiastowej blokady ekranu
+  const isPublicRoute = pathname === "/" || pathname === "/privacy" || pathname === "/terms" || pathname === "/ops";
 
   useEffect(() => {
     // Sprawdzenie sesji po załadowaniu
@@ -21,6 +27,17 @@ export default function AuthGateModal() {
       .catch(() => {
         setIsAuthenticated(false);
       });
+
+    // Nasłuchiwanie na ręczne otwarcie bramki (np. kliknięcie 'Zaloguj się')
+    const handleOpenAuth = () => {
+      setManualOpen(true);
+      setErrorMessage(null);
+    };
+
+    window.addEventListener("alterja-open-auth", handleOpenAuth);
+    return () => {
+      window.removeEventListener("alterja-open-auth", handleOpenAuth);
+    };
   }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -41,6 +58,9 @@ export default function AuthGateModal() {
 
       if (res.ok && data.success) {
         setIsAuthenticated(true);
+        setManualOpen(false);
+        // Jeśli użytkownik logował się ręcznie na stronie głównej, odświeżamy stan
+        window.dispatchEvent(new CustomEvent("alterja-auth-changed", { detail: { authenticated: true } }));
       } else {
         setErrorMessage(data.error || "Nieprawidłowe hasło dostępu.");
       }
@@ -51,13 +71,18 @@ export default function AuthGateModal() {
     }
   };
 
-  // Dopóki trwa sprawdzanie sesji, nie wyświetlamy nic lub subtelny blur
+  // Dopóki trwa sprawdzanie sesji, nie wyświetlamy nic
   if (isAuthenticated === null) {
     return null;
   }
 
   // Jeśli użytkownik jest już uwierzytelniony, modal nie jest renderowany
   if (isAuthenticated) {
+    return null;
+  }
+
+  // Na stronach publicznych modal pojawia się tylko po jawnym wywołaniu
+  if (isPublicRoute && !manualOpen) {
     return null;
   }
 
@@ -69,6 +94,17 @@ export default function AuthGateModal() {
       className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-slate-950/85 backdrop-blur-xl animate-in fade-in duration-300"
     >
       <div className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-slate-700/60 bg-gradient-to-b from-slate-900/95 via-slate-950/98 to-slate-950 shadow-2xl text-slate-100 flex flex-col">
+        {/* Przycisk zamknięcia na trasach publicznych przy ręcznym otwarciu */}
+        {isPublicRoute && (
+          <button
+            type="button"
+            onClick={() => setManualOpen(false)}
+            aria-label="Zamknij okno autoryzacji"
+            className="absolute top-4 right-4 z-20 p-2 rounded-full bg-slate-950/80 hover:bg-slate-800 text-slate-400 hover:text-white transition-colors border border-white/10"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
         {/* Górna scena artystyczna z oficjalnym logo AlterJa */}
         <div className="relative h-48 w-full overflow-hidden border-b border-slate-800 flex items-center justify-center">
           <Image
