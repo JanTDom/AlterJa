@@ -4,10 +4,22 @@
 
 import { getSupabaseAdmin } from "./admin";
 import { globalStore, DEMO_USER_ID } from "@/lib/db/store";
-import { SourceItem, MemoryItem, MemoryEvidence, MemoryLayer, EpistemicStatus, ConfidenceLevel } from "@/domains/types";
+import {
+  SourceItem,
+  MemoryItem,
+  MemoryEvidence,
+  MemoryLayer,
+  EpistemicStatus,
+  ConfidenceLevel,
+  DecisionCase,
+  LegacyDirective,
+  Conversation,
+  Message,
+  ConversationMode,
+} from "@/domains/types";
 
 // Bezpieczny generator UUID dla rekordów Supabase
-function ensureUuid(id?: string): string {
+export function ensureUuid(id?: string): string {
   if (id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
     return id;
   }
@@ -88,18 +100,41 @@ export async function persistSourceItem(params: {
 }
 
 /**
+ * Usunięcie źródła z Supabase i lokalnego magazynu
+ */
+export async function deleteLiveSource(userId: string = DEMO_USER_ID, sourceId: string): Promise<boolean> {
+  const safeUserId = ensureUuid(userId);
+  globalStore.deleteSource(userId, sourceId);
+
+  const supabase = getSupabaseAdmin();
+  if (supabase) {
+    try {
+      await supabase
+        .from("source_items")
+        .delete()
+        .eq("id", sourceId)
+        .eq("user_id", safeUserId);
+    } catch (err) {
+      console.warn("[Supabase] Błąd usuwania source_items:", err);
+    }
+  }
+
+  return true;
+}
+
+/**
  * Zapis atomowego faktu wiedzy wraz z cytatem dowodowym w Supabase i lokalnym magazynie
  */
 export async function persistMemoryWithEvidence(params: {
   userId?: string;
-  sourceItemId: string;
-  sourceTitle: string;
+  sourceItemId?: string;
+  sourceTitle?: string;
   layer: MemoryLayer;
   title: string;
   content: string;
   epistemicStatus: EpistemicStatus;
   confidence: ConfidenceLevel;
-  exactQuote: string;
+  exactQuote?: string;
   charStart?: number;
   charEnd?: number;
 }): Promise<MemoryItem> {
@@ -108,18 +143,20 @@ export async function persistMemoryWithEvidence(params: {
   const evidenceId = crypto.randomUUID();
   const now = new Date().toISOString();
 
-  const evidenceRecord: MemoryEvidence = {
-    id: evidenceId,
-    user_id: userId,
-    memory_item_id: memoryId,
-    source_item_id: params.sourceItemId,
-    source_title: params.sourceTitle,
-    exact_quote: params.exactQuote,
-    char_start: params.charStart ?? null,
-    char_end: params.charEnd ?? null,
-    evidence_weight: 1.0,
-    created_at: now,
-  };
+  const evidenceRecord: MemoryEvidence | undefined = params.exactQuote
+    ? {
+        id: evidenceId,
+        user_id: userId,
+        memory_item_id: memoryId,
+        source_item_id: ensureUuid(params.sourceItemId),
+        source_title: params.sourceTitle || "Dokument zweryfikowany",
+        exact_quote: params.exactQuote,
+        char_start: params.charStart ?? null,
+        char_end: params.charEnd ?? null,
+        evidence_weight: 1.0,
+        created_at: now,
+      }
+    : undefined;
 
   const memoryRecord: MemoryItem = {
     id: memoryId,
@@ -130,7 +167,7 @@ export async function persistMemoryWithEvidence(params: {
     epistemic_status: params.epistemicStatus,
     confidence: params.confidence,
     is_superseded: false,
-    evidence: [evidenceRecord],
+    evidence: evidenceRecord ? [evidenceRecord] : [],
     created_at: now,
     updated_at: now,
   };
@@ -165,13 +202,13 @@ export async function persistMemoryWithEvidence(params: {
 
       if (memError) {
         console.warn("[Supabase] Błąd zapisu memory_items:", memError.message);
-      } else {
+      } else if (evidenceRecord && params.sourceItemId) {
         const { error: eviError } = await supabase.from("memory_evidence").insert({
           id: evidenceId,
           user_id: userId,
           memory_item_id: memoryId,
-          source_item_id: params.sourceItemId,
-          exact_quote: params.exactQuote,
+          source_item_id: ensureUuid(params.sourceItemId),
+          exact_quote: params.exactQuote || "",
           char_start: params.charStart ?? null,
           char_end: params.charEnd ?? null,
           evidence_weight: 1.0,
@@ -188,6 +225,29 @@ export async function persistMemoryWithEvidence(params: {
   }
 
   return memoryRecord;
+}
+
+/**
+ * Usunięcie wspomnienia z Supabase i lokalnego magazynu
+ */
+export async function deleteLiveMemory(userId: string = DEMO_USER_ID, memoryId: string): Promise<boolean> {
+  const safeUserId = ensureUuid(userId);
+  globalStore.deleteMemory(userId, memoryId);
+
+  const supabase = getSupabaseAdmin();
+  if (supabase) {
+    try {
+      await supabase
+        .from("memory_items")
+        .delete()
+        .eq("id", memoryId)
+        .eq("user_id", safeUserId);
+    } catch (err) {
+      console.warn("[Supabase] Błąd usuwania memory_items:", err);
+    }
+  }
+
+  return true;
 }
 
 /**
@@ -257,6 +317,332 @@ export async function getLiveMemories(userId: string = DEMO_USER_ID): Promise<Me
   }
 
   return globalStore.getMemories(userId);
+}
+
+/**
+ * Zapis przypadku decyzyjnego w Supabase
+ */
+export async function persistDecisionCase(params: {
+  userId?: string;
+  situation: string;
+  optionsConsidered: string[];
+  chosenOption: string;
+  userJustification?: string;
+  decisionDate?: string;
+}): Promise<DecisionCase> {
+  const userId = ensureUuid(params.userId || DEMO_USER_ID);
+  const decisionId = crypto.randomUUID();
+  const now = new Date().toISOString();
+  const dateStr = params.decisionDate || now.split("T")[0];
+
+  const decision: DecisionCase = {
+    id: decisionId,
+    user_id: userId,
+    situation: params.situation,
+    options_considered: params.optionsConsidered,
+    chosen_option: params.chosenOption,
+    user_justification: params.userJustification || null,
+    observed_outcome: null,
+    post_hoc_reflection: null,
+    decision_date: dateStr,
+    created_at: now,
+  };
+
+  globalStore.addDecision(userId, {
+    situation: decision.situation,
+    options_considered: decision.options_considered,
+    chosen_option: decision.chosen_option,
+    user_justification: decision.user_justification,
+    observed_outcome: null,
+    post_hoc_reflection: null,
+    decision_date: decision.decision_date,
+  });
+
+  const supabase = getSupabaseAdmin();
+  if (supabase) {
+    try {
+      await supabase.from("decisions").insert({
+        id: decisionId,
+        user_id: userId,
+        situation: decision.situation,
+        options_considered: decision.options_considered,
+        chosen_option: decision.chosen_option,
+        user_justification: decision.user_justification,
+        decision_date: dateStr,
+        created_at: now,
+      });
+    } catch (err) {
+      console.warn("[Supabase] Błąd zapisu decisions:", err);
+    }
+  }
+
+  return decision;
+}
+
+/**
+ * Odczyt decyzji z Supabase
+ */
+export async function getLiveDecisions(userId: string = DEMO_USER_ID): Promise<DecisionCase[]> {
+  const safeUserId = ensureUuid(userId);
+  const supabase = getSupabaseAdmin();
+
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from("decisions")
+        .select("*")
+        .eq("user_id", safeUserId)
+        .order("created_at", { ascending: false });
+
+      if (!error && data && data.length > 0) {
+        return data as DecisionCase[];
+      }
+    } catch (err) {
+      console.warn("[Supabase] Błąd odczytu decisions:", err);
+    }
+  }
+
+  return globalStore.getDecisions(userId);
+}
+
+/**
+ * Zapis dyspozycji cyfrowej spuścizny
+ */
+export async function persistLegacyDirective(
+  userId: string = DEMO_USER_ID,
+  directive: Partial<LegacyDirective>
+): Promise<LegacyDirective> {
+  const safeUserId = ensureUuid(userId);
+  const now = new Date().toISOString();
+
+  const modeToDeathAction: Record<string, "delete_all" | "archive_only" | "reconstruction_allowed"> = {
+    archive_only: "archive_only",
+    interactive_memorial: "reconstruction_allowed",
+    total_erasure: "delete_all",
+  };
+
+  const onDeath = directive.mode ? modeToDeathAction[directive.mode] || "delete_all" : "delete_all";
+  const email = directive.trusted_contact_email || directive.primary_contact_email || null;
+
+  globalStore.updateLegacyDirective({
+    mode: directive.mode || "archive_only",
+    trusted_contact_email: email || undefined,
+    inactivity_period_days: directive.inactivity_period_days || 90,
+    require_death_certificate: directive.require_death_certificate !== false,
+    posthumous_intro_message: directive.posthumous_intro_message || "",
+  });
+
+  const supabase = getSupabaseAdmin();
+  if (supabase) {
+    try {
+      await supabase
+        .from("legacy_directives")
+        .upsert(
+          {
+            user_id: safeUserId,
+            is_enabled: true,
+            primary_contact_email: email,
+            primary_contact_name: directive.primary_contact_name || "Zaufany kontakt",
+            on_verified_death: onDeath,
+            allow_simulation: onDeath === "reconstruction_allowed",
+            status: directive.status || "dormant",
+            updated_at: now,
+          },
+          { onConflict: "user_id" }
+        );
+    } catch (err) {
+      console.warn("[Supabase] Błąd zapisu legacy_directives:", err);
+    }
+  }
+
+  return globalStore.getLegacyDirective(userId);
+}
+
+/**
+ * Odczyt dyspozycji cyfrowej spuścizny
+ */
+export async function getLiveLegacyDirective(userId: string = DEMO_USER_ID): Promise<LegacyDirective> {
+  const safeUserId = ensureUuid(userId);
+  const supabase = getSupabaseAdmin();
+
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from("legacy_directives")
+        .select("*")
+        .eq("user_id", safeUserId)
+        .maybeSingle();
+
+      if (!error && data) {
+        return {
+          ...data,
+          mode: data.on_verified_death === "reconstruction_allowed"
+            ? "interactive_memorial"
+            : data.on_verified_death === "archive_only"
+            ? "archive_only"
+            : "total_erasure",
+          trusted_contact_email: data.primary_contact_email,
+        } as LegacyDirective;
+      }
+    } catch (err) {
+      console.warn("[Supabase] Błąd odczytu legacy_directives:", err);
+    }
+  }
+
+  return globalStore.getLegacyDirective(userId);
+}
+
+/**
+ * Zapis wiadomości i konwersacji w Supabase
+ */
+export async function persistConversationMessage(params: {
+  userId?: string;
+  conversationId?: string;
+  role: "user" | "assistant";
+  content: string;
+  mode?: ConversationMode;
+  citations?: any[];
+  uncertainty?: string;
+}): Promise<Message> {
+  const userId = ensureUuid(params.userId || DEMO_USER_ID);
+  const conversationId = ensureUuid(params.conversationId);
+  const messageId = crypto.randomUUID();
+  const now = new Date().toISOString();
+
+  // Upewnienie się, że sesja konwersacji istnieje w Supabase
+  const supabase = getSupabaseAdmin();
+  if (supabase) {
+    try {
+      await supabase.from("conversations").upsert(
+        {
+          id: conversationId,
+          user_id: userId,
+          title: "Sesja dialogowa AlterJa",
+          mode: params.mode || "reconstruction",
+          updated_at: now,
+        },
+        { onConflict: "id" }
+      );
+
+      await supabase.from("messages").insert({
+        id: messageId,
+        conversation_id: conversationId,
+        user_id: userId,
+        role: params.role,
+        content: params.content,
+        mode: params.mode || "reconstruction",
+        grounding_citations: params.citations || [],
+        uncertainty_level: params.uncertainty || null,
+        created_at: now,
+      });
+    } catch (err) {
+      console.warn("[Supabase] Błąd zapisu wiadomości:", err);
+    }
+  }
+
+  // Zapis w pamięci lokalnej
+  return globalStore.addMessage(
+    conversationId,
+    userId,
+    params.role,
+    params.content,
+    {
+      mode: params.mode,
+      uncertainty_level: params.uncertainty as any,
+    }
+  );
+}
+
+/**
+ * Zapis odpowiedzi wywiadu adaptacyjnego w Supabase
+ */
+export async function persistInterviewAnswer(params: {
+  userId?: string;
+  topic: string;
+  questionText: string;
+  answerText: string;
+  category: MemoryLayer;
+}): Promise<void> {
+  const userId = ensureUuid(params.userId || DEMO_USER_ID);
+  const sessionId = ensureUuid("00000000-0000-0000-0003-000000000001");
+  const now = new Date().toISOString();
+
+  // 1. Zapis jako wspomnienie
+  await persistMemoryWithEvidence({
+    userId,
+    layer: params.category,
+    title: `Wywiad: ${params.topic}`,
+    content: params.answerText,
+    epistemicStatus: "user_declaration",
+    confidence: "confirmed",
+  });
+
+  // 2. Zapis w tabelach interview_sessions i interview_answers
+  const supabase = getSupabaseAdmin();
+  if (supabase) {
+    try {
+      await supabase.from("interview_sessions").upsert(
+        {
+          id: sessionId,
+          user_id: userId,
+          topic: "Adaptacyjny wywiad autobiograficzny",
+          status: "active",
+        },
+        { onConflict: "id" }
+      );
+
+      await supabase.from("interview_answers").insert({
+        id: crypto.randomUUID(),
+        session_id: sessionId,
+        user_id: userId,
+        question_text: params.questionText,
+        answer_text: params.answerText,
+        is_skipped: false,
+        created_at: now,
+      });
+    } catch (err) {
+      console.warn("[Supabase] Błąd zapisu odpowiedzi wywiadu:", err);
+    }
+  }
+}
+
+/**
+ * Odczyt statystyk do pulpitu głównego z Supabase
+ */
+export async function getLiveDashboardStats(userId: string = DEMO_USER_ID) {
+  const safeUserId = ensureUuid(userId);
+  const supabase = getSupabaseAdmin();
+
+  let sourcesCount = globalStore.getSources(userId).length;
+  let memoriesCount = globalStore.getMemories(userId).length;
+  let decisionsCount = globalStore.getDecisions(userId).length;
+  let hypothesesCount = globalStore.getHypotheses(userId).length;
+
+  if (supabase) {
+    try {
+      const [srcRes, memRes, decRes, hypRes] = await Promise.all([
+        supabase.from("source_items").select("*", { count: "exact", head: true }).eq("user_id", safeUserId),
+        supabase.from("memory_items").select("*", { count: "exact", head: true }).eq("user_id", safeUserId),
+        supabase.from("decisions").select("*", { count: "exact", head: true }).eq("user_id", safeUserId),
+        supabase.from("hypotheses").select("*", { count: "exact", head: true }).eq("user_id", safeUserId),
+      ]);
+
+      if (srcRes.count !== null && srcRes.count !== undefined) sourcesCount = srcRes.count;
+      if (memRes.count !== null && memRes.count !== undefined) memoriesCount = memRes.count;
+      if (decRes.count !== null && decRes.count !== undefined) decisionsCount = decRes.count;
+      if (hypRes.count !== null && hypRes.count !== undefined) hypothesesCount = hypRes.count;
+    } catch (err) {
+      console.warn("[Supabase] Błąd odczytu statystyk pulpitu:", err);
+    }
+  }
+
+  return {
+    sourcesCount,
+    memoriesCount,
+    decisionsCount,
+    hypothesesCount,
+    profile: globalStore.getProfile(userId),
+  };
 }
 
 /**

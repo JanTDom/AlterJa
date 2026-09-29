@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Navbar from "@/components/navigation/Navbar";
 import { store } from "@/lib/db/store";
@@ -16,6 +16,7 @@ import {
   Save,
   Check,
   Sparkles,
+  Database,
 } from "lucide-react";
 
 export default function LegacyPage() {
@@ -23,8 +24,36 @@ export default function LegacyPage() {
   const [directive, setDirective] = useState<LegacyDirective>(store.getLegacyDirective());
   const [isSaved, setIsSaved] = useState(false);
 
-  const handleSave = (e: React.FormEvent) => {
+  useEffect(() => {
+    fetch("/api/legacy")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.directive) {
+          setDirective((prev) => ({ ...prev, ...data.directive }));
+        }
+      })
+      .catch((err) => console.warn("Błąd odczytu dyspozycji:", err));
+  }, []);
+
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    try {
+      await fetch("/api/legacy", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: directive.mode,
+          trusted_contact_email: directive.trusted_contact_email,
+          inactivity_period_days: directive.inactivity_period_days,
+          require_death_certificate: directive.require_death_certificate,
+          posthumous_intro_message: directive.posthumous_intro_message,
+        }),
+      });
+    } catch (err) {
+      console.warn("Błąd zapisu spuścizny przez API, fallback lokalny:", err);
+    }
+
     store.updateLegacyDirective({
       mode: directive.mode,
       trusted_contact_email: directive.trusted_contact_email,

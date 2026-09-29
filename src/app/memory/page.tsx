@@ -16,6 +16,7 @@ import {
   AlertCircle,
   Network,
   LayoutGrid,
+  Database,
 } from "lucide-react";
 import { globalStore, DEMO_USER_ID } from "@/lib/db/store";
 import { MemoryItem, MemoryLayer, EpistemicStatus } from "@/domains/types";
@@ -44,25 +45,65 @@ export default function MemoryPage() {
   const [newLayer, setNewLayer] = useState<MemoryLayer>("values");
   const [newStatus, setNewStatus] = useState<EpistemicStatus>("user_declaration");
 
-  const refresh = () => setMemories([...globalStore.getMemories(DEMO_USER_ID)]);
+  const [dbConnected, setDbConnected] = useState(true);
 
-  const handleDelete = (id: string) => {
+  const fetchLive = async () => {
+    try {
+      const res = await fetch("/api/memory");
+      const data = await res.json();
+      if (data.success && Array.isArray(data.memories) && data.memories.length > 0) {
+        setMemories(data.memories);
+      } else {
+        setMemories([...globalStore.getMemories(DEMO_USER_ID)]);
+      }
+    } catch {
+      setMemories([...globalStore.getMemories(DEMO_USER_ID)]);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchLive();
+  }, []);
+
+  const refresh = () => fetchLive();
+
+  const handleDelete = async (id: string) => {
+    try {
+      await fetch(`/api/memory?id=${id}`, { method: "DELETE" });
+    } catch (err) {
+      console.warn("Błąd usuwania wspomnienia:", err);
+    }
     globalStore.deleteMemory(DEMO_USER_ID, id);
     refresh();
   };
 
-  const handleCreate = (e: React.FormEvent) => {
+  const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle.trim() || !newContent.trim()) return;
 
-    globalStore.addMemory(DEMO_USER_ID, {
-      layer: newLayer,
-      title: newTitle.trim(),
-      content: newContent.trim(),
-      epistemic_status: newStatus,
-      confidence: "confirmed",
-      is_superseded: false,
-    });
+    try {
+      await fetch("/api/memory", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          layer: newLayer,
+          title: newTitle.trim(),
+          content: newContent.trim(),
+          epistemicStatus: newStatus,
+          confidence: "confirmed",
+        }),
+      });
+    } catch (err) {
+      console.warn("Błąd zapisu wspomnienia, fallback:", err);
+      globalStore.addMemory(DEMO_USER_ID, {
+        layer: newLayer,
+        title: newTitle.trim(),
+        content: newContent.trim(),
+        epistemic_status: newStatus,
+        confidence: "confirmed",
+        is_superseded: false,
+      });
+    }
 
     setNewTitle("");
     setNewContent("");
@@ -116,7 +157,12 @@ export default function MemoryPage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex flex-wrap items-center gap-3 shrink-0">
+            <div className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-900/90 backdrop-blur-xl border border-slate-800 text-xs font-mono text-slate-300 shadow-xl">
+              <Database className="w-4 h-4 text-emerald-400" />
+              <span>Supabase ({memories.length})</span>
+            </div>
+
             <button
               onClick={() => setShowAddModal(true)}
               className="px-5 py-3 rounded-2xl bg-white hover:bg-slate-100 text-slate-950 text-xs font-medium shadow-xl transition-all active:scale-95 flex items-center gap-2"

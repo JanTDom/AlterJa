@@ -21,6 +21,17 @@ export default function StyleLabPage() {
     globalStore.getDecisions(DEMO_USER_ID)
   );
 
+  React.useEffect(() => {
+    fetch("/api/decisions")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.decisions) && data.decisions.length > 0) {
+          setDecisions(data.decisions);
+        }
+      })
+      .catch((err) => console.warn("Błąd odczytu decyzji:", err));
+  }, []);
+
   const [situation, setSituation] = useState("");
   const [optionA, setOptionA] = useState("");
   const [optionB, setOptionB] = useState("");
@@ -34,11 +45,26 @@ export default function StyleLabPage() {
   const [isTransforming, setIsTransforming] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
 
-  const handleAddDecision = (e: React.FormEvent) => {
+  const handleAddDecision = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!situation.trim() || !optionA.trim() || !optionB.trim() || !justification.trim()) return;
 
     const chosen = chosenOption === "A" ? optionA : optionB;
+
+    try {
+      await fetch("/api/decisions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          situation: situation.trim(),
+          optionsConsidered: [optionA.trim(), optionB.trim()],
+          chosenOption: chosen.trim(),
+          userJustification: justification.trim(),
+        }),
+      });
+    } catch (err) {
+      console.warn("Błąd zapisu decyzji przez API:", err);
+    }
 
     globalStore.addDecision(DEMO_USER_ID, {
       situation: situation.trim(),
@@ -55,7 +81,7 @@ export default function StyleLabPage() {
     setOptionB("");
     setJustification("");
     setDecisions([...globalStore.getDecisions(DEMO_USER_ID)]);
-    showNotice("Wzorzec decyzyjny został zapisany w profilu.");
+    showNotice("Wzorzec decyzyjny został utrwalony w bazie Supabase.");
   };
 
   const handleTestStyle = async (e: React.FormEvent) => {

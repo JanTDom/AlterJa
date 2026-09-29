@@ -67,14 +67,31 @@ export default function InterviewPage() {
 
   const currentQ = questions[currentIdx];
 
-  const handleSaveAnswer = (e: React.FormEvent) => {
+  const handleSaveAnswer = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!answerText.trim()) return;
+
+    const savedText = answerText.trim();
+
+    try {
+      await fetch("/api/interview/answer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          topic: currentQ.topic,
+          questionText: currentQ.question,
+          answerText: savedText,
+          category: currentQ.category,
+        }),
+      });
+    } catch (err) {
+      console.warn("Błąd zapisu odpowiedzi przez API, fallback:", err);
+    }
 
     globalStore.addMemory(DEMO_USER_ID, {
       layer: currentQ.category,
       title: `Wywiad: ${currentQ.topic}`,
-      content: answerText.trim(),
+      content: savedText,
       epistemic_status: "user_declaration",
       confidence: "confirmed",
       is_superseded: false,

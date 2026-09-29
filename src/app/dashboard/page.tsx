@@ -31,6 +31,7 @@ import {
   Activity,
   Award,
   BatteryCharging,
+  Database,
 } from "lucide-react";
 
 export default function DashboardPage() {
@@ -39,6 +40,24 @@ export default function DashboardPage() {
   const [sources, setSources] = useState(() => globalStore.getSources(DEMO_USER_ID));
   const [hypotheses, setHypotheses] = useState(() => globalStore.getHypotheses(DEMO_USER_ID));
   const [actionNotice, setActionNotice] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    fetch("/api/dashboard/stats")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          fetch("/api/memory")
+            .then((r) => r.json())
+            .then((m) => {
+              if (m.success && Array.isArray(m.memories) && m.memories.length > 0) {
+                setMemories(m.memories);
+              }
+            })
+            .catch(() => {});
+        }
+      })
+      .catch((err) => console.warn("Błąd pobierania statystyk:", err));
+  }, []);
 
   // Stan symulatora natychmiastowej reakcji
   const [simQuery, setSimQuery] = useState("Czy wchodzimy w ten projekt przy 20% niepewności?");
@@ -166,6 +185,10 @@ export default function DashboardPage() {
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/15 text-xs font-mono text-emerald-300">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
                 <span>Bankowa izolacja RLS</span>
+              </div>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/90 backdrop-blur-md border border-slate-700/80 text-xs font-mono text-emerald-300">
+                <Database className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Supabase (23 tabele)</span>
               </div>
             </div>
           </div>

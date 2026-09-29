@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { globalStore, DEMO_USER_ID } from "@/lib/db/store";
+import { getLiveMemories, persistConversationMessage } from "@/lib/supabase/db";
 import { GroundingCitation } from "@/domains/types";
 
 const apiKey = process.env.GEMINI_API_KEY;
@@ -19,7 +20,8 @@ export async function POST(req: NextRequest) {
     }
 
     const profile = globalStore.getProfile(DEMO_USER_ID);
-    const memories = globalStore.getMemories(DEMO_USER_ID);
+    // Odczyt wspomnień na żywo z Supabase
+    const memories = await getLiveMemories(DEMO_USER_ID);
 
     // Wyszukanie najbardziej powiązanych wspomnień
     const queryLower = message.toLowerCase();
@@ -31,7 +33,7 @@ export async function POST(req: NextRequest) {
     const activeMemories = matchedMemories.length > 0 ? matchedMemories.slice(0, 3) : memories.slice(0, 3);
 
     const citations: GroundingCitation[] = activeMemories.map((m) => {
-      const evidence = globalStore.getEvidenceForMemory(m.id);
+      const evidence = m.evidence || globalStore.getEvidenceForMemory(m.id);
       return {
         memory_id: m.id,
         title: m.title,
@@ -79,6 +81,8 @@ ${memoryContext}`;
 
     const stream = new ReadableStream({
       async start(controller) {
+        let fullReplyText = "";
+
         if (genAI) {
           try {
             const model = genAI.getGenerativeModel({
@@ -94,10 +98,31 @@ ${memoryContext}`;
             for await (const chunk of resultStream.stream) {
               const text = chunk.text();
               if (text) {
+                fullReplyText += text;
                 controller.enqueue(
                   encoder.encode(`data: ${JSON.stringify({ chunk: text })}\n\n`)
                 );
               }
+            }
+
+            const uncertainty = citations.length === 0 ? "high" : "low";
+
+            // Utrwalenie konwersacji i wiadomości w Supabase
+            if (conversationId) {
+              await persistConversationMessage({
+                conversationId,
+                role: "user",
+                content: message,
+                mode,
+              });
+              await persistConversationMessage({
+                conversationId,
+                role: "assistant",
+                content: fullReplyText,
+                mode,
+                citations,
+                uncertainty,
+              });
             }
 
             controller.enqueue(
@@ -105,7 +130,7 @@ ${memoryContext}`;
                 `data: ${JSON.stringify({
                   done: true,
                   citations,
-                  uncertainty: citations.length === 0 ? "high" : "low",
+                  uncertainty,
                 })}\n\n`
               )
             );
@@ -113,11 +138,11 @@ ${memoryContext}`;
             return;
           } catch (geminiError) {
             console.error("[Gemini Stream Error]", geminiError);
-            // Przejście do awaryjnego, deterministycznego strumieniowania syntetycznego
+            // Przejście do awaryjnego strumieniowania syntetycznego
           }
         }
 
-        // Awaryjne deterministyczne strumieniowanie, gdy brak klucza lub limit Gemini
+        // Awaryjne deterministyczne strumieniowanie, gdy brak klucza lub błąd sieci
         let syntheticText = "";
         if (mode === "reconstruction") {
           syntheticText = `Na podstawie zapisów w pamięci autobiograficznej: w odniesieniu do zagadnienia „${message.slice(0, 50)}...” zazwyczaj kieruję się zasadą spokojnej weryfikacji faktów, transparentności intencji i poszanowania zobowiązań. Jeśli nie ma w bibliotece szczegółowego zapisu dotyczącego tej kwestii, otwarcie to zaznaczam bez próby zgadywania.`;
@@ -131,6 +156,23 @@ ${memoryContext}`;
           const slice = syntheticText.slice(i, i + 6);
           controller.enqueue(encoder.encode(`data: ${JSON.stringify({ chunk: slice })}\n\n`));
           await new Promise((resolve) => setTimeout(resolve, 18));
+        }
+
+        if (conversationId) {
+          await persistConversationMessage({
+            conversationId,
+            role: "user",
+            content: message,
+            mode,
+          });
+          await persistConversationMessage({
+            conversationId,
+            role: "assistant",
+            content: syntheticText,
+            mode,
+            citations,
+            uncertainty: "moderate",
+          });
         }
 
         controller.enqueue(
