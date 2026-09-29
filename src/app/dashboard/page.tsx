@@ -228,6 +228,35 @@ export default function DashboardPage() {
 
       {/* OBSZAR ROBOCZY - PRZENIKANIE DO KART */}
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 w-full space-y-10 relative z-20 -mt-8 sm:-mt-12">
+        {/* BANER WYKONAWCZY: ODPISZ ZA MNIE & ODDELEGUJ SPRAWĘ */}
+        <section className="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 text-white border border-sky-400/40 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-sky-500/15 rounded-full blur-3xl pointer-events-none" />
+          
+          <div className="space-y-2 relative z-10 max-w-2xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950/80 border border-emerald-400/40 text-emerald-300 text-xs font-mono">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>GŁÓWNE ZASTOSOWANIE TWOJEJ ALTERJI</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-serif font-medium text-white">
+              Nie trać czasu na odpisywanie. Oddeleguj to sobowtórowi.
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-300 font-sans leading-relaxed text-pretty">
+              Dostałeś trudnego maila, roszczeniową wiadomość na OLX, prośbę o darmową przysługę w weekend lub zapytanie ofertowe? Przejdź do Centrum Wykonawczego — wklej treść i odbierz gotową ripostę w Twoim stylu w 120 ms.
+            </p>
+          </div>
+
+          <div className="shrink-0 relative z-10 w-full md:w-auto">
+            <Link
+              href="/delegate"
+              className="btn-luxe-primary !py-4 !px-8 text-sm font-semibold flex items-center justify-center gap-2.5 shadow-[0_0_35px_rgba(56,189,248,0.4)] animate-shimmer w-full md:w-auto"
+            >
+              <Sparkles className="w-4 h-4 text-sky-300" />
+              <span>Otwórz Centrum Wykonawcze</span>
+              <ArrowRight className="w-4 h-4 text-white" />
+            </Link>
+          </div>
+        </section>
+
         {/* BENTO GRID: KARTY Z GŁĘBIĄ I ENERGIĄ */}
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Bento 1: Główna Karta Gotowości Sobowtóra (8 kolumn) */}

@@ -20,9 +20,10 @@ import {
 } from "lucide-react";
 
 const NAV_ITEMS = [
+  { href: "/delegate", label: "Odpisz za mnie", icon: Sparkles },
   { href: "/dashboard", label: "Pulpit", icon: Compass },
-  { href: "/memory", label: "Pamięć", icon: Brain },
   { href: "/chat", label: "Rozmowa", icon: MessageSquare },
+  { href: "/memory", label: "Pamięć", icon: Brain },
   { href: "/interview", label: "Wywiad", icon: Sparkles },
   { href: "/sources", label: "Źródła", icon: FileText },
   { href: "/style-lab", label: "Styl i decyzje", icon: SlidersHorizontal },
@@ -93,13 +94,14 @@ export function Navbar() {
             >
               Zastosowania
             </a>
-            <a
-              href="#suwerennosc"
-              className="px-3.5 py-1.5 rounded-full text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
-            >
-              Suwerenność
-            </a>
             <div className="h-4 w-px bg-white/15 mx-1" />
+            <Link
+              href="/delegate"
+              className="px-3.5 py-1.5 rounded-full text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 transition-colors font-semibold flex items-center gap-1.5"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Odpisz za mnie</span>
+            </Link>
             <Link
               href="/dashboard"
               className="px-3 py-1.5 rounded-full text-slate-300 hover:text-white hover:bg-white/10 transition-colors"

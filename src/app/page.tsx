@@ -111,12 +111,19 @@ export default function LandingPage() {
               <span>Zbuduj swoje AlterJa</span>
               <ArrowRight className="w-4 h-4 text-white" />
             </Link>
+            <Link
+              href="/delegate"
+              className="w-full sm:w-auto btn-luxe-glass !py-4 !px-8 text-base border-emerald-400/40 text-emerald-300 hover:text-white flex items-center justify-center gap-2"
+            >
+              <Zap className="w-4 h-4 text-emerald-400" />
+              <span>Odpisz za mnie (Centrum Wykonawcze)</span>
+            </Link>
             <a
               href="#czlowiek-vs-kopia"
-              className="w-full sm:w-auto btn-luxe-glass !py-4 !px-8 text-base"
+              className="w-full sm:w-auto text-xs font-mono text-slate-400 hover:text-slate-200 py-2 sm:py-0 px-2 flex items-center justify-center gap-1.5"
             >
-              <Eye className="w-4 h-4 text-sky-400" />
-              <span>Zobacz, jak to działa</span>
+              <Eye className="w-3.5 h-3.5 text-slate-400" />
+              <span>Zobacz porównanie</span>
             </a>
           </div>
 
@@ -389,13 +396,20 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <div className="pt-2 flex items-center justify-between">
+            <div className="pt-2 flex flex-wrap items-center justify-between gap-3">
+              <Link
+                href="/delegate"
+                className="text-xs font-mono text-emerald-400 hover:text-emerald-300 flex items-center gap-2 group-hover:translate-x-1 transition-transform font-bold"
+              >
+                <span>Wypróbuj w&nbsp;Centrum Wykonawczym (Odpisz za mnie)</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </Link>
               <Link
                 href="/style-lab"
-                className="text-xs font-mono text-sky-300 hover:text-sky-200 flex items-center gap-2 group-hover:translate-x-1 transition-transform"
+                className="text-xs font-mono text-slate-400 hover:text-slate-200 flex items-center gap-1.5"
               >
-                <span>Skalibruj kryteria decyzyjne w&nbsp;Style Lab</span>
-                <ChevronRight className="w-3.5 h-3.5" />
+                <span>Kalibracja w&nbsp;Style Lab</span>
+                <ChevronRight className="w-3 h-3" />
               </Link>
             </div>
           </div>
