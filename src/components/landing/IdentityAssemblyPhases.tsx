@@ -62,7 +62,7 @@ const PHASES: Phase[] = [
     imageSrc: "/images/alterja-duality.jpg",
     imageAlt: "Kosmiczny horyzont dualizmu: organiczna świadomość i cybernetyczna precyzja AlterJa",
     metrics: [
-      { label: "Ochrona marży", value: "Niepodważalna" },
+      { label: "Obrona Twoich stawek", value: "Bezkompromisowa" },
       { label: "Tolerancja ryzyka", value: "Skalibrowana" },
       { label: "Determinizm woli", value: "Zgodny z zasadami" },
     ],

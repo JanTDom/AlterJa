@@ -53,7 +53,7 @@ const PERSONAS: PersonaConfig[] = [
     id: "marek",
     name: "Marek",
     role: "Założyciel & Główny Architekt",
-    mantra: "Nienaruszalność marży, suwerenność kodu i zero ustępstw pod presją czasu.",
+    mantra: "Zero pracy za\u00A0półdarmo, suwerenność kodu i\u00A0twarde granice pod presją czasu.",
     badge: "Pragmatyzm inżynierski",
     color: "from-sky-400 to-blue-500",
   },
@@ -61,7 +61,7 @@ const PERSONAS: PersonaConfig[] = [
     id: "aleksandra",
     name: "Aleksandra",
     role: "Dyrektor Strategii & Partnerstw",
-    mantra: "Asymetria negocjacyjna, długofalowy prestiż i zamiana ultimatum w partnerstwo.",
+    mantra: "Asymetria negocjacyjna, długofalowy prestiż i\u00A0zamiana ultimatum w\u00A0partnerstwo.",
     badge: "Dyplomacja strategiczna",
     color: "from-indigo-300 to-purple-400",
   },
@@ -73,18 +73,18 @@ const DILEMMAS: DilemmaCase[] = [
     title: "Klient korporacyjny stawia ultimatum: 40% rabatu",
     category: "Negocjacje biznesowe",
     situation:
-      "Największy klient roczny (generujący 35% przychodów firmy) żąda obniżenia stawek o 40% na kolejne 12 miesięcy pod groźbą natychmiastowego zerwania rozmów do 17:00.",
+      "Największy klient roczny (generujący 35% przychodów firmy) żąda obniżenia stawek o\u00A040% na\u00A0kolejne 12 miesięcy pod groźbą natychmiastowego zerwania rozmów do 17:00.",
     genericReply:
       "Dziękujemy za kontakt. Rozumiemy wagę optymalizacji budżetu w Państwa organizacji. Chcielibyśmy utrzymać naszą owocną współpracę, dlatego jesteśmy otwarci na dyskusję o elastycznych warunkach cenowych i możemy przygotować pakiet rabatowy satysfakcjonujący obie strony...",
     genericFlaws: [
-      "Brak kręgosłupa i natychmiastowa gotowość do erozji marży",
+      "Brak kręgosłupa i natychmiastowa zgoda na pracę za półdarmo",
       "Okrągłe, korporacyjne frazesy bez żadnej decyzyjności",
       "Uleganie sztucznej presji czasu i szantażowi",
     ],
     personas: {
       marek: {
         reply:
-          "Nie schodzimy z ceny o 40%. Taki rabat zniszczyłby marżę wymaganą do utrzymania dedykowanego zespołu inżynierów. Jeśli Państwa budżet jest sztywny, możemy zredukować zakres drugiego etapu o moduł analityki czasu rzeczywistego, co zmieści się w kwocie. Jeśli nie akceptujecie tego rozwiązania — rozstajemy się z szacunkiem o 17:00.",
+          "Nie schodzimy ze stawki o 40%. Taki rabat oznaczałby pracę poniżej kosztów dedykowanego zespołu inżynierów. Jeśli Państwa budżet jest sztywny, możemy zredukować zakres drugiego etapu o moduł analityki czasu rzeczywistego, co zmieści się w kwocie. Jeśli nie akceptujecie tego rozwiązania — rozstajemy się z szacunkiem o 17:00.",
         grounding: [
           {
             id: "m-rabat-1",
@@ -92,7 +92,7 @@ const DILEMMAS: DilemmaCase[] = [
             layer: "Warstwa 6 · Kryteria decyzyjne i zasady",
             date: "Wrzesień 2024",
             verbatimQuote:
-              "„Nigdy nie obniżamy stawek pod groźbą odejścia klienta. Jeśli obetniesz marżę, zaczniesz dotować cudzy biznes kosztem własnych ludzi. Jedyna dopuszczalna korekta ceny to proporcjonalne zmniejszenie zakresu prac.”",
+              "„Nigdy nie obniżamy stawek pod groźbą odejścia klienta. Zgoda na pracę za półdarmo oznacza dotowanie cudzego biznesu kosztem własnych ludzi. Jedyna dopuszczalna korekta ceny to proporcjonalne zmniejszenie zakresu prac.”",
             rationale: "Zasada nienaruszalności stawki bazowej i obrony integralności zespołu inżynierskiego.",
           },
           {

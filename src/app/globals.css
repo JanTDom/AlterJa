@@ -32,6 +32,15 @@
   q {
     quotes: "„" "”" "‚" "’";
   }
+
+  /* Eliminacja wdów i sierot w typografii */
+  h1, h2, h3, h4, h5, h6 {
+    text-wrap: balance;
+  }
+
+  p, li, blockquote {
+    text-wrap: pretty;
+  }
 }
 
 /* Wskaźnik fokusu WCAG 2.2 AA */

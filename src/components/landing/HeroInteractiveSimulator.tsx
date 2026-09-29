@@ -28,65 +28,65 @@ interface Scenario {
 
 const SCENARIOS: Scenario[] = [
   {
+    id: "olx",
+    label: "Targowanie o\u00A0pół ceny na\u00A0OLX o\u00A023:00",
+    tag: "Święty spokój i\u00A0ogłoszenia",
+    incomingText:
+      "„Dam 60 zł i biorę dzisiaj za pół godziny, niech pan opuści z tych 180 zł, nikt panu więcej za to nie da!”",
+    incomingSender: "Użytkownik portalu ogłoszeniowego · 23:14",
+    alterjaReply:
+      "Dziękuję za wiadomość. Cena podana w ogłoszeniu jest ostateczna i wynosi 180 zł. Odbiór osobisty w ciągu dnia lub bezpieczna przesyłka przez aplikację. Jeśli kwota Panu nie odpowiada, życzę powodzenia w poszukiwaniach u innych sprzedawców. Pozdrawiam.",
+    ruleTitle: "Zasada szacunku dla własnej ceny i czasu",
+    ruleQuote:
+      "„Nie wdajemy się w nocne dyskusje z marudami i nie oddajemy rzeczy za bezcen. Krótka, kulturalna odmowa bez tłumaczenia się.”",
+    humanImpact: "Śpisz spokojnie. Zero irytacji i bezsensownego odpisywania przed snem.",
+  },
+  {
+    id: "znajomy",
+    label: "Znajomy chce darmową przysługę w\u00A0weekend",
+    tag: "Ochrona wolnego czasu i\u00A0rodziny",
+    incomingText:
+      "„Hejka! Rzuć okiem na ten plik i zrób mi to na szybko, dla Ciebie to 5 minut roboty, a mi uratuje skórę. Pomożesz kumplowi po znajomości?”",
+    incomingSender: "Znajomy · Sobota 19:45",
+    alterjaReply:
+      "Cześć! Weekend to czas dla rodziny i pełnego odcięcia od pracy, więc laptopa otwieram dopiero w poniedziałek. Jeśli sprawa jest pilna zawodowo, napisz rano w tygodniu — sprawdzę grafik i podeślę stawkę za konsultację. Dobrego odpoczynku!",
+    ruleTitle: "Zasada obrony granic i prawa do odpoczynku",
+    ruleQuote:
+      "„»Po znajomości« nie oznacza pracy za darmo w sobotni wieczór. Kulturalna, życzliwa odmowa chroni relacje lepiej niż robienie czegoś z ukrytą złością.”",
+    humanImpact: "Koniec z poczuciem winy i byciem darmowym pogotowiem ratunkowym w weekendy.",
+  },
+  {
     id: "rabat",
-    label: "Klient wymusza 40% rabatu o 22:30",
-    tag: "Obrona marży i stawek",
+    label: "Klient wymusza 40% rabatu pod groźbą odejścia",
+    tag: "Zero pracy za\u00A0półdarmo",
     incomingText:
-      "„Cześć, zarząd zaakceptuje Waszą ofertę tylko pod warunkiem 40% rabatu. Czekam na potwierdzenie do jutra do 8:00 rano, inaczej idziemy do konkurencji.”",
-    incomingSender: "Klient korporacyjny · Piątek 22:34",
+      "„Cześć, zarząd zaakceptuje ofertę tylko pod warunkiem 40% rabatu. Czekam na potwierdzenie do jutra do 8:00 rano, inaczej idziemy do konkurencji.”",
+    incomingSender: "Klient biznesowy · Piątek 22:34",
     alterjaReply:
-      "Dziękuję za wiadomość. Nie schodzimy z ceny o 40%, ponieważ zredukowałoby to zespół inżynierów dedykowany do projektu. Jeśli budżet jest sztywny, możemy wyciąć moduł raportowy w czasie rzeczywistym z pierwszego etapu, co zamknie się w Państwa kwocie. Jeśli nie akceptujecie Państwo tej opcji — szanujemy Wasz wybór konkurencji. Decyzja do 14:00.",
-    ruleTitle: "Zasada nienaruszalności stawki bazowej",
+      "Dziękuję za wiadomość. Nie schodzimy ze stawki o 40%, bo to oznaczałoby pracę poniżej kosztów dedykowanego zespołu. Jeśli budżet jest sztywny, możemy ograniczyć zakres pierwszego etapu, co zmieści się w Państwa kwocie. Jeśli nie akceptujecie tej opcji — szanujemy Wasz wybór konkurencji. Decyzja do poniedziałku do 14:00.",
+    ruleTitle: "Zasada nienaruszalności stawek i jakości",
     ruleQuote:
-      "„Nigdy nie obniżamy stawek pod presją odejścia. Jedyna dopuszczalna korekta ceny to proporcjonalne zmniejszenie zakresu.”",
-    humanImpact: "Ty spokojnie śpisz. Rano masz obronioną marżę i twarde warunki.",
+      "„Nigdy nie obniżamy stawek pod presją szantażu. Zgoda na pracę za półdarmo oznacza dotowanie cudzego biznesu kosztem własnego zdrowia.”",
+    humanImpact: "Rano Twoja stawka jest obroniona, a klient wie, że nie da się Ciebie zaszantażować.",
   },
   {
-    id: "niedziela",
-    label: "Żądanie spotkania w niedzielę rano",
-    tag: "Święty spokój i regeneracja",
+    id: "telemarketing",
+    label: "Spam na\u00A0WhatsAppie i\u00A0wciskanie fotowoltaiki",
+    tag: "Blokada spamu i\u00A0RODO",
     incomingText:
-      "„Musimy natychmiast omówić draft umowy. Proponuję spotkanie online jutro w niedzielę o 9:00 rano. Sprawa jest krytyczna.”",
-    incomingSender: "Partner biznesowy · Sobota 23:15",
+      "„Dzień dobry! Zauważyliśmy Pana profil i mamy unikalną ofertę dofinansowania instalacji OZE. Czy możemy porozmawiać 10 minut telefonicznie?”",
+    incomingSender: "Nieznany numer · Wtorek 14:15",
     alterjaReply:
-      "Weekend to czas regeneracji zespołu. W niedziele nie prowadzimy spotkań operacyjnych. Przejrzałem draft umowy — kluczowe uwagi naniosłem w trybie rejestracji zmian. Omówimy je w poniedziałek o 9:30. Do usłyszenia.",
-    ruleTitle: "Zasada ochrony niedzieli i higieny regeneracji",
+      "Dziękuję, nie wyrażam zgody na kontakt marketingowy i przetwarzanie mojego numeru w celach handlowych. Na podstawie art. 17 i 21 RODO wnoszę sprzeciw i żądam niezwłocznego usunięcia moich danych z Państwa bazy telemarketingowej.",
+    ruleTitle: "Procedura ochrony prywatności i obrony przed spamem",
     ruleQuote:
-      "„Kto nie szanuje Twojego odpoczynku, nie uszanuje też Twojej pracy. Żadnych spotkań w weekendy bez stanu wyższej konieczności.”",
-    humanImpact: "Zero nerwowego sprawdzania telefonu. Weekend z rodziną nietknięty.",
-  },
-  {
-    id: "inwestor",
-    label: "Inwestor żąda prawa veta do kodu",
-    tag: "Suwerenność i wolność twórcza",
-    incomingText:
-      "„Oferujemy 3 mln zł za 15% udziałów, ale warunkiem koniecznym jest osobiste prawo veta funduszu do zmian w architekturze i roadmapie.”",
-    incomingSender: "Fundusz VC · Wtorek 14:10",
-    alterjaReply:
-      "Odrzucam tę ofertę w tym kształcie. Żaden podmiot zewnętrzny nie otrzyma prawa veta do architektury i roadmapy technologicznej AlterJi. Kapitał jest towarem wymiennym, suwerenność inżynierska — nie. Jeśli nie ufacie zarządowi w kwestiach produktu, rozwijamy się ze środków własnych.",
-    ruleTitle: "Karta suwerenności inżynierskiej",
-    ruleQuote:
-      "„Zgoda na ingerencję inwestorów w kod to śmierć innowacji. Pieniądze można pozyskać z rynku, utraconej wolności się nie odzyskuje.”",
-    humanImpact: "Nie sprzedajesz duszy i suwerenności za cudzy kapitał.",
-  },
-  {
-    id: "spoznienie",
-    label: "Kontrahent spóźnia się z umową o 3 dni",
-    tag: "Dyscyplina i szacunek czasu",
-    incomingText:
-      "„Przepraszamy za poślizg z finalizacją umowy deweloperskiej. Mamy urwanie głowy. Dajcie nam jeszcze 3 dni, a wy w międzyczasie już zacznijcie prace.”",
-    incomingSender: "Dyrektor operacyjny · Środa 11:20",
-    alterjaReply:
-      "Nie rozpoczynamy prac deweloperskich bez podpisanego porozumienia i zaksięgowanej zaliczki. Zasoby inżynierskie zostają wstrzymane i przekierowane do innego projektu. Do rozmów wracamy po otrzymaniu podpisanej umowy — start opóźni się o 14 dni roboczych. Szanujmy wzajemne ustalenia.",
-    ruleTitle: "Zasada wzajemności i formalnego zabezpieczenia",
-    ruleQuote:
-      "„Nigdy nie pracuj »na gębę«. Kto nie podpisuje umowy na czas, nie zapłaci na czas.”",
-    humanImpact: "Chronisz zespół przed pracą za darmo i chaosem.",
+      "„Nie marnujemy życia na wysłuchiwanie niechcianych ofert. Formalne powołanie się na RODO kończy temat w 10 sekund.”",
+    humanImpact: "Czysty telefon i spokój, bez nachalnego wydzwaniania w ciągu dnia.",
   },
 ];
 
 export default function HeroInteractiveSimulator() {
-  const [selectedId, setSelectedId] = useState<string>("rabat");
+  const [selectedId, setSelectedId] = useState<string>("olx");
   const [displayedReply, setDisplayedReply] = useState<string>("");
   const [isTyping, setIsTyping] = useState<boolean>(false);
   const [showRule, setShowRule] = useState<boolean>(false);
@@ -145,7 +145,7 @@ export default function HeroInteractiveSimulator() {
           <div className="flex items-center gap-2.5">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
             <span className="text-white font-bold uppercase tracking-wider text-[11px]">
-              Twoja kopia w akcji
+              Twoja kopia w&nbsp;akcji
             </span>
             <span className="text-slate-500">·</span>
             <span className="text-sky-300 font-semibold">{scenario.tag}</span>
@@ -166,10 +166,10 @@ export default function HeroInteractiveSimulator() {
         {/* Ciało symulacji: Przychodzące trudne żądanie */}
         <div className="p-4 sm:p-5 rounded-2xl bg-white/[0.03] border border-white/10 space-y-2">
           <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 uppercase tracking-wider">
-            <span>Wiadomość przychodząca z zewnątrz:</span>
+            <span>Wiadomość przychodząca z&nbsp;zewnątrz:</span>
             <span className="text-rose-400 font-semibold">{scenario.incomingSender}</span>
           </div>
-          <p className="text-xs sm:text-sm text-slate-200 font-sans italic leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-200 font-sans italic leading-relaxed text-pretty">
             {scenario.incomingText}
           </p>
         </div>
@@ -188,7 +188,7 @@ export default function HeroInteractiveSimulator() {
             )}
           </div>
 
-          <p className="text-sm sm:text-base text-white leading-relaxed font-sans font-medium">
+          <p className="text-sm sm:text-base text-white leading-relaxed font-sans font-medium text-pretty">
             {displayedReply}
             {isTyping && <span className="inline-block w-2 h-4 bg-sky-400 ml-1 animate-pulse" />}
           </p>
@@ -203,16 +203,16 @@ export default function HeroInteractiveSimulator() {
               <FileText className="w-3.5 h-3.5" />
               <span>{showRule ? "Ukryj zasadę decyzyjną" : `Sprawdź źródło: ${scenario.ruleTitle}`}</span>
             </button>
-            <span className="text-slate-400 text-[10px]">Uziemienie w Warstwie 6 · Zero konfabulacji</span>
+            <span className="text-slate-400 text-[10px]">Uziemienie w&nbsp;Warstwie 6 · Zero konfabulacji</span>
           </div>
 
           {/* Rozwinięcie zasady decyzyjnej */}
           {showRule && (
             <div className="p-3.5 rounded-xl bg-slate-900 border border-sky-400/40 text-xs space-y-1.5 animate-in fade-in duration-200">
               <span className="text-[10px] font-mono uppercase tracking-wider text-sky-400 font-bold block">
-                Dosłowny cytat z Twojego kodeksu decyzyjnego:
+                Dosłowny cytat z&nbsp;Twojego kodeksu decyzyjnego:
               </span>
-              <p className="text-slate-200 font-sans italic leading-relaxed">
+              <p className="text-slate-200 font-sans italic leading-relaxed text-pretty">
                 {scenario.ruleQuote}
               </p>
             </div>
@@ -223,7 +223,7 @@ export default function HeroInteractiveSimulator() {
         <div className="pt-1 flex items-center gap-2.5 text-xs font-mono text-emerald-300 bg-emerald-950/40 p-3.5 rounded-2xl border border-emerald-500/30">
           <Flame className="w-4 h-4 text-emerald-400 shrink-0" />
           <span>
-            <strong>Efekt w Twoim życiu:</strong> {scenario.humanImpact}
+            <strong>Efekt w&nbsp;Twoim życiu:</strong> {scenario.humanImpact}
           </span>
         </div>
       </div>

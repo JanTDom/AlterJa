@@ -36,14 +36,15 @@ import {
 
 export default function LandingPage() {
   const tickerItems = [
-    "Niech Twoja kopia tyra za Ciebie",
-    "Ona się nie męczy",
-    "Koniec z pracą po nocach",
+    "Niech Twoja kopia tyra za\u00A0Ciebie",
+    "Ona się nie\u00A0męczy",
+    "Koniec z\u00A0pracą po\u00A0nocach",
     "100% uziemienie · Zero konfabulacji",
-    "Żelazna obrona Twojej marży i stawek",
+    "Zero pracy za\u00A0półdarmo i\u00A0darmowych poprawek",
+    "Twarde NIE dla zaniżania Twoich stawek",
     "Deterministyczna izolacja PostgreSQL RLS",
-    "Święty spokój i powrót do życia",
-    "Niezniszczalny silnik zmian na lepsze",
+    "Święty spokój i\u00A0powrót do\u00A0życia",
+    "Niezniszczalny silnik zmian na\u00A0lepsze",
   ];
 
   return (
@@ -78,7 +79,7 @@ export default function LandingPage() {
           <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-slate-900/90 backdrop-blur-xl border border-white/20 shadow-2xl text-xs font-mono">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
             <span className="text-white font-bold uppercase tracking-wider text-[11px]">
-              Silnik zmian na lepsze
+              Silnik zmian na&nbsp;lepsze
             </span>
             <span className="text-slate-500">·</span>
             <span className="text-sky-300 font-semibold text-[11px]">alterja.pl</span>
@@ -86,15 +87,17 @@ export default function LandingPage() {
 
           {/* Główny manifest zadany przez użytkownika */}
           <div className="space-y-6 max-w-4xl mx-auto">
-            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-serif font-medium tracking-tight text-white editorial-display leading-[1.04]">
-              Niech Twoja kopia tyra za Ciebie. <br />
-              <span className="italic font-normal text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-indigo-200 to-amber-200">
-                Ona się nie męczy.
+            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-serif font-medium tracking-tight text-white editorial-display leading-[1.08] max-w-4xl mx-auto">
+              <span className="block">
+                Niech Twoja kopia tyra za&nbsp;Ciebie.
+              </span>
+              <span className="italic font-normal text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-indigo-200 to-amber-200 block mt-1 sm:mt-2">
+                Ona się nie&nbsp;męczy.
               </span>
             </h1>
 
             <p className="text-base sm:text-xl text-slate-200 font-normal leading-relaxed max-w-3xl mx-auto">
-              Biologiczny człowiek potrzebuje snu, regeneracji i świętego spokoju. Twoja AlterJa uczy się Twojego sposobu myślenia, zasad i stylu — po czym przejmuje powtarzalne rozmowy, trudne negocjacje i codzienne decyzje. Pilnuje Twojej marży i Twojego czasu 24 godziny na dobę.
+              Biologiczny człowiek potrzebuje snu, regeneracji i&nbsp;świętego spokoju. Twoja AlterJa uczy się Twojego sposobu myślenia, zasad i&nbsp;stylu — po&nbsp;czym przejmuje powtarzalne rozmowy, trudne negocjacje i&nbsp;codzienne decyzje. Mówi twarde „nie” na&nbsp;próby wymuszenia rabatów, odrzuca darmowe poprawki i&nbsp;nie&nbsp;pozwala nikomu pracować Twoim kosztem.
             </p>
           </div>
 
@@ -121,7 +124,7 @@ export default function LandingPage() {
           <div className="pt-2 flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-xs font-mono text-slate-300">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span>0h zmęczenia na dobę</span>
+              <span>0h zmęczenia na&nbsp;dobę</span>
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-sky-400 shrink-0" />
@@ -129,7 +132,7 @@ export default function LandingPage() {
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
-              <span>Nienaruszalna marża</span>
+              <span>Zero pracy za&nbsp;półdarmo</span>
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-indigo-300 shrink-0" />
@@ -168,11 +171,11 @@ export default function LandingPage() {
 
           <h2 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-medium text-white tracking-tight leading-[1.08]">
             Dlaczego musisz mieć kopię, <br />
-            która się nie męczy.
+            która się nie&nbsp;męczy.
           </h2>
 
-          <p className="text-base sm:text-lg text-slate-300 leading-relaxed font-sans font-normal">
-            Każda trudna decyzja i powtarzalna rozmowa wyczerpuje Twoje zasoby kognitywne. Twoja AlterJa nie ma biologicznych ograniczeń.
+          <p className="text-base sm:text-lg text-slate-300 leading-relaxed font-sans font-normal text-pretty">
+            Każda trudna decyzja i&nbsp;powtarzalna rozmowa wyczerpuje Twoje zasoby kognitywne. Twoja AlterJa nie&nbsp;ma biologicznych ograniczeń.
           </p>
         </div>
 
@@ -192,31 +195,31 @@ export default function LandingPage() {
               </div>
 
               <h3 className="text-2xl font-serif font-medium text-white">
-                Wyczerpanie decyzyjne i permanentny stres
+                Wyczerpanie decyzyjne i&nbsp;permanentny stres
               </h3>
 
               <ul className="space-y-3.5 text-xs sm:text-sm text-slate-300 font-sans pt-2">
                 <li className="flex items-start gap-3">
                   <XCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                  <span><strong>8 godzin snu na dobę:</strong> Gdy odpoczywasz, klienci czekają lub uciekają do konkurencji.</span>
+                  <span className="text-pretty"><strong>8&nbsp;godzin snu na&nbsp;dobę:</strong> Gdy odpoczywasz, wiadomości na&nbsp;OLX i&nbsp;maile z&nbsp;pracy piętrzą się bez odpowiedzi.</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <XCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                  <span><strong>Zmęczenie po 16:00:</strong> Pod koniec dnia łatwiej ulegasz presji i niepotrzebnie zgadzasz się na rabat.</span>
+                  <span className="text-pretty"><strong>Zmęczenie wieczorem:</strong> Pod koniec dnia łatwiej ulegasz presji i&nbsp;niepotrzebnie zgadzasz się na&nbsp;obniżki czy darmowe przysługi.</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <XCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                  <span><strong>Praca po nocach i w weekendy:</strong> Ciągłe sprawdzanie telefonu kosztem zdrowia i rodziny.</span>
+                  <span className="text-pretty"><strong>Praca po&nbsp;nocach i&nbsp;w&nbsp;weekendy:</strong> Ciągłe sprawdzanie telefonu kosztem zdrowia, spokoju i&nbsp;rodziny.</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <XCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                  <span><strong>Emocje i manipulacja:</strong> Trudne maile psują Ci humor na cały wieczór.</span>
+                  <span className="text-pretty"><strong>Emocje i&nbsp;manipulacja:</strong> Nocne targowanie i&nbsp;roszczeniowe wiadomości psują Ci humor na&nbsp;cały wieczór.</span>
                 </li>
               </ul>
             </div>
 
             <div className="pt-4 border-t border-rose-500/20 text-xs font-mono text-rose-300">
-              Cena: Wypalenie zawodowe, utrata marży i brak wolnego czasu.
+              Cena: Wypalenie zawodowe, praca za&nbsp;półdarmo i&nbsp;wieczny brak wolnego czasu.
             </div>
           </div>
 
@@ -231,30 +234,30 @@ export default function LandingPage() {
                   <span>Twoja AlterJa (cyfrowy sobowtór)</span>
                 </div>
                 <span className="text-[10px] font-mono text-emerald-300 bg-emerald-950/70 px-2.5 py-0.5 rounded border border-emerald-500/40 animate-pulse">
-                  Nigdy się nie męczy
+                  Nigdy się nie&nbsp;męczy
                 </span>
               </div>
 
               <h3 className="text-2xl font-serif font-medium text-white">
-                Niezłomna precyzja i obrona Twoich interesów 24/7
+                Niezłomna precyzja i&nbsp;obrona Twoich interesów 24/7
               </h3>
 
               <ul className="space-y-3.5 text-xs sm:text-sm text-slate-200 font-sans pt-2">
                 <li className="flex items-start gap-3">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <span><strong>0 godzin snu:</strong> Odpowiada w 120 ms o 3:00 w nocy z taką samą trzeźwością umysłu, jak rano.</span>
+                  <span className="text-pretty"><strong>0&nbsp;godzin snu:</strong> Odpowiada w&nbsp;120&nbsp;ms o&nbsp;3:00 w&nbsp;nocy z&nbsp;taką samą trzeźwością umysłu, jak rano.</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <span><strong>Żelazna obrona marży:</strong> Odrzuca nierealne rabaty bez wahania, zgodnie z Twoją twardą zasadą.</span>
+                  <span className="text-pretty"><strong>Zero pracy za&nbsp;półdarmo:</strong> Odrzuca próby zaniżania stawek i&nbsp;darmowe poprawki, pilnując Twoich pieniędzy w&nbsp;każdej sytuacji.</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <span><strong>Filtracja 85% powtarzalnych spraw:</strong> Do Ciebie trafiają wyłącznie kluczowe kwestie wymagające podpisu.</span>
+                  <span className="text-pretty"><strong>Filtracja 85% powtarzalnych spraw:</strong> Odcina spam, ucina marudy i&nbsp;przekazuje Ci wyłącznie to, co&nbsp;wymaga decyzji.</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <span><strong>Odporność na szantaż:</strong> Zero emocji, 100% uziemienie w Twoich wywiadach i dokumentach.</span>
+                  <span className="text-pretty"><strong>Odporność na&nbsp;szantaż emocjonalny:</strong> Zero nerwów, 100% uziemienie w&nbsp;Twoich wywiadach i&nbsp;dokumentach.</span>
                 </li>
               </ul>
             </div>
@@ -308,11 +311,11 @@ export default function LandingPage() {
             </div>
 
             <h2 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-medium text-white tracking-tight leading-[1.08]">
-              Zobacz różnicę w odpowiedzi.
+              Zobacz różnicę w&nbsp;odpowiedzi.
             </h2>
 
-            <p className="text-base sm:text-lg text-slate-300 leading-relaxed font-sans font-normal">
-              Zobacz, jak na ten sam dylemat odpowiada bezduszny bot korporacyjny (gotowy oddać marżę i czas), a jak reaguje uziemiona AlterJa. Klikaj źródła dowodowe, by zobaczyć cytaty.
+            <p className="text-base sm:text-lg text-slate-300 leading-relaxed font-sans font-normal text-pretty">
+              Zobacz, jak na&nbsp;ten sam dylemat odpowiada bezduszny bot korporacyjny (gotowy pracować za&nbsp;półdarmo i&nbsp;oddać Twój czas), a&nbsp;jak reaguje uziemiona AlterJa. Klikaj źródła dowodowe, by&nbsp;zobaczyć cytaty.
             </p>
           </div>
 
@@ -325,39 +328,39 @@ export default function LandingPage() {
         <div className="max-w-3xl space-y-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-900 border border-white/15 text-sky-300 text-xs font-mono">
             <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse" />
-            04 / SILNIK ZMIAN NA LEPSZE
+            04 / SILNIK ZMIAN NA&nbsp;LEPSZE
           </div>
 
           <h2 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-medium text-white tracking-tight leading-[1.08]">
-            Cztery obszary, <br />
-            w których sobowtór zmienia wszystko.
+            Cztery sfery życia, <br />
+            w&nbsp;których sobowtór zdejmuje z&nbsp;Ciebie ciężar.
           </h2>
 
-          <p className="text-base sm:text-lg text-slate-300 leading-relaxed font-sans font-normal">
-            To nie gadżet technologiczny. To osobista machina operacyjna, która przywraca Ci kontrolę nad czasem, pieniędzmi i energią życiową.
+          <p className="text-base sm:text-lg text-slate-300 leading-relaxed font-sans font-normal text-pretty">
+            To nie&nbsp;abstrakcyjna technologia. To Twój osobisty silnik autonomii, który pilnuje Twoich stawek, odcina natrętów i&nbsp;przywraca Ci święty spokój.
           </p>
         </div>
 
         {/* Siatka Bento */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Kafel 1 (Dominant 2x2): Twarda obrona marży i filtracja leadów */}
+          {/* Kafel 1 (Dominant 2x2): Twarda obrona stawek i brak ulegania presji */}
           <div className="md:col-span-2 p-8 sm:p-10 rounded-[2.5rem] bg-slate-900/80 border border-white/15 shadow-2xl space-y-6 flex flex-col justify-between relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-80 h-80 bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
 
             <div className="space-y-4 relative z-10">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-mono uppercase tracking-widest text-sky-400 font-semibold px-3 py-1 rounded-full bg-sky-950/60 border border-sky-400/30">
-                  Obrona finansowa i negocjacje
+                  Ochrona zarobków i&nbsp;stawek
                 </span>
                 <span className="text-xs font-mono text-slate-400">Warstwa 6 · Decyzje</span>
               </div>
 
               <h3 className="text-2xl sm:text-4xl font-serif font-medium text-white tracking-tight leading-tight">
-                Koniec z rozdawaniem rabatów ze zmęczenia.
+                Koniec z&nbsp;uleganiem presji i&nbsp;pracą za&nbsp;półdarmo.
               </h3>
 
-              <p className="text-sm sm:text-base text-slate-300 font-sans leading-relaxed max-w-xl">
-                Większość strat na marży wynika z presji czasu i wieczornego zmęczenia. Twoja AlterJa odbiera zapytania cenowe, odrzuca nieopłacalne zlecenia i stawia twarde warunki brzegowe. Zanim wstaniesz rano, trudny klient wie, na jakich zasadach może z Tobą pracować.
+              <p className="text-sm sm:text-base text-slate-300 font-sans leading-relaxed max-w-xl text-pretty">
+                Większość zaniżonych cen i&nbsp;darmowych poprawek bierze się ze&nbsp;zmęczenia po&nbsp;całym dniu i&nbsp;strachu przed utratą zlecenia. Twoja AlterJa odbiera zapytania cenowe, bezlitośnie odrzuca nieopłacalne propozycje i&nbsp;stawia twarde warunki. Zanim wstaniesz rano, trudny klient wie, na&nbsp;jakich zasadach pracujesz.
               </p>
             </div>
 
@@ -366,9 +369,9 @@ export default function LandingPage() {
               <div className="flex items-center justify-between text-xs border-b border-white/10 pb-2.5">
                 <div className="flex items-center gap-2 text-sky-300">
                   <SlidersHorizontal className="w-4 h-4" />
-                  <span>Protokół obrony marży</span>
+                  <span>Protokół ochrony Twoich stawek</span>
                 </div>
-                <span className="text-emerald-400 font-bold">100% obrony stawek</span>
+                <span className="text-emerald-400 font-bold">Zero ustępstw bez pokrycia</span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] text-slate-300">
                 <div className="p-2.5 rounded-xl bg-white/5 border border-white/5">
@@ -376,12 +379,12 @@ export default function LandingPage() {
                   <span className="font-bold text-white">Aktywny</span>
                 </div>
                 <div className="p-2.5 rounded-xl bg-white/5 border border-white/5">
-                  <span className="text-slate-400 block text-[10px]">Odpieranie ultimatum</span>
-                  <span className="font-bold text-sky-300">W locie (110 ms)</span>
+                  <span className="text-slate-400 block text-[10px]">Odpieranie szantażu</span>
+                  <span className="font-bold text-sky-300">W&nbsp;locie (110 ms)</span>
                 </div>
                 <div className="p-2.5 rounded-xl bg-white/5 border border-white/5">
                   <span className="text-slate-400 block text-[10px]">Eskalacja do człowieka</span>
-                  <span className="font-bold text-indigo-300">Tylko po akceptacji</span>
+                  <span className="font-bold text-indigo-300">Tylko po&nbsp;akceptacji</span>
                 </div>
               </div>
             </div>
@@ -391,7 +394,7 @@ export default function LandingPage() {
                 href="/style-lab"
                 className="text-xs font-mono text-sky-300 hover:text-sky-200 flex items-center gap-2 group-hover:translate-x-1 transition-transform"
               >
-                <span>Skalibruj kryteria decyzyjne w Style Lab</span>
+                <span>Skalibruj kryteria decyzyjne w&nbsp;Style Lab</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </Link>
             </div>
@@ -405,11 +408,11 @@ export default function LandingPage() {
               </div>
 
               <h3 className="text-xl sm:text-2xl font-serif font-medium text-white tracking-tight">
-                Święty spokój i sen.
+                Święty spokój i&nbsp;sen.
               </h3>
 
-              <p className="text-xs sm:text-sm text-slate-300 font-sans leading-relaxed">
-                Wyłącz telefon o 19:00. Twoja AlterJa odpowiada na maile i wiadomości w Twoim stylu, umawia kalendarz i informuje o terminach. Rano masz czystą skrzynkę i wypoczęty umysł.
+              <p className="text-xs sm:text-sm text-slate-300 font-sans leading-relaxed text-pretty">
+                Wyłącz telefon o&nbsp;19:00. Twoja AlterJa ucina nocne dyskusje na&nbsp;OLX, filtruje natrętny telemarketing i&nbsp;grzecznie odmawia znajomym proszącym o&nbsp;darmowe przysługi w&nbsp;weekend. Rano masz czystą głowę i&nbsp;wypoczęty umysł.
               </p>
             </div>
 
@@ -432,11 +435,11 @@ export default function LandingPage() {
               </div>
 
               <h3 className="text-xl sm:text-2xl font-serif font-medium text-white tracking-tight">
-                Skalowanie obecności 24/7.
+                Codzienne sprawy z&nbsp;głowy.
               </h3>
 
-              <p className="text-xs sm:text-sm text-slate-300 font-sans leading-relaxed">
-                Wepnij sobowtóra do Slacka, poczty i systemów firmy. Odpowiadaj 50 kontrahentom równolegle, nie tracąc ani minuty ze swojego prywatnego dnia.
+              <p className="text-xs sm:text-sm text-slate-300 font-sans leading-relaxed text-pretty">
+                Poczta, wiadomości, formularze i&nbsp;oferty. Zamiast spędzać 3&nbsp;godziny dziennie na&nbsp;odpisywaniu tym samym schematem, Twoja kopia załatwia 85% korespondencji według Twoich zasad, a&nbsp;do&nbsp;Ciebie trafia tylko to, co&nbsp;naprawdę ważne.
               </p>
             </div>
 
@@ -445,7 +448,7 @@ export default function LandingPage() {
                 href="/developer"
                 className="text-xs font-mono text-sky-300 hover:text-sky-200 flex items-center gap-2"
               >
-                <span>Dokumentacja OpenAPI 3.1</span>
+                <span>Dokumentacja integracji i&nbsp;API</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </Link>
             </div>
@@ -464,15 +467,15 @@ export default function LandingPage() {
             <div className="relative z-10 space-y-4 max-w-xl">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-950/80 border border-purple-400/30 text-purple-300 text-xs font-mono">
                 <Archive className="w-3.5 h-3.5" />
-                <span>Wieczność · Dyspozycja za życia</span>
+                <span>Wieczność · Dyspozycja za&nbsp;życia</span>
               </div>
 
               <h3 className="text-2xl sm:text-4xl font-serif font-medium text-white tracking-tight leading-tight">
                 Twoja życiowa mądrość zachowana dla bliskich.
               </h3>
 
-              <p className="text-sm sm:text-base text-slate-200 font-sans leading-relaxed">
-                Sporządź bezpieczną dyspozycję pośmiertną. Wskaż zaufane osoby, które otrzymają autoryzowany wgląd w archiwum Twoich myśli, zasad i nagrań, chroniąc Twoje życiowe dzieło przed zapomnieniem.
+              <p className="text-sm sm:text-base text-slate-200 font-sans leading-relaxed text-pretty">
+                Sporządź bezpieczną dyspozycję pośmiertną. Wskaż zaufane osoby, które otrzymają autoryzowany wgląd w&nbsp;archiwum Twoich myśli, zasad i&nbsp;nagrań, chroniąc Twoje życiowe dzieło przed zapomnieniem.
               </p>
             </div>
 
@@ -495,7 +498,7 @@ export default function LandingPage() {
           <div className="max-w-3xl space-y-4">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-900 border border-white/15 text-sky-300 text-xs font-mono">
               <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse" />
-              05 / SUWERENNOŚĆ I PRYWATNOŚĆ
+              05 / SUWERENNOŚĆ I&nbsp;PRYWATNOŚĆ
             </div>
 
             <h2 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-medium text-white tracking-tight leading-[1.08]">
@@ -503,8 +506,8 @@ export default function LandingPage() {
               Zero korporacyjnych modeli.
             </h2>
 
-            <p className="text-base sm:text-lg text-slate-300 leading-relaxed font-sans font-normal">
-              AlterJa to nie usługa trenująca obce modele na Twoich zwierzeniach. To prywatny, uziemiony sejf kognitywny należący wyłącznie do Ciebie.
+            <p className="text-base sm:text-lg text-slate-300 leading-relaxed font-sans font-normal text-pretty">
+              AlterJa to nie&nbsp;usługa trenująca obce modele na&nbsp;Twoich zwierzeniach. To prywatny, uziemiony sejf kognitywny należący wyłącznie do&nbsp;Ciebie.
             </p>
           </div>
 
@@ -514,8 +517,8 @@ export default function LandingPage() {
                 <Database className="w-5 h-5" />
               </div>
               <h4 className="text-base font-semibold text-white">Izolacja PostgreSQL RLS</h4>
-              <p className="text-xs text-slate-300 leading-relaxed font-sans">
-                Każdy rekord i wektor podlega deterministycznej izolacji Row Level Security. Żaden inny użytkownik nie ma wglądu w Twoje dane.
+              <p className="text-xs text-slate-300 leading-relaxed font-sans text-pretty">
+                Każdy rekord i&nbsp;wektor podlega deterministycznej izolacji Row Level Security. Żaden inny użytkownik nie&nbsp;ma wglądu w&nbsp;Twoje dane.
               </p>
             </div>
 
@@ -524,8 +527,8 @@ export default function LandingPage() {
                 <ShieldCheck className="w-5 h-5" />
               </div>
               <h4 className="text-base font-semibold text-white">100% uziemienie wiedzy</h4>
-              <p className="text-xs text-slate-300 leading-relaxed font-sans">
-                Każde twierdzenie ma przypisany cytat źródłowy z Twoich materiałów. Brak danych = uczciwe przyznanie braku wiedzy zamiast konfabulacji.
+              <p className="text-xs text-slate-300 leading-relaxed font-sans text-pretty">
+                Każde twierdzenie ma przypisany cytat źródłowy z&nbsp;Twoich materiałów. Brak danych = uczciwe przyznanie braku wiedzy zamiast konfabulacji.
               </p>
             </div>
 
@@ -533,9 +536,9 @@ export default function LandingPage() {
               <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-400/30 flex items-center justify-center text-amber-400">
                 <Lock className="w-5 h-5" />
               </div>
-              <h4 className="text-base font-semibold text-white">Prawo do zapomnienia</h4>
-              <p className="text-xs text-slate-300 leading-relaxed font-sans">
-                Jednym kliknięciem trwale usuwasz lub korygujesz dowolne wspomnienie, wywiad lub dokument. Masz pełną władzę nad zawartością pamięci.
+              <h4 className="text-base font-semibold text-white">Prawo do&nbsp;zapomnienia</h4>
+              <p className="text-xs text-slate-300 leading-relaxed font-sans text-pretty">
+                Jednym kliknięciem trwale usuwasz lub korygujesz dowolne wspomnienie, wywiad lub dokument. Masz pełną władzę nad&nbsp;zawartością pamięci.
               </p>
             </div>
 
@@ -544,8 +547,8 @@ export default function LandingPage() {
                 <Share2 className="w-5 h-5" />
               </div>
               <h4 className="text-base font-semibold text-white">Pakiet eksportu danych</h4>
-              <p className="text-xs text-slate-300 leading-relaxed font-sans">
-                W każdej chwili pobierasz kompletną paczkę pamięci w otwartych formatach JSON i Markdown. Zero uzależnienia od platformy (no vendor lock-in).
+              <p className="text-xs text-slate-300 leading-relaxed font-sans text-pretty">
+                W&nbsp;każdej chwili pobierasz kompletną paczkę pamięci w&nbsp;otwartych formatach JSON i&nbsp;Markdown. Zero uzależnienia od&nbsp;platformy (no vendor lock-in).
               </p>
             </div>
           </div>
@@ -569,18 +572,20 @@ export default function LandingPage() {
         <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center space-y-8">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-950/80 backdrop-blur-xl border border-white/20 text-sky-300 text-xs font-mono">
             <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse" />
-            06 / CZAS NA TWÓJ RUCH
+            06 / CZAS NA&nbsp;TWÓJ RUCH
           </div>
 
-          <h2 className="text-4xl sm:text-6xl lg:text-7xl font-serif font-medium text-white editorial-display leading-[1.05]">
-            Przestań brać wszystko <br />
-            <span className="italic text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-indigo-200 to-amber-200">
-              na własne barki.
+          <h2 className="text-4xl sm:text-6xl lg:text-7xl font-serif font-medium text-white editorial-display leading-[1.08] max-w-4xl mx-auto">
+            <span className="block">
+              Przestań brać wszystko
+            </span>
+            <span className="italic text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-indigo-200 to-amber-200 block mt-1 sm:mt-2">
+              na&nbsp;własne barki.
             </span>
           </h2>
 
-          <p className="text-base sm:text-xl text-slate-200 leading-relaxed font-sans max-w-2xl mx-auto font-normal">
-            Stwórz swoją kopię, która nigdy się nie męczy. Rozpocznij od kilkunastominutowego wywiadu autobiograficznego i odzyskaj swój czas.
+          <p className="text-base sm:text-xl text-slate-200 leading-relaxed font-sans max-w-2xl mx-auto font-normal text-pretty">
+            Stwórz swoją kopię, która nigdy się nie&nbsp;męczy. Rozpocznij od&nbsp;kilkunastominutowego wywiadu autobiograficznego i&nbsp;odzyskaj swój czas.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
@@ -602,7 +607,7 @@ export default function LandingPage() {
           </div>
 
           <p className="text-xs font-mono text-slate-400 pt-6">
-            Brak opłat wstępnych · Pełna suwerenność RLS · Zgodność z RODO i Aktem o AI UE
+            Brak opłat wstępnych · Pełna suwerenność RLS · Zgodność z&nbsp;RODO i&nbsp;Aktem o&nbsp;AI UE
           </p>
         </div>
       </section>
