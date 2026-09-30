@@ -52,12 +52,12 @@ const QUICK_TEMPLATES: QuickTemplate[] = [
     text: "Cześć! Wiem, że weekend, ale zerknij mi na ten projekt na 5 minut, dla Ciebie to chwila, pomożesz kumplowi po znajomości?",
   },
   {
-    id: "klient",
-    label: "Klient wymusza 40% rabatu pod presją",
-    channel: "email",
-    intent: "protect_rates",
-    sender: "Klient korporacyjny · Piątek 22:30",
-    text: "Zarząd podpisze umowę tylko pod warunkiem 40% rabatu na cały rok. Czekam na decyzję do jutra do 8:00 rano, inaczej wybieramy konkurencję.",
+    id: "porada",
+    label: "Nocna prośba o bezpłatną konsultację zawodową",
+    channel: "whatsapp",
+    intent: "set_boundary",
+    sender: "Dalszy znajomy · Niedziela 22:45",
+    text: "Cześć! Wiem, że późno, ale rzuć okiem na te moje wyniki / umowę / plany na szybko, bo się strasznie stresuję przed jutrem. Powiedz tylko w dwóch zdaniach, czy to ma ręce i nogi!",
   },
   {
     id: "spam",

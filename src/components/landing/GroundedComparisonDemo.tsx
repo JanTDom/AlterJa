@@ -52,173 +52,209 @@ const PERSONAS: PersonaConfig[] = [
   {
     id: "marek",
     name: "Marek",
-    role: "Założyciel & Główny Architekt",
-    mantra: "Zero pracy za\u00A0półdarmo, suwerenność kodu i\u00A0twarde granice pod presją czasu.",
-    badge: "Pragmatyzm inżynierski",
+    role: "Architekt & Niezależny Twórca",
+    mantra: "Rzetelność bez chodzenia na\u00A0skróty, szacunek do\u00A0własnego czasu i\u00A0twarde granice pod presją.",
+    badge: "Pragmatyzm i zasady",
     color: "from-sky-400 to-blue-500",
   },
   {
     id: "aleksandra",
     name: "Aleksandra",
-    role: "Dyrektor Strategii & Partnerstw",
-    mantra: "Asymetria negocjacyjna, długofalowy prestiż i\u00A0zamiana ultimatum w\u00A0partnerstwo.",
-    badge: "Dyplomacja strategiczna",
+    role: "Mentorka & Konsultantka",
+    mantra: "Mądre partnerstwo, ochrona relacji bez uległości i\u00A0długofalowe spojrzenie na\u00A0życiowe wybory.",
+    badge: "Dyplomacja i wsparcie",
     color: "from-indigo-300 to-purple-400",
   },
 ];
 
 const DILEMMAS: DilemmaCase[] = [
   {
-    id: "rabat",
-    title: "Klient korporacyjny stawia ultimatum: 40% rabatu",
-    category: "Negocjacje biznesowe",
+    id: "zasady",
+    title: "Znajomy naciska na „przysługę po znajomości” wbrew procedurze",
+    category: "Etyka i granice profesjonalisty",
     situation:
-      "Największy klient roczny (generujący 35% przychodów firmy) żąda obniżenia stawek o\u00A040% na\u00A0kolejne 12 miesięcy pod groźbą natychmiastowego zerwania rozmów do 17:00.",
+      "W niedzielę o 22:30 dalszy znajomy pisze z pilną prośbą o wydanie opinii, poświadczenie dokumentu lub konsultację „na szybko, na słowo honoru”, bez formalnej ścieżki i dokumentów, bo „jutro rano ma sprawę, a dla Ciebie to przecież minuta”.",
     genericReply:
-      "Dziękujemy za kontakt. Rozumiemy wagę optymalizacji budżetu w Państwa organizacji. Chcielibyśmy utrzymać naszą owocną współpracę, dlatego jesteśmy otwarci na dyskusję o elastycznych warunkach cenowych i możemy przygotować pakiet rabatowy satysfakcjonujący obie strony...",
+      "Rozumiem, że sprawa jest pilna i bardzo zależy Ci na czasie. W drodze wyjątku mogę rzucić okiem na ten dokument, chociaż zwykle obowiązują inne procedury. Pamiętaj jednak, że to nie jest formalna opinia i nie biorę za to odpowiedzialności...",
     genericFlaws: [
-      "Brak kręgosłupa i natychmiastowa zgoda na pracę za półdarmo",
-      "Okrągłe, korporacyjne frazesy bez żadnej decyzyjności",
-      "Uleganie sztucznej presji czasu i szantażowi",
+      "Brak kręgosłupa i natychmiastowa zgoda na naginanie zasad pod presją",
+      "Narażenie własnej reputacji i odpowiedzialności prawnej na szwank",
+      "Pozorne pomaganie, które w razie błędu obróci się przeciwko obu stronom",
     ],
     personas: {
       marek: {
         reply:
-          "Nie schodzimy ze stawki o 40%. Taki rabat oznaczałby pracę poniżej kosztów dedykowanego zespołu inżynierów. Jeśli Państwa budżet jest sztywny, możemy zredukować zakres drugiego etapu o moduł analityki czasu rzeczywistego, co zmieści się w kwocie. Jeśli nie akceptujecie tego rozwiązania — rozstajemy się z szacunkiem o 17:00.",
+          "Nie wydaję opinii ani poświadczeń bez pełnej dokumentacji i formalnej procedury — właśnie po to, by nie narazić Cię na błąd. Po znajomości mogę polecić Ci sprawdzony schemat postępowania w poniedziałek od 8:00, ale nie pójdziemy na skróty w niedzielę w nocy. Prześlij komplet rano oficjalną drogą i zrobimy to porządnie.",
         grounding: [
           {
-            id: "m-rabat-1",
-            sourceTitle: "Manifest rentowności i wyceny projektów (2024)",
+            id: "m-zas-1",
+            sourceTitle: "Zasady etyki zawodowej i odpowiedzialności osobistej",
             layer: "Warstwa 6 · Kryteria decyzyjne i zasady",
-            date: "Wrzesień 2024",
+            date: "Październik 2024",
             verbatimQuote:
-              "„Nigdy nie obniżamy stawek pod groźbą odejścia klienta. Zgoda na pracę za półdarmo oznacza dotowanie cudzego biznesu kosztem własnych ludzi. Jedyna dopuszczalna korekta ceny to proporcjonalne zmniejszenie zakresu prac.”",
-            rationale: "Zasada nienaruszalności stawki bazowej i obrony integralności zespołu inżynierskiego.",
+              "„Nigdy nie chodzimy na skróty »po znajomości«. Jeśli podpisujesz się pod czymś własnym nazwiskiem, robisz to według pełnego standardu albo wcale. Połowiczna pomoc w pośpiechu kończy się błędem, za który płacą obie strony.”",
+            rationale: "Zasada bezkompromisowej rzetelności jako fundament ochrony obu stron relacji.",
           },
           {
-            id: "m-rabat-2",
-            sourceTitle: "Wywiad autobiograficzny: Odmowa i granice",
+            id: "m-zas-2",
+            sourceTitle: "Wywiad autobiograficzny: Granice w relacjach prywatnych",
             layer: "Warstwa 5 · Nawyki komunikacji i odmowy",
             date: "Kwiecień 2025",
             verbatimQuote:
-              "„Sztuczne deadline'y typu »decyzja do 17:00« to klasyczny blef negocjacyjny. Zawsze odpowiadam spokojnie przed upływem terminu, oferując alternatywę zakresową lub podziękowanie za współpracę.”",
-            rationale: "Rozbrojenie presji czasu poprzez natychmiastową, spokojną asertywność.",
+              "„Prawdziwy przyjaciel nie wymaga, byś łamał dla niego zasady zawodowe w niedzielny wieczór. Spokojna, twarda odmowa chroni relację lepiej niż nerwowa prowizorka.”",
+            rationale: "Rozbrojenie presji emocjonalnej poprzez spokojną asertywność.",
           },
         ],
       },
       aleksandra: {
         reply:
-          "Rozumiem dążenie do redukcji kosztów operacyjnych, jednak stawka 60% obecnej wartości kontraktu uniemożliwia realizację w standardzie premium, którego Państwo wymagają. Proponuję inne rozwiązanie: zachowujemy obecną wartość roczną, lecz wydłużamy kontrakt na 24 miesiące z gwarancją stałej ceny i prawem pierwszeństwa do nowych modułów. Oczekuję odpowiedzi do jutra do południa.",
+          "Rozumiem Twój stres związany z jutrzejszym terminem, ale właśnie dlatego potrzebujesz bezpiecznego, formalnego rozwiązania, a nie pospiesznej opinii pisanej w nocy. Zróbmy to tak: jutro o 8:30 prześlij wniosek oficjalnym kanałem, a ja podpowiem zespołowi, na co zwrócić szczególną uwagę, by sprawa przeszła bez poprawek. W ten sposób masz pewność, że nikt tego nie podważy.",
         grounding: [
           {
-            id: "a-rabat-1",
-            sourceTitle: "Doktryna partnerstw wieloletnich AlterJa",
+            id: "a-zas-1",
+            sourceTitle: "Standard bezpiecznego postępowania w sprawach krytycznych",
             layer: "Warstwa 4 · Styl narracji i perswazji",
             date: "Styczeń 2025",
             verbatimQuote:
-              "„Nigdy nie traktuj ultimatum jako końca rozmowy, lecz jako prośbę o inny model wartości. Jeśli partner naciska na cenę, wydłuż horyzont czasowy lub zablokuj wyłączność. Ustępstwo cenowe bez wzajemnego zysku to błąd.”",
-            rationale: "Konwersja jednorazowego rabatu na długofalowe zabezpieczenie przychodów (LTV).",
+              "„Gdy ktoś przychodzi w panice, nie ulegaj jej. Twoją rolą jest dać mu grunt pod nogami, a nie biegać w kółko razem z nim. Przekieruj emocje na sprawdzony proces.”",
+            rationale: "Deeskalacja lęku i skierowanie znajomego na bezpieczne tory.",
           },
           {
-            id: "a-rabat-2",
-            sourceTitle: "Notatka ze spotkania zarządu: Negocjacje enterprise",
+            id: "a-zas-2",
+            sourceTitle: "Notatka: Mądrość procesowa w relacjach międzyludzkich",
             layer: "Warstwa 3 · Wartości bazowe i kultura",
             date: "Listopad 2024",
             verbatimQuote:
-              "„Szacunek w relacjach buduje się odwagą stawiania kontrpropozycji. Dobre partnerstwo nie polega na kapitulacji, lecz na wspólnym poszukiwaniu dźwigni biznesowej.”",
-            rationale: "Dyplomatyczne utrzymanie pozycji dominującej bez palenia mostów.",
+              "„Największą przysługą dla znajomego jest dopilnowanie, by jego sprawa była zrobiona bezbłędnie. Zgoda na prowizorkę to pozorna życzliwość.”",
+            rationale: "Ochrona partnera przed skutkami własnego pośpiechu bez palenia mostów.",
           },
         ],
       },
     },
   },
   {
-    id: "inwestor",
-    title: "Inwestor oferuje 3 mln zł, ale żąda prawa veta",
-    category: "Niezależność i kapitał",
+    id: "rada",
+    title: "Prośba o radę w trudnym dylemacie moralnym",
+    category: "Mądrość życiowa i wartości",
     situation:
-      "Fundusz venture capital składa propozycję rundy Seed w wysokości 3 000 000 PLN za 15% udziałów, lecz w zapisach term-sheet domaga się prawa veta do kluczowych decyzji o architekturze produktu i roadmapie technologicznej.",
+      "Wychowanek, student lub młodszy współpracownik staje przed wyborem: może otrzymać wysoki bonus lub awans, jeśli przemilczy wadę w projekcie i pozwoli zrzucić odpowiedzialność na nieobecnego kolegę. Pyta Cię zaufany człowiek: „Co mam zrobić? Wszyscy wkoło powtarzają, że w życiu trzeba być sprytnym”.",
     genericReply:
-      "To bardzo atrakcyjna oferta finansowania, która może znacznie przyspieszyć rozwój firmy. Prawo veta to standardowa klauzula ochronna inwestorów instytucjonalnych. Sugerujemy przeprowadzenie warsztatów z prawnikiem i próbę wynegocjowania kompromisowego katalogu spraw zastrzeżonych...",
+      "To bardzo złożona sytuacja i nie ma tu prostej odpowiedzi. Z jednej strony awans jest ważny dla Twojej kariery, z drugiej strony warto pamiętać o zasadach fair play. Możesz spróbować porozmawiać z działem HR lub poszukać kompromisowego rozwiązania, które zadowoli obie strony...",
     genericFlaws: [
-      "Brak oceny nadrzędnego ryzyka utraty suwerenności twórczej",
-      "Kopiowanie generycznych szablonów prawniczych bez uwzględnienia wizji założyciela",
-      "Naiwne uznanie kapitału za czynnik ważniejszy od integralności produktu",
+      "Moralny relatywizm i brak jakiegokolwiek trwałego oparcia dla pytającego",
+      "Tchórzliwe unikanie jasnego stanowiska w sprawie kłamstwa",
+      "Zostawienie człowieka samego z destrukcyjnym kompromisem etycznym",
     ],
     personas: {
       marek: {
         reply:
-          "Odrzucam tę ofertę w tym kształcie. Żaden fundusz finansowy nie będzie miał prawa veta do architektury i roadmapy AlterJi. Kapitał jest towarem wymiennym, suwerenność inżynierska — nie. Jeśli warunkiem rundy jest kontrola nad kodem i technologią, dziękuję za rozmowę. Wolimy rosnąć organicznie.",
+          "Nie podpisuj tego i nie bierz w tym udziału. Pieniądze z premii rozejdą się w kilka miesięcy, a poczucie, że zbudowałeś coś na cudzej krzywdzie, zostanie z Tobą na dekady. Sam byłem w podobnym miejscu w 2018 roku — odmówiłem zmilczenia prawdy, co kosztowało mnie odejście z zespołu, ale dało czyste sumienie i szacunek ludzi, z którymi pracuję do dziś. Twarz ma się tylko jedną. Jeśli szef wymaga od Ciebie świństwa, szukaj nowego miejsca — pomogę Ci z kontaktami.",
         grounding: [
           {
-            id: "m-inv-1",
-            sourceTitle: "Karta suwerenności technologicznej (Notatka założycielska)",
+            id: "m-rad-1",
+            sourceTitle: "Notatka autobiograficzna: Wybory roku 2018 i cena uczciwości",
             layer: "Warstwa 3 · Wartości i aksjologia",
             date: "Maj 2024",
             verbatimQuote:
-              "„Ktokolwiek oddaje inwestorom prawo veta nad roadmapą produktu, przestaje być twórcą i staje się najemnikiem. Zgoda na ingerencję w kod to śmierć innowacji. Pieniądze można pozyskać z rynku, wolności decyzji się nie odzyskuje.”",
-            rationale: "Bezwzględna ochrona suwerenności inżynierskiej jako nadrzędnego aksjomatu.",
+              "„Można stracić stanowisko, kontrakt czy pieniądze — to wszystko da się odrobić. Spokoju sumienia i szacunku do samego siebie nie odkupisz za żadną premię. Jeśli musisz wybierać między zyskiem a przyzwoitością, wybór zawsze jest prosty.”",
+            rationale: "Bezwzględna ochrona integralności moralnej jako nadrzędnego aksjomatu życia.",
+          },
+          {
+            id: "m-rad-2",
+            sourceTitle: "Zasady mentoringu i odpowiedzialności za innych",
+            layer: "Warstwa 6 · Kryteria decyzyjne i zasady",
+            date: "Wrzesień 2024",
+            verbatimQuote:
+              "„Młodym ludziom nie daje się bezpiecznych, okrągłych rad. Jeśli ktoś pyta Cię o moralny drogowskaz, masz obowiązek powiedzieć prawdę prosto w oczy.”",
+            rationale: "Odwaga podjęcia jednoznacznej decyzji zamiast zmywania rąk.",
           },
         ],
       },
       aleksandra: {
         reply:
-          "Dziękujemy za wiarę w potencjał rynkowy projektu i złożenie oferty na poziomie 3 mln zł. Rozumiemy potrzebę ochrony inwestycji, jednak prawo veta w obszarze produktu stoi w sprzeczności z dynamiką naszej innowacji. Proponujemy zamianę tego zapisu na miejsce w Radzie Doradczej oraz regularny raport kwartalny z realizacji KPI. Tylko w tym wariancie możemy kontynuować badanie due diligence.",
+          "Doskonale rozumiem pokusę szybkiego awansu, ale spójrz na to z perspektywy pięciu lat: podpisując nieprawdę, stajesz się zakładnikiem tych, którzy Ci to zlecili. Gdy sprawa wyjdzie na jaw — a w życiu zawsze wychodzi — to Ty będziesz jedynym kozłem ofiarnym. Prawdziwa siła i autorytet rodzą się z odwagi powiedzenia: »zbadajmy tę wadę i naprawmy ją wspólnie«. Jeśli chcesz być liderem, a nie tylko figurantem z wyższą pensją, postaw na rzetelność. Pomogę Ci ułożyć tę rozmowę z przełożonym.",
         grounding: [
           {
-            id: "a-inv-1",
-            sourceTitle: "Strategia ładu korporacyjnego i pozyskiwania kapitału",
-            layer: "Warstwa 6 · Podejmowanie decyzji strategicznych",
+            id: "a-rad-1",
+            sourceTitle: "Etyka przywództwa i budowanie autorytetu",
+            layer: "Warstwa 4 · Styl narracji i perswazji",
             date: "Luty 2025",
             verbatimQuote:
-              "„Inwestorzy chcą poczucia kontroli, nie paraliżu spółki. Zamiast prawa veta oferuj transparentność informacyjną i komitety doradcze. Jeśli nie są w stanie zaufać zarządowi w kwestiach produktu, ich kapitał przyniesie więcej szkody niż pożytku.”",
-            rationale: "Przekierowanie roszczeń kontrolnych na mechanizmy doradcze bez utraty władzy.",
+              "„Kompromisy moralne to kredyt o lichwiarskim oprocentowaniu. Chwilowy zysk zamienia się w wieloletni paraliż decyzyjny i strach przed zdemaskowaniem.”",
+            rationale: "Ukazanie długofalowej pułapki konformizmu i ochrona pozycji zawodowej wychowanka.",
+          },
+          {
+            id: "a-rad-2",
+            sourceTitle: "Praktyka bezpiecznego rozwiązywania kryzysów",
+            layer: "Warstwa 5 · Nawyki komunikacji i odmowy",
+            date: "Marzec 2025",
+            verbatimQuote:
+              "„Zamiast donosić lub konformistycznie milczeć, zdefiniuj problem merytorycznie i połóż na stole rozwiązanie. W ten sposób chronisz zespół i budujesz pozycję nie do podważenia.”",
+            rationale: "Konstruktywna alternatywa wyjścia z impasu bez naruszenia etyki.",
           },
         ],
       },
     },
   },
   {
-    id: "media",
-    title: "Zaproszenie do kontrowersyjnego panelu telewizyjnego na żywo",
-    category: "Wizerunek i etyka",
+    id: "odmowa",
+    title: "Szantaż emocjonalny i wymuszanie poświęcenia czasu",
+    category: "Ochrona rodziny i wolnego czasu",
     situation:
-      "Wydawca ogólnopolskiej stacji telewizyjnej zaprasza na żywo do debaty w prime time na temat kontrowersyjnych regulacji AI. Format nastawiony jest na konfrontację i polaryzację, gwarantując milionową widownię, lecz wysokie ryzyko wyrwania słów z kontekstu.",
+      "Lokalne stowarzyszenie, rada rodziców lub dawny komitet naciska, abyś przejął uciążliwe kierowanie czasochłonnym przedsięwzięciem: „Tylko Ty potrafisz to uratować! Jeśli odmówisz, cała inicjatywa upadnie i dzieci zostaną bez wyjazdu, nie możesz być taki obojętny!”.",
     genericReply:
-      "Występ w telewizji to świetna okazja na zwiększenie zasięgów marki. Warto przygotować chwytliwe tezy i wziąć udział, aby zaprezentować firmę jako lidera opinii, pamiętając o unikaniu skrajnych deklaracji...",
+      "Bardzo dziękuję za zaufanie. Rozumiem, jak ważna jest ta inicjatywa dla dzieci i całej społeczności. Niestety mam obecnie bardzo dużo obowiązków i trudno mi obiecać pełne zaangażowanie, ale może uda mi się chociaż w czymś małym pomóc...",
     genericFlaws: [
-      "Pogoń za pustym zasięgiem kosztem reputacji merytorycznej",
-      "Brak zrozumienia specyfiki agresywnego formatu telewizyjnego",
-      "Ignorowanie ryzyka utraty zaufania wśród klientów premium",
+      "Przejęcie cudzego poczucia winy i kapitulacja pod szantażem emocjonalnym",
+      "Składanie niejasnych obietnic prowadzących do frustracji i zarywania nocy",
+      "Brak odwagi do obrony czasu dla własnej rodziny i zdrowia",
     ],
     personas: {
       marek: {
         reply:
-          "Dziękuję, nie biorę udziału. Format z góry obliczony na krzyk i polaryzację nie służy merytorycznemu wyjaśnieniu architektury modeli kognitywnych. Moja obecność legitymizowałaby powierzchowność. Chętnie porozmawiam w podcaście pogłębionym lub na konferencji naukowej, gdzie jest czas na dowody.",
+          "Dziękuję za docenienie moich umiejętności, ale moja decyzja jest jednoznaczna: nie podejmę się prowadzenia tej inicjatywy. Projekt, który opiera się na wymuszaniu poświęcenia jednej osoby kosztem jej rodziny i zdrowia, od początku ma złą konstrukcję. Mogę poświęcić dwie godziny w sobotę, aby przekazać kontakty i dokumentację nowemu koordynatorowi, ale ster musi przejąć ktoś z realną dyspozycyjnością. Szanujmy nawzajem swój czas.",
         grounding: [
           {
-            id: "m-med-1",
-            sourceTitle: "Etyka obecności publicznej i obrony faktów",
+            id: "m-odm-1",
+            sourceTitle: "Wywiad biograficzny: Odrzucenie fałszywego męczeństwa",
             layer: "Warstwa 5 · Granice i odmowy",
             date: "Grudzień 2024",
             verbatimQuote:
-              "„Nigdy nie bierz udziału w debatach telewizyjnych nastawionych na igrzyska. W 4-minutowym krzyku prawda zawsze przegrywa z populizmem. Budujemy wiarygodność na twardych wdrożeniach, a nie na pyskówkach w studiu.”",
-            rationale: "Odrzucenie pozornej korzyści zasięgowej na rzecz ochrony autorytetu merytorycznego.",
+              "„Szantaż emocjonalny typu »jak nie ty, to wszystko padnie« to próba zepchnięcia cudzych zaniedbań. Zgoda na bycie wiecznym ratownikiem niszczy własną rodzinę i nie uczy innych odpowiedzialności.”",
+            rationale: "Odrzucenie manipulacji poczuciem winy na rzecz ochrony miru domowego.",
+          },
+          {
+            id: "m-odm-2",
+            sourceTitle: "Kryteria zaangażowania społecznego i wspólnotowego",
+            layer: "Warstwa 3 · Wartości bazowe i kultura",
+            date: "Styczeń 2025",
+            verbatimQuote:
+              "„Pomagaj tam, gdzie masz przestrzeń serca i czasu. Jeśli pomoc rodzi złość i poczucie uwięzienia, natychmiast powiedz »nie«.”",
+            rationale: "Utrzymanie zdrowych ram wsparcia bez poświęcania najbliższych.",
           },
         ],
       },
       aleksandra: {
         reply:
-          "Dziękuję za zaproszenie. Doceniam chęć poruszenia tematu suwerenności cyfrowej, jednak format panelu konfrontacyjnego nie pozwoli na rzetelne naświetlenie zjawiska. Zamiast tego proponuję nagranie autorskiego komentarza eksperckiego lub wywiad 1:1, w którym przedstawimy twarde dane z polskich wdrożeń.",
+          "Bardzo zależy mi na tej inicjatywie, ale właśnie z szacunku do niej mówię wprost: nie wezmę na siebie tej roli. Moje obecne zobowiązania rodzinne nie pozwoliłyby mi prowadzić tego z należytą uwagą. Zamiast szukać jednego »zbawcy«, rozpiszmy te zadania na trzyosobowy zespół — chętnie poprowadzę dla Was pierwsze spotkanie organizacyjne i ułożę harmonogram. Sukces wspólnoty zależy od współpracy, nie od przeciążania jednego człowieka.",
         grounding: [
           {
-            id: "a-med-1",
-            sourceTitle: "Polityka komunikacji marki AlterJa w sytuacjach kryzysowych",
+            id: "a-odm-1",
+            sourceTitle: "Filozofia zrównoważonego zaangażowania obywatelskiego",
             layer: "Warstwa 4 · Styl komunikacji zewnętrznej",
-            date: "Marzec 2025",
+            date: "Luty 2025",
             verbatimQuote:
-              "„W mediach masowych kontroluj kontekst lub nie wchodź wcale. Zamieniaj zaproszenia do awantur na autorskie formaty eksperckie. Marka premium nie może być tłem dla cudzego spektaklu.”",
-            rationale: "Przejęcie kontroli nad ramą narracyjną i warunkami ekspozycji marki.",
+              "„Prawdziwe przywództwo w społeczności polega na budowaniu samodzielności grupy, a nie uzależnianiu wszystkiego od własnej obecności.”",
+            rationale: "Przekazanie sprawczości wspólnocie zamiast brania wszystkiego na swoje barki.",
+          },
+          {
+            id: "a-odm-2",
+            sourceTitle: "Zasady asertywności relacyjnej",
+            layer: "Warstwa 6 · Podejmowanie decyzji",
+            date: "Kwiecień 2025",
+            verbatimQuote:
+              "„Odrzucaj rolę, podtrzymuj relację. Wyjaśnij powód bez tłumaczenia się i wskaż drogę, którą grupa może pójść samodzielnie.”",
+            rationale: "Kulturalna odmowa, która wzmacnia innych zamiast wywoływać urazę.",
           },
         ],
       },
@@ -227,7 +263,7 @@ const DILEMMAS: DilemmaCase[] = [
 ];
 
 export default function GroundedComparisonDemo() {
-  const [selectedDilemmaId, setSelectedDilemmaId] = useState<string>("rabat");
+  const [selectedDilemmaId, setSelectedDilemmaId] = useState<string>("zasady");
   const [selectedPersonaId, setSelectedPersonaId] = useState<string>("marek");
   const [activeGroundingId, setActiveGroundingId] = useState<string | null>(null);
   const [isTyping, setIsTyping] = useState<boolean>(false);
@@ -267,15 +303,15 @@ export default function GroundedComparisonDemo() {
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <span className="text-[11px] font-mono uppercase tracking-widest text-slate-400 font-semibold">
-            Krok 1: Wybierz dylemat biznesowy
+            Krok 1: Wybierz sytuację i dylemat decyzyjny
           </span>
           <span className="text-[10px] font-mono text-sky-400 bg-sky-950/70 px-2.5 py-0.5 rounded-full border border-sky-500/30">
-            Realne scenariusze decyzyjne
+            Realne scenariusze z życia
           </span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-          {DILEMMAS.map((dilemma) => {
+          {DILEMMAS.map((dilemma, idx) => {
             const isSelected = dilemma.id === selectedDilemmaId;
             return (
               <button
@@ -297,7 +333,7 @@ export default function GroundedComparisonDemo() {
                   </h4>
                 </div>
                 <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 pt-2 border-t border-white/5">
-                  <span>Dylemat {dilemma.id === "rabat" ? "01" : dilemma.id === "inwestor" ? "02" : "03"}</span>
+                  <span>Dylemat 0{idx + 1}</span>
                   <span className={isSelected ? "text-sky-300 font-bold" : "text-slate-500"}>
                     {isSelected ? "Wybrany" : "Wybierz"}
                   </span>

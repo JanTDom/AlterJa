@@ -14,6 +14,10 @@ import {
   RefreshCw,
   Loader2,
   Award,
+  Volume2,
+  VolumeX,
+  Mic,
+  Square,
 } from "lucide-react";
 import { MemoryLayer } from "@/domains/types";
 
@@ -63,17 +67,110 @@ export default function InterviewPage() {
   const [isDone, setIsDone] = useState(false);
   const [answersCount, setAnswersCount] = useState(0);
   const [isGeneratingNext, setIsGeneratingNext] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const [lastLearnedRule, setLastLearnedRule] = useState<string | null>(null);
 
   const currentQ = questions[currentIdx];
 
-  const handleSaveAnswer = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!answerText.trim()) return;
+  // Odsłuch pytania głosem (SpeechSynthesis)
+  const handleToggleSpeak = () => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
 
-    const savedText = answerText.trim();
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      return;
+    }
+
+    if (!currentQ) return;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(currentQ.question);
+    utterance.lang = "pl-PL";
+    utterance.rate = 0.95;
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+    setIsSpeaking(true);
+    window.speechSynthesis.speak(utterance);
+  };
+
+  // Nagrywanie głosu użytkownika przez MediaRecorder i transkrypcja AI
+  const handleToggleRecording = async () => {
+    if (isRecording && mediaRecorder) {
+      mediaRecorder.stop();
+      setIsRecording(false);
+      return;
+    }
+
+    if (typeof window === "undefined" || !navigator.mediaDevices?.getUserMedia) {
+      alert("Twoja przeglądarka nie obsługuje nagrywania dźwięku.");
+      return;
+    }
 
     try {
-      await fetch("/api/interview/answer", {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      const chunks: Blob[] = [];
+
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunks.push(e.data);
+      };
+
+      recorder.onstop = async () => {
+        stream.getTracks().forEach((track) => track.stop());
+        if (chunks.length === 0) return;
+
+        const audioBlob = new Blob(chunks, { type: "audio/webm" });
+        setIsTranscribing(true);
+
+        try {
+          const formData = new FormData();
+          formData.append("audio", audioBlob, "voice-answer.webm");
+
+          const res = await fetch("/api/voice/transcribe", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            if (data.text) {
+              setAnswerText((prev) => (prev ? `${prev} ${data.text}` : data.text));
+            }
+          }
+        } catch (err) {
+          console.warn("[Voice Transcription Error]", err);
+        } finally {
+          setIsTranscribing(false);
+        }
+      };
+
+      setMediaRecorder(recorder);
+      recorder.start();
+      setIsRecording(true);
+    } catch (err) {
+      console.warn("[Microphone Access Error]", err);
+      alert("Nie udało się uzyskać dostępu do mikrofonu. Sprawdź uprawnienia w przeglądarce.");
+    }
+  };
+
+  const handleSaveAnswer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!answerText.trim() || isSaving) return;
+
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
+
+    const savedText = answerText.trim();
+    setIsSaving(true);
+
+    try {
+      const res = await fetch("/api/interview/answer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -83,8 +180,17 @@ export default function InterviewPage() {
           category: currentQ.category,
         }),
       });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.cognitiveRule) {
+          setLastLearnedRule(data.cognitiveRule);
+        }
+      }
     } catch (err) {
       console.warn("Błąd zapisu odpowiedzi przez API:", err);
+    } finally {
+      setIsSaving(false);
     }
 
     setAnswerText("");
@@ -98,6 +204,10 @@ export default function InterviewPage() {
   };
 
   const handleSkip = () => {
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
     setAnswerText("");
     if (currentIdx + 1 < questions.length) {
       setCurrentIdx(currentIdx + 1);
@@ -200,20 +310,80 @@ export default function InterviewPage() {
               <span className="text-xs font-mono uppercase tracking-wider text-slate-500 font-medium block">
                 {currentQ.topic}
               </span>
-              <h2 className="text-xl sm:text-2xl font-serif font-medium text-slate-950 leading-relaxed">
-                {currentQ.question}
-              </h2>
+              <div className="flex items-start justify-between gap-4">
+                <h2 className="text-xl sm:text-2xl font-serif font-medium text-slate-950 leading-relaxed">
+                  {currentQ.question}
+                </h2>
+                <button
+                  type="button"
+                  onClick={handleToggleSpeak}
+                  className={`p-2.5 rounded-full border transition-all shrink-0 ${
+                    isSpeaking
+                      ? "bg-amber-100 border-amber-300 text-amber-700 animate-pulse"
+                      : "bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-700"
+                  }`}
+                  title={isSpeaking ? "Zatrzymaj czytanie na głos" : "Odczytaj pytanie na głos"}
+                  aria-label={isSpeaking ? "Zatrzymaj czytanie na głos" : "Odczytaj pytanie na głos"}
+                >
+                  {isSpeaking ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+                </button>
+              </div>
               <p className="text-xs text-slate-500 bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80">
                 <strong className="text-slate-700">Wpływ na model:</strong> {currentQ.context}
               </p>
             </div>
 
+            {lastLearnedRule && (
+              <div className="p-4 rounded-2xl bg-sky-50 border border-sky-200/80 text-sky-950 space-y-1">
+                <div className="flex items-center gap-2 text-xs font-mono text-sky-700 font-medium">
+                  <Brain className="w-3.5 h-3.5" />
+                  <span>Zidentyfikowana zasada myślenia (utrwalona w pamięci)</span>
+                </div>
+                <p className="text-xs sm:text-sm font-sans leading-relaxed">
+                  „{lastLearnedRule}”
+                </p>
+              </div>
+            )}
+
             <form onSubmit={handleSaveAnswer} className="space-y-4">
+              <div className="flex items-center justify-between gap-2 text-xs text-slate-500">
+                <span>Wpisz odpowiedź lub odpowiedz głosem do mikrofonu:</span>
+                <button
+                  type="button"
+                  onClick={handleToggleRecording}
+                  disabled={isTranscribing}
+                  className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-mono transition-all ${
+                    isRecording
+                      ? "bg-red-500 text-white border-red-600 animate-pulse"
+                      : isTranscribing
+                      ? "bg-slate-100 text-slate-400 border-slate-200 cursor-wait"
+                      : "bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-700"
+                  }`}
+                >
+                  {isRecording ? (
+                    <>
+                      <Square className="w-3.5 h-3.5 fill-current" />
+                      <span>Zakończ nagrywanie</span>
+                    </>
+                  ) : isTranscribing ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Transkrypcja AI...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Mic className="w-3.5 h-3.5" />
+                      <span>Mów odpowiedź</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
               <textarea
                 rows={6}
                 value={answerText}
                 onChange={(e) => setAnswerText(e.target.value)}
-                placeholder="Napisz szczerze i własnymi słowami. Nie musisz silić się na formę literacką — model uczy się Twojego autentycznego toku myślenia..."
+                placeholder="Napisz szczerze i własnymi słowami lub użyj przycisku »Mów odpowiedź« powyżej. Model uczy się Twojego autentycznego toku myślenia..."
                 className="w-full p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-alterja-blue leading-relaxed font-sans"
                 required
               />
@@ -230,11 +400,20 @@ export default function InterviewPage() {
 
                 <button
                   type="submit"
-                  disabled={!answerText.trim()}
+                  disabled={!answerText.trim() || isSaving}
                   className="px-6 py-3 rounded-2xl bg-slate-950 hover:bg-slate-800 text-white text-xs font-medium transition-all shadow-md active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
                 >
-                  <span>Zapisz w pamięci i przejdź dalej</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Analiza kognitywna i zapis...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Zapisz w pamięci i przejdź dalej</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </>
+                  )}
                 </button>
               </div>
             </form>

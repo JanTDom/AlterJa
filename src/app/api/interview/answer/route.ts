@@ -53,10 +53,31 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // 2. Automatyczny awans odpowiedzi do pamięci autobiograficznej
+    // 2. Kognitywna synteza reguły działania i sposobu myślenia
+    let cognitiveRule = "";
+    try {
+      const { generateText } = await import("ai");
+      const { getGoogleProvider, AI_MODELS } = await import("@/lib/ai/client");
+      const google = getGoogleProvider();
+      const insightRes = await generateText({
+        model: google(AI_MODELS.FAST),
+        system:
+          "Jesteś analitykiem kognitywnym systemu AlterJa. Na podstawie pytania i odpowiedzi użytkownika wyekstrahuj w 1 zwięzłym zdaniu jego nienaruszalną regułę decyzyjną, system wartości lub wzorzec reakcji. Pisz w 3. osobie (np. »W sytuacjach presji czasu wybiera rzetelność ponad pośpiech...«). Zero emoji, precyzyjny język polski.",
+        prompt: `Zagadnienie: ${topic}\nPytanie wywiadu: „${questionText}”\nOdpowiedź użytkownika: „${answerText}”`,
+      });
+      cognitiveRule = insightRes.text.trim();
+    } catch {
+      // Jeśli model AI jest niedostępny, kontynuujemy bez syntezy
+    }
+
+    const memoryContent = cognitiveRule
+      ? `Zasada myślenia i działania: ${cognitiveRule}\n\nKontekst pytania: „${questionText}”\nDosłowna wypowiedź: „${answerText}”`
+      : `Pytanie wywiadu: „${questionText}”\nOdpowiedź użytkownika: ${answerText}`;
+
+    // 3. Wektoryzacja i zapis w pamięci autobiograficznej
     let embedding: number[] | undefined;
     try {
-      embedding = await generateTextEmbedding(`${topic}: ${questionText}\nOdpowiedź: ${answerText}`);
+      embedding = await generateTextEmbedding(`${topic}: ${cognitiveRule || questionText}\n${answerText}`);
     } catch {
       // Jeśli model embeddingu nie odpowiada, zapisujemy bez wektora
     }
@@ -65,7 +86,7 @@ export async function POST(req: NextRequest) {
       userId: user.id,
       layer: category as MemoryLayer,
       title: topic,
-      content: `Pytanie wywiadu: „${questionText}”\nOdpowiedź użytkownika: ${answerText}`,
+      content: memoryContent,
       epistemicStatus: "user_declaration",
       confidence: "confirmed",
       embedding,
@@ -73,7 +94,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: "Odpowiedź została utrwalona w bazie wiedzy jako deklaracja użytkownika.",
+      message: "Odpowiedź została przeanalizowana i utrwalona w bazie wiedzy jako deklaracja użytkownika.",
+      cognitiveRule: cognitiveRule || null,
       memoryId: memory.id,
     });
   } catch (err: unknown) {

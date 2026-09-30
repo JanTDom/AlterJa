@@ -123,7 +123,7 @@ ${matchedDbRule ? `Obowiązująca twarda reguła użytkownika: ${matchedDbRule.a
 
 Zasady:
 1. Odpowiadaj zwięźle, kulturalnie i asertywnie.
-2. Jeśli ktoś zbija cenę, żąda darmowych poprawek lub marudzi o rabat — odrzuć to bez tłumaczenia się.
+2. Jeśli ktoś próbuje wymusić naruszenie Twoich zasad, darmową przysługę kosztem Twojego odpoczynku lub stawia ultimatum — odrzuć to kulturalnie, stanowczo i bez poczucia winy.
 3. Zero dekoracyjnych emoji. Prawidłowa polszczyzna (sentence casing, cudzysłowy „”).
 
 Pamięć i zasady:

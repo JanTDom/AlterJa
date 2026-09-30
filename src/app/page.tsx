@@ -97,7 +97,7 @@ export default function LandingPage() {
             </h1>
 
             <p className="text-base sm:text-xl text-slate-200 font-normal leading-relaxed max-w-3xl mx-auto">
-              Biologiczny człowiek potrzebuje snu, regeneracji i&nbsp;świętego spokoju. Twoja AlterJa uczy się Twojego sposobu myślenia, zasad i&nbsp;stylu — po&nbsp;czym przejmuje powtarzalne rozmowy, trudne negocjacje i&nbsp;codzienne decyzje. Mówi twarde „nie” na&nbsp;próby wymuszenia rabatów, odrzuca darmowe poprawki i&nbsp;nie&nbsp;pozwala nikomu pracować Twoim kosztem.
+              Biologiczny człowiek potrzebuje snu, regeneracji i&nbsp;świętego spokoju. Twoja AlterJa uczy się Twojego sposobu myślenia, wartości, wiedzy i&nbsp;stylu — po&nbsp;czym przejmuje męczące rozmowy, trudne dylematy i&nbsp;codzienne decyzje. Mówi spokojne, kulturalne „nie”, gdy ktoś narusza Twoje granice, chroni Twój czas dla rodziny i&nbsp;nie&nbsp;pozwala nikomu żerować na&nbsp;Twojej życzliwości ani podważać Twoich zasad.
             </p>
           </div>
 
@@ -135,15 +135,15 @@ export default function LandingPage() {
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-sky-400 shrink-0" />
-              <span>100% uziemienie zasad</span>
+              <span>100% uziemienie wartości</span>
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
-              <span>Zero pracy za&nbsp;półdarmo</span>
+              <span>Ochrona własnych granic</span>
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-indigo-300 shrink-0" />
-              <span>Izolacja PostgreSQL RLS</span>
+              <span>Prywatność i&nbsp;izolacja RLS</span>
             </div>
           </div>
 
@@ -322,7 +322,7 @@ export default function LandingPage() {
             </h2>
 
             <p className="text-base sm:text-lg text-slate-300 leading-relaxed font-sans font-normal text-pretty">
-              Zobacz, jak na&nbsp;ten sam dylemat odpowiada bezduszny bot korporacyjny (gotowy pracować za&nbsp;półdarmo i&nbsp;oddać Twój czas), a&nbsp;jak reaguje uziemiona AlterJa. Klikaj źródła dowodowe, by&nbsp;zobaczyć cytaty.
+              Zobacz, jak na&nbsp;ten sam dylemat odpowiada bezduszny bot (gotowy ugiąć się pod każdą presją i&nbsp;rozdawać Twoje zasoby), a&nbsp;jak reaguje uziemiona AlterJa. Klikaj źródła dowodowe, by&nbsp;zobaczyć cytaty.
             </p>
           </div>
 
@@ -344,7 +344,7 @@ export default function LandingPage() {
           </h2>
 
           <p className="text-base sm:text-lg text-slate-300 leading-relaxed font-sans font-normal text-pretty">
-            To nie&nbsp;abstrakcyjna technologia. To Twój osobisty silnik autonomii, który pilnuje Twoich stawek, odcina natrętów i&nbsp;przywraca Ci święty spokój.
+            To nie&nbsp;abstrakcyjna technologia. To Twój osobisty strażnik spokoju i&nbsp;dorobku, który chroni Twoje granice, wyjaśnia Twoje racje i&nbsp;pozwala Ci skupić się na&nbsp;tym, co&nbsp;naprawdę ważne.
           </p>
         </div>
 
@@ -357,17 +357,17 @@ export default function LandingPage() {
             <div className="space-y-4 relative z-10">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-mono uppercase tracking-widest text-sky-400 font-semibold px-3 py-1 rounded-full bg-sky-950/60 border border-sky-400/30">
-                  Ochrona zarobków i&nbsp;stawek
+                  Ochrona granic i&nbsp;zasad
                 </span>
                 <span className="text-xs font-mono text-slate-400">Warstwa 6 · Decyzje</span>
               </div>
 
               <h3 className="text-2xl sm:text-4xl font-serif font-medium text-white tracking-tight leading-tight">
-                Koniec z&nbsp;uleganiem presji i&nbsp;pracą za&nbsp;półdarmo.
+                Koniec z&nbsp;uleganiem presji i&nbsp;poczuciem winy.
               </h3>
 
               <p className="text-sm sm:text-base text-slate-300 font-sans leading-relaxed max-w-xl text-pretty">
-                Większość zaniżonych cen i&nbsp;darmowych poprawek bierze się ze&nbsp;zmęczenia po&nbsp;całym dniu i&nbsp;strachu przed utratą zlecenia. Twoja AlterJa odbiera zapytania cenowe, bezlitośnie odrzuca nieopłacalne propozycje i&nbsp;stawia twarde warunki. Zanim wstaniesz rano, trudny klient wie, na&nbsp;jakich zasadach pracujesz.
+                Większość złych kompromisów, darmowych przysług i&nbsp;przeciążenia bierze się ze&nbsp;zmęczenia po&nbsp;całym dniu i&nbsp;trudności z&nbsp;powiedzeniem „nie” prosto w&nbsp;oczy. Twoja AlterJa przyjmuje trudne wiadomości, bez wahania odrzuca nieuczciwe oczekiwania i&nbsp;stawia jasne granice. Niezależnie czy jesteś lekarzem, rzemieślnikiem, twórcą, inżynierem czy nauczycielem — Twoje wartości pozostają nienaruszone.
               </p>
             </div>
 
@@ -376,9 +376,9 @@ export default function LandingPage() {
               <div className="flex items-center justify-between text-xs border-b border-white/10 pb-2.5">
                 <div className="flex items-center gap-2 text-sky-300">
                   <SlidersHorizontal className="w-4 h-4" />
-                  <span>Protokół ochrony Twoich stawek</span>
+                  <span>Protokół obrony granic i zasad</span>
                 </div>
-                <span className="text-emerald-400 font-bold">Zero ustępstw bez pokrycia</span>
+                <span className="text-emerald-400 font-bold">Zero kompromisów kosztem rodziny</span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] text-slate-300">
                 <div className="p-2.5 rounded-xl bg-white/5 border border-white/5">

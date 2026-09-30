@@ -56,18 +56,18 @@ const SCENARIOS: Scenario[] = [
     humanImpact: "Koniec z poczuciem winy i byciem darmowym pogotowiem ratunkowym w weekendy.",
   },
   {
-    id: "rabat",
-    label: "Klient wymusza 40% rabatu pod groźbą odejścia",
-    tag: "Zero pracy za\u00A0półdarmo",
+    id: "porada",
+    label: "Nocna prośba o\u00A0darmową konsultację zawodową",
+    tag: "Ochrona powołania i\u00A0odpoczynku",
     incomingText:
-      "„Cześć, zarząd zaakceptuje ofertę tylko pod warunkiem 40% rabatu. Czekam na potwierdzenie do jutra do 8:00 rano, inaczej idziemy do konkurencji.”",
-    incomingSender: "Klient biznesowy · Piątek 22:34",
+      "„Hej! Rzuć okiem na te moje wyniki / umowę / plany na szybko, bo się strasznie stresuję przed jutrem. Powiedz tylko w dwóch zdaniach, czy jest bardzo źle!”",
+    incomingSender: "Dalszy znajomy · Niedziela 22:45",
     alterjaReply:
-      "Dziękuję za wiadomość. Nie schodzimy ze stawki o 40%, bo to oznaczałoby pracę poniżej kosztów dedykowanego zespołu. Jeśli budżet jest sztywny, możemy ograniczyć zakres pierwszego etapu, co zmieści się w Państwa kwocie. Jeśli nie akceptujecie tej opcji — szanujemy Wasz wybór konkurencji. Decyzja do poniedziałku do 14:00.",
-    ruleTitle: "Zasada nienaruszalności stawek i jakości",
+      "Cześć! W pełni rozumiem Twój niepokój, ale rzetelna ocena w tak ważnej sprawie wymaga skupienia, wglądu w pełną dokumentację i normalnych warunków pracy — pisanie czegokolwiek na szybko w niedzielny wieczór na Messengerze byłoby z mojej strony nieodpowiedzialne. Zgłoś się jutro od 9:00 oficjalną drogą, a sprawdzimy to spokojnie i dokładnie. Dobrej, spokojnej nocy!",
+    ruleTitle: "Zasada rzetelności zawodowej i bezpieczeństwa",
     ruleQuote:
-      "„Nigdy nie obniżamy stawek pod presją szantażu. Zgoda na pracę za półdarmo oznacza dotowanie cudzego biznesu kosztem własnego zdrowia.”",
-    humanImpact: "Rano Twoja stawka jest obroniona, a klient wie, że nie da się Ciebie zaszantażować.",
+      "„Nigdy nie stawiamy ocen ani diagnoz na kolanie w prywatnych wiadomościach przed snem. Prawdziwa pomoc wymaga skupienia i bezpiecznych ram.”",
+    humanImpact: "Spokojny wieczór bez wciągania w cudzą panikę i bez poczucia winy.",
   },
   {
     id: "telemarketing",
