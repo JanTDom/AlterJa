@@ -148,4 +148,6 @@ npm run build
 
 ## 7. Stan repozytorium
 - **Gałąź:** `main`
-- **Wszystkie zmiany zweryfikowane:** 14/14 testów przechodzi, kompilacja czysta.
+- **Skrót commita:** `5ac63fe` (`fix(quality): eliminate empty catch blocks with structured warning logging in dashboard and sources pages`)
+- **Czy wypchnięte:** Tak, wypchnięte do zdalnego repozytorium `https://github.com/JanTDom/AlterJa.git` (gałąź `main`).
+- **Wszystkie zmiany zweryfikowane:** 14/14 testów przechodzi, kompilacja czysta, brak pustych bloków catch.
