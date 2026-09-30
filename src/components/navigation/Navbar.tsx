@@ -17,11 +17,13 @@ import {
   Activity,
   Menu,
   X,
+  Mic,
 } from "lucide-react";
 
 const NAV_ITEMS = [
   { href: "/delegate", label: "Odpisz za mnie", icon: Sparkles },
   { href: "/dashboard", label: "Pulpit", icon: Compass },
+  { href: "/interview/voice", label: "Głos AI", icon: Mic },
   { href: "/chat", label: "Rozmowa", icon: MessageSquare },
   { href: "/memory", label: "Pamięć", icon: Brain },
   { href: "/interview", label: "Wywiad", icon: Sparkles },

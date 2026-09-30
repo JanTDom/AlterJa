@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import Navbar from "@/components/navigation/Navbar";
 import {
   Sparkles,
@@ -281,6 +282,30 @@ export default function InterviewPage() {
 
       {/* GŁÓWNA POWIERZCHNIA WYWIADU */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12 flex-1 w-full space-y-8">
+        {/* BANER PROAKTYWNEJ ROZMOWY GŁOSOWEJ */}
+        <div className="rounded-3xl border border-sky-200/80 bg-gradient-to-r from-sky-50 via-blue-50/60 to-indigo-50/40 p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+          <div className="flex items-start gap-3.5">
+            <div className="w-10 h-10 rounded-2xl bg-sky-500 text-white flex items-center justify-center shrink-0 shadow-md">
+              <Mic className="w-5 h-5" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-sm font-semibold text-slate-900">
+                Wolisz rozmawiać naturalnie głosem?
+              </h3>
+              <p className="text-xs text-slate-600 leading-relaxed max-w-xl">
+                Uruchom proaktywny dialog głosowy. Program sam rozpocznie rozmowę, zbada Twój system wartości i w locie wyekstrahuje zasady myślenia.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/interview/voice"
+            className="px-5 py-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 text-white text-xs font-medium transition-all shadow-md shrink-0 flex items-center justify-center gap-2 self-start sm:self-auto"
+          >
+            <span>Przejdź do rozmowy głosowej</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
         {!isDone && currentQ ? (
           <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200 shadow-sm space-y-8">
             <div className="flex items-center justify-between border-b border-slate-100 pb-4">

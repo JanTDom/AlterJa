@@ -52,6 +52,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       transcription,
+      text: transcription,
       detected_language: "pl",
       confidence: 1.0,
     });

@@ -33,6 +33,7 @@ import {
   CheckCircle2,
   AlertCircle,
   HelpCircle,
+  Mic,
 } from "lucide-react";
 
 export default function DashboardPage() {
@@ -185,7 +186,14 @@ export default function DashboardPage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              href="/interview/voice"
+              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white text-xs font-medium transition-all shadow-lg shadow-sky-500/25 flex items-center gap-2"
+            >
+              <Mic className="w-3.5 h-3.5" />
+              <span>Rozmowa głosowa AI</span>
+            </Link>
             <Link
               href="/sources"
               className="px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-medium transition-colors shadow-lg shadow-sky-500/20 flex items-center gap-2"
