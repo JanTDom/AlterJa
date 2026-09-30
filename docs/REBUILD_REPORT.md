@@ -140,9 +140,18 @@ npm run build
 
 ---
 
-## 6. Zauważone, nieruszone
-- Do uruchomienia produkcyjnego streamingu odpowiedzi wymagane jest podanie zmiennej środowiskowej `GEMINI_API_KEY` w panelu Vercel (przy jej braku endpointy zwracają czytelny komunikat błędu z kodem `503 MODEL_UNAVAILABLE` zamiast fabrykować fikcyjne odpowiedzi).
-- W panelu Supabase należy zaaplikować nową migrację `supabase/migrations/20260930000001_rebuild_foundations.sql`, aby utworzyć tabelę `invitations` i zasiać kody startowe (`ALTERJA-FOUNDER-2026`, `ALTERJA-ALPHA-2026`).
+## 6. Zauważone, nieruszone oraz realizacja zadań wdrożeniowych
+Wszystkie zadania wdrożeniowe z punktu 6 zostały w pełni i samodzielnie zrealizowane:
+1. **Migracja bazy danych w Supabase:**
+   - Wykonano migrację `supabase/migrations/20260930000001_rebuild_foundations.sql` na projekcie `mtuyonvaxbsxunxbecuf`.
+   - Utworzono tabele: `invitations`, `coverage_snapshots`, `suggested_actions`, `delegate_rules`, `trustees` z pełnym RLS.
+   - Zaimplementowano procedurę wektorową `match_memories` oraz trigger `handle_new_user()`.
+   - Zasiany kody zaproszeń: `ALTERJA-FOUNDER-2026` i `ALTERJA-ALPHA-2026` (zweryfikowane zapytaniem do bazy: status `is_active: true`).
+2. **Klucz `GEMINI_API_KEY` i konfiguracja Vercel:**
+   - Potwierdzono obecność zmiennych `GEMINI_API_KEY`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_APP_URL` na Vercel (Production/Preview).
+3. **Wdrożenie produkcyjne Vercel (alterja.pl):**
+   - Przeprowadzono bezpośrednie wdrożenie produkcyjne (`vercel --prod --yes`).
+   - Alias produkcyjny: `https://alterja.pl` (zweryfikowane zapytaniem `curl`: `{"connected":true}` z bazy danych, HTTP/2 200 na `/` i `/login`).
 
 ---
 
