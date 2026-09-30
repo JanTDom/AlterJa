@@ -12,24 +12,25 @@ import {
   Flame,
   Zap,
 } from "lucide-react";
-import { globalStore, DEMO_USER_ID } from "@/lib/db/store";
 import { geminiClient } from "@/lib/gemini/client";
 import { DecisionCase } from "@/domains/types";
 
 export default function StyleLabPage() {
-  const [decisions, setDecisions] = useState<DecisionCase[]>(() =>
-    globalStore.getDecisions(DEMO_USER_ID)
-  );
+  const [decisions, setDecisions] = useState<DecisionCase[]>([]);
 
-  React.useEffect(() => {
+  const fetchDecisions = () => {
     fetch("/api/decisions")
       .then((res) => res.json())
       .then((data) => {
-        if (data.success && Array.isArray(data.decisions) && data.decisions.length > 0) {
+        if (data.success && Array.isArray(data.decisions)) {
           setDecisions(data.decisions);
         }
       })
       .catch((err) => console.warn("Błąd odczytu decyzji:", err));
+  };
+
+  React.useEffect(() => {
+    fetchDecisions();
   }, []);
 
   const [situation, setSituation] = useState("");
@@ -52,7 +53,7 @@ export default function StyleLabPage() {
     const chosen = chosenOption === "A" ? optionA : optionB;
 
     try {
-      await fetch("/api/decisions", {
+      const res = await fetch("/api/decisions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -62,26 +63,18 @@ export default function StyleLabPage() {
           userJustification: justification.trim(),
         }),
       });
+
+      if (res.ok) {
+        setSituation("");
+        setOptionA("");
+        setOptionB("");
+        setJustification("");
+        fetchDecisions();
+        showNotice("Wzorzec decyzyjny został utrwalony w bazie danych.");
+      }
     } catch (err) {
       console.warn("Błąd zapisu decyzji przez API:", err);
     }
-
-    globalStore.addDecision(DEMO_USER_ID, {
-      situation: situation.trim(),
-      options_considered: [optionA.trim(), optionB.trim()],
-      chosen_option: chosen.trim(),
-      user_justification: justification.trim(),
-      observed_outcome: null,
-      post_hoc_reflection: null,
-      decision_date: new Date().toISOString().split("T")[0],
-    });
-
-    setSituation("");
-    setOptionA("");
-    setOptionB("");
-    setJustification("");
-    setDecisions([...globalStore.getDecisions(DEMO_USER_ID)]);
-    showNotice("Wzorzec decyzyjny został utrwalony w bazie Supabase.");
   };
 
   const handleTestStyle = async (e: React.FormEvent) => {

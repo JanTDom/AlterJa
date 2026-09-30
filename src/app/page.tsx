@@ -252,7 +252,7 @@ export default function LandingPage() {
               <ul className="space-y-3.5 text-xs sm:text-sm text-slate-200 font-sans pt-2">
                 <li className="flex items-start gap-3">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <span className="text-pretty"><strong>0&nbsp;godzin snu:</strong> Odpowiada w&nbsp;120&nbsp;ms o&nbsp;3:00 w&nbsp;nocy z&nbsp;taką samą trzeźwością umysłu, jak rano.</span>
+                  <span className="text-pretty"><strong>Ciągła dyspozycyjność:</strong> Odpowiada o&nbsp;dowolnej porze z&nbsp;taką samą trzeźwością umysłu i&nbsp;spójnością zasad.</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
@@ -260,7 +260,7 @@ export default function LandingPage() {
                 </li>
                 <li className="flex items-start gap-3">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <span className="text-pretty"><strong>Filtracja 85% powtarzalnych spraw:</strong> Odcina spam, ucina marudy i&nbsp;przekazuje Ci wyłącznie to, co&nbsp;wymaga decyzji.</span>
+                  <span className="text-pretty"><strong>Filtracja powtarzalnych spraw:</strong> Odcina spam, szkicuje odpowiedzi i&nbsp;przekazuje Ci wyłącznie to, co&nbsp;wymaga Twojej decyzji.</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
@@ -270,7 +270,7 @@ export default function LandingPage() {
             </div>
 
             <div className="pt-4 border-t border-sky-500/30 flex items-center justify-between text-xs font-mono text-emerald-300 relative z-10">
-              <span>Zysk: 4–6 godzin odzyskanych każdego dnia.</span>
+              <span>Zysk: Czas i&nbsp;spokój umysłu każdego dnia.</span>
               <span className="text-sky-400 font-bold">100% uziemienie</span>
             </div>
           </div>
@@ -453,7 +453,7 @@ export default function LandingPage() {
               </h3>
 
               <p className="text-xs sm:text-sm text-slate-300 font-sans leading-relaxed text-pretty">
-                Poczta, wiadomości, formularze i&nbsp;oferty. Zamiast spędzać 3&nbsp;godziny dziennie na&nbsp;odpisywaniu tym samym schematem, Twoja kopia załatwia 85% korespondencji według Twoich zasad, a&nbsp;do&nbsp;Ciebie trafia tylko to, co&nbsp;naprawdę ważne.
+                Poczta, wiadomości, formularze i&nbsp;oferty. Zamiast powtarzać te same schematy, Twoja kopia przygotowuje precyzyjne szkice według Twoich zasad, a&nbsp;do&nbsp;Ciebie trafia tylko to, co&nbsp;wymaga zatwierdzenia.
               </p>
             </div>
 

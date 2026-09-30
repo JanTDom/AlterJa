@@ -1,10 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/navigation/Navbar";
-import { store } from "@/lib/db/store";
 import { ApiClient } from "@/domains/types";
 import {
   Terminal,
@@ -22,11 +21,27 @@ import {
 } from "lucide-react";
 
 export default function DeveloperPage() {
-  const [clients, setClients] = useState<ApiClient[]>(store.getApiClients());
+  const [clients, setClients] = useState<ApiClient[]>([]);
   const [newName, setNewName] = useState("");
   const [newScope, setNewScope] = useState<"style_only" | "memory_query" | "persona_interactive">("style_only");
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
-  const [createdClient, setCreatedClient] = useState<ApiClient | null>(null);
+  const [createdClient, setCreatedClient] = useState<(ApiClient & { rawKey?: string }) | null>(null);
+
+  const fetchClients = async () => {
+    try {
+      const res = await fetch("/api/developer/clients");
+      const data = await res.json();
+      if (data.success && Array.isArray(data.clients)) {
+        setClients(data.clients);
+      }
+    } catch (err) {
+      console.warn("Błąd pobierania klientów API:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchClients();
+  }, []);
 
   // Playground state
   const [testEndpoint, setTestEndpoint] = useState<"respond" | "transform" | "query">("transform");
@@ -34,21 +49,43 @@ export default function DeveloperPage() {
   const [testOutput, setTestOutput] = useState<string | null>(null);
   const [isRunning, setIsRunning] = useState(false);
 
-  const handleCreateKey = (e: React.FormEvent) => {
+  const handleCreateKey = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName.trim()) return;
 
-    const scopes = [newScope];
-    const client = store.createApiClient(newName.trim(), scopes);
-    setClients(store.getApiClients());
-    setCreatedClient(client);
-    setNewName("");
+    try {
+      const res = await fetch("/api/developer/clients", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: newName.trim(),
+          scopes: [newScope],
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setCreatedClient({ ...data.client, rawKey: data.apiKey });
+        setNewName("");
+        fetchClients();
+      }
+    } catch (err) {
+      console.warn("Błąd tworzenia klucza API:", err);
+    }
   };
 
-  const handleRevokeKey = (clientId: string) => {
-    store.revokeApiClient(clientId);
-    setClients(store.getApiClients());
-    if (createdClient?.id === clientId) setCreatedClient(null);
+  const handleRevokeKey = async (clientId: string) => {
+    try {
+      const res = await fetch(`/api/developer/clients?id=${encodeURIComponent(clientId)}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        fetchClients();
+        if (createdClient?.id === clientId) setCreatedClient(null);
+      }
+    } catch (err) {
+      console.warn("Błąd unieważnienia klucza API:", err);
+    }
   };
 
   const handleCopy = (text: string, id: string) => {
@@ -183,9 +220,9 @@ export default function DeveloperPage() {
               Skopiuj klucz teraz. Ze względów bezpieczeństwa w bazie zapisany jest wyłącznie bezpieczny skrót SHA-256 i pełna wartość nie zostanie wyświetlona ponownie:
             </p>
             <div className="flex items-center gap-2 p-3 rounded-2xl bg-white border border-amber-200 font-mono text-xs text-slate-900 shadow-inner">
-              <span className="flex-1 truncate font-bold text-alterja-blue">{createdClient.api_key}</span>
+              <span className="flex-1 truncate font-bold text-alterja-blue">{createdClient.rawKey || createdClient.api_key || "Klucz wygenerowany"}</span>
               <button
-                onClick={() => handleCopy(createdClient.api_key || "", createdClient.id)}
+                onClick={() => handleCopy(createdClient.rawKey || createdClient.api_key || "", createdClient.id)}
                 className="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-medium text-slate-700 flex items-center gap-1.5 transition-colors"
               >
                 {copiedKey === createdClient.id ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}

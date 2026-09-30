@@ -19,6 +19,7 @@ Bieżący etap projektu to **BUILD_AND_DEPLOY** (autoryzowany przez właściciel
 4. **Rozdzielenie ról i trybów:** Wyraźne rozróżnienie trybu Rekonstrukcji (przewidywanie reakcji właściciela na podstawie dowodów), trybu Asystenta (obiektywna pomoc) oraz trybu Krytycznego partnera.
 5. **Czysta polszczyzna i zero emoji:** Komunikacja, interfejs i dokumentacja powstają w precyzyjnej polszczyźnie (sentence casing w nagłówkach, skrótowce TK, SN, KRS, PKW, TVP, PiS, PO, UE, MSWiA, KAS). Zero dekoracyjnych emoji w interfejsie.
 6. **Decyzje człowieka:** Model nie podejmuje wiążących decyzji prawnych, nie generuje fikcyjnych oświadczeń woli, nie rozstrzyga sporów spadkowych i nie diagnozuje stanów klinicznych.
+7. **Proaktywność:** Użytkownik nigdy nie ma się zastanawiać, co dać aplikacji. Aplikacja wie, czego jej brakuje, i sama o to prosi — konkretnie, w odpowiednim momencie, z uzasadnieniem. Każdy widok i endpoint jest oceniany pod kątem proaktywnego domykania luk poznawczych.
 
 ## 4. Zasoby docelowe
 - **Repozytorium:** `https://github.com/JanTDom/AlterJa`

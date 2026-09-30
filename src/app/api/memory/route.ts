@@ -1,29 +1,37 @@
 // ==============================================================================
 // AlterJa (alterja.pl) — API Pamięci Autobiograficznej
-// API: GET, POST, DELETE /api/memory
+// Wymuszone uwierzytelnienie sesyjne, RLS, automatyczny embedding wektorowy.
 // ==============================================================================
 
 import { NextRequest, NextResponse } from "next/server";
-import { getLiveMemories, persistMemoryWithEvidence, deleteLiveMemory } from "@/lib/supabase/db";
-import { DEMO_USER_ID } from "@/lib/db/store";
+import { requireUser } from "@/lib/auth/server";
+import { getLiveMemories, persistMemoryItem, deleteLiveMemory } from "@/lib/supabase/db";
+import { generateTextEmbedding } from "@/lib/ai/client";
 import { MemoryLayer, EpistemicStatus, ConfidenceLevel } from "@/domains/types";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const userId = searchParams.get("userId") || DEMO_USER_ID;
+  try {
+    const user = await requireUser();
+    const { searchParams } = new URL(req.url);
+    const layer = searchParams.get("layer") as MemoryLayer | undefined;
 
-  const memories = await getLiveMemories(userId);
-  return NextResponse.json({
-    success: true,
-    count: memories.length,
-    memories,
-  });
+    const memories = await getLiveMemories(user.id, layer);
+    return NextResponse.json({
+      success: true,
+      count: memories.length,
+      memories,
+    });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Brak autoryzacji sesji";
+    return NextResponse.json({ error: msg }, { status: 401 });
+  }
 }
 
 export async function POST(req: NextRequest) {
   try {
+    const user = await requireUser();
     const body = await req.json();
     const {
       layer,
@@ -33,7 +41,6 @@ export async function POST(req: NextRequest) {
       confidence = "confirmed",
       exactQuote,
       sourceItemId,
-      userId = DEMO_USER_ID,
     } = body;
 
     if (!title || !content || !layer) {
@@ -43,45 +50,58 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const memory = await persistMemoryWithEvidence({
-      userId,
+    // Obliczenie embeddingu dla nowo dodawanego wspomnienia
+    let embedding: number[] | undefined;
+    try {
+      embedding = await generateTextEmbedding(`${title}\n${content}`);
+    } catch {
+      // Jeśli model embeddingu nie jest dostępny, zapisujemy rekord bez wektora
+    }
+
+    const memory = await persistMemoryItem({
+      userId: user.id,
       layer: layer as MemoryLayer,
       title,
       content,
       epistemicStatus: epistemicStatus as EpistemicStatus,
       confidence: confidence as ConfidenceLevel,
-      exactQuote,
-      sourceItemId,
+      embedding,
+      evidence: exactQuote && sourceItemId ? {
+        sourceItemId,
+        exactQuote,
+      } : undefined,
     });
 
     return NextResponse.json({
       success: true,
       memory,
     });
-  } catch (error) {
-    console.error("[Memory API POST Error]:", error);
-    return NextResponse.json(
-      { error: "Wystąpił błąd podczas zapisywania wspomnienia." },
-      { status: 500 }
-    );
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Wewnętrzny błąd zapisu pamięci";
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
 
 export async function DELETE(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const id = searchParams.get("id");
-  const userId = searchParams.get("userId") || DEMO_USER_ID;
+  try {
+    const user = await requireUser();
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
 
-  if (!id) {
-    return NextResponse.json(
-      { error: "Wymagany jest identyfikator 'id' wspomnienia." },
-      { status: 400 }
-    );
+    if (!id) {
+      return NextResponse.json(
+        { error: "Wymagany jest identyfikator 'id' wspomnienia." },
+        { status: 400 }
+      );
+    }
+
+    const success = await deleteLiveMemory(user.id, id);
+    return NextResponse.json({
+      success,
+      deletedId: id,
+    });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Błąd autoryzacji";
+    return NextResponse.json({ error: msg }, { status: 401 });
   }
-
-  await deleteLiveMemory(userId, id);
-  return NextResponse.json({
-    success: true,
-    deletedId: id,
-  });
 }

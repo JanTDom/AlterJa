@@ -1,26 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { store } from "@/lib/db/store";
-import { GroundingCitation } from "@/domains/types";
+import { verifyApiKeyAndScope } from "@/lib/auth/apiKeys";
+import { getLiveMemories } from "@/lib/supabase/db";
+import { GroundingCitation, MemoryLayer } from "@/domains/types";
 
 export async function POST(req: NextRequest) {
   try {
     const authHeader = req.headers.get("authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return NextResponse.json(
-        { error: "Wymagana autoryzacja: brak nagłówka Authorization z poprawnym kluczem Bearer." },
-        { status: 401 }
-      );
-    }
+    const { client, error, status } = await verifyApiKeyAndScope(authHeader, "memory_query");
 
-    const token = authHeader.replace("Bearer ", "").trim();
-    const clients = store.getApiClients();
-    const isValidToken = token === "alt_live_demo_test_token" || clients.some((c) => c.api_key === token || token.startsWith("alt_live_"));
-
-    if (!isValidToken) {
-      return NextResponse.json(
-        { error: "Nieprawidłowy lub unieważniony klucz API." },
-        { status: 401 }
-      );
+    if (!client) {
+      return NextResponse.json({ error: error || "Brak autoryzacji" }, { status: status || 401 });
     }
 
     const body = await req.json();
@@ -33,7 +22,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    let items = store.getMemoryItems();
+    // Odczyt z bazy z izolacją do user_id przypisanego do klienta
+    const allMemories = await getLiveMemories(client.userId);
+
+    let items = allMemories.filter((m) => client.allowedLayers.includes(m.layer));
 
     if (Array.isArray(layers) && layers.length > 0) {
       items = items.filter((m) => layers.includes(m.layer));
@@ -43,21 +35,20 @@ export async function POST(req: NextRequest) {
     const matched = items.filter(
       (m) =>
         m.title.toLowerCase().includes(qLower) ||
-        m.content.toLowerCase().includes(qLower) ||
-        (m.keywords && m.keywords.some((k) => k.toLowerCase().includes(qLower)))
+        m.content.toLowerCase().includes(qLower)
     );
 
     const finalResults = matched.length > 0 ? matched.slice(0, limit) : items.slice(0, limit);
 
     const citations: GroundingCitation[] = finalResults.map((m) => {
-      const evidence = store.getEvidenceForMemory(m.id);
+      const firstEvidence = m.evidence?.[0];
       return {
         memory_id: m.id,
         title: m.title,
-        layer: m.layer,
+        layer: m.layer as MemoryLayer,
         epistemic_status: m.epistemic_status,
-        source_name: evidence[0]?.source_title || "Źródło zweryfikowane",
-        verbatim_quote: evidence[0]?.exact_quote || m.content,
+        source_name: "Źródło zweryfikowane",
+        verbatim_quote: firstEvidence?.exact_quote || m.content.slice(0, 160),
       };
     });
 
@@ -66,8 +57,8 @@ export async function POST(req: NextRequest) {
       total_found: citations.length,
       timestamp: new Date().toISOString(),
     });
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "Wystąpił błąd serwera";
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Wystąpił błąd serwera";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

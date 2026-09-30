@@ -1,54 +1,29 @@
-import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { globalStore, DEMO_USER_ID } from "@/lib/db/store";
+// ==============================================================================
+// AlterJa (alterja.pl) — API Generowania Pytań Wywiadu
+// Zero atrap i zero zmyślonych pytań z predefiniowanych banków.
+// ==============================================================================
+
+import { NextResponse } from "next/server";
+import { requireUser } from "@/lib/auth/server";
+import { getLiveMemories } from "@/lib/supabase/db";
+import { generateStructuredData, ModelUnavailableError, AI_MODELS } from "@/lib/ai/client";
 import { MemoryLayer } from "@/domains/types";
+import { z } from "zod";
 
-const apiKey = process.env.GEMINI_API_KEY;
-const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
+export const dynamic = "force-dynamic";
 
-const FALLBACK_BANK: Array<{
-  topic: string;
-  question: string;
-  context: string;
-  category: MemoryLayer;
-}> = [
-  {
-    topic: "Granice kompromisu etycznego",
-    question: "W jakich sytuacjach zawodowych lub prywatnych uważasz, że kompromis jest błędem i należy pozostać nieugiętym?",
-    context: "Pozwala modelowi zidentyfikować nienegocjowalne wartości bazowe.",
-    category: "values",
-  },
-  {
-    topic: "Zaufanie w relacjach",
-    question: "Co decyduje o tym, że zaczynasz bezgranicznie ufać nowej osobie w zespole lub życiu prywatnym?",
-    context: "Buduje warstwę kontekstu relacyjnego i kryteria selekcji partnerów.",
-    category: "context",
-  },
-  {
-    topic: "Radzenie sobie z nieodwracalną porażką",
-    question: "Gdy projekt lub inicjatywa, w którą zainwestowałeś ogrom energii, kończy się fiaskiem — jaki jest Twój pierwszy wewnętrzny odruch?",
-    context: "Kalibruje odporność psychiczną i styl refleksji post-mortem.",
-    category: "decisions",
-  },
-  {
-    topic: "Środowisko głębokiej pracy",
-    question: "W jakich porach dnia i przy jakim poziomie ciszy Twoje myślenie osiąga najwyższą ostrość i precyzję?",
-    context: "Dopasowuje rytm interakcji z modelem do Twojego naturalnego chronotypu.",
-    category: "preferences",
-  },
-  {
-    topic: "Przekazywanie wiedzy młodszym pokoleniom",
-    question: "Jaką jedną zasadę lub przestrogę chciałbyś wpoić swoim następcom ponad wszystko inne?",
-    context: "Zasila warstwę stylu i fundament cyfrowej spuścizny.",
-    category: "style",
-  },
-];
+const questionSchema = z.object({
+  topic: z.string().min(1),
+  question: z.string().min(1),
+  context: z.string().min(1),
+});
 
-export async function POST(req: NextRequest) {
+export async function POST() {
   try {
-    const memories = globalStore.getMemories(DEMO_USER_ID);
+    const user = await requireUser();
+    const memories = await getLiveMemories(user.id);
 
-    // Wykrywanie najsłabiej reprezentowanej warstwy
+    // 1. Analiza brakujących warstw w pamięci użytkownika
     const layerCounts: Record<string, number> = {};
     for (const mem of memories) {
       layerCounts[mem.layer] = (layerCounts[mem.layer] || 0) + 1;
@@ -67,56 +42,37 @@ export async function POST(req: NextRequest) {
     allLayers.sort((a, b) => (layerCounts[a] || 0) - (layerCounts[b] || 0));
     const targetLayer = allLayers[0] || "values";
 
-    if (genAI) {
-      try {
-        const model = genAI.getGenerativeModel({
-          model: "gemini-1.5-flash",
-          systemInstruction:
-            "Jesteś wybitnym biografem i projektantem wywiadów pogłębionych. Tworzysz precyzyjne mikropytania w języku polskim, które badają tożsamość człowieka bez konfabulacji. Zero emoji. Zwracaj wyłącznie poprawny obiekt JSON.",
-        });
+    // 2. Generowanie dedykowanego pytania przez model AI
+    const systemInstruction = `Jesteś badaczem autobiograficznym AlterJa.
+Tworzysz precyzyjne mikropytania w języku polskim, które badają tożsamość i zasady człowieka.
+Zero dekoracyjnych emoji. Prawidłowa polszczyzna, sentence casing w pytaniu i temacie.`;
 
-        const prompt = `Zaprojektuj jedno mikropytanie do wywiadu biograficznego dla warstwy: "${targetLayer}".
-Dotychczasowy stan pamięci obejmuje: ${memories.length} wpisów.
-Odpowiedz wyłącznie w formacie JSON z polami:
-{
-  "topic": "Krótki temat (3-5 słów)",
-  "question": "Precyzyjne, otwarte pytanie skłaniające do refleksji",
-  "context": "Dlaczego to pytanie jest kluczowe dla modelu tożsamości",
-  "category": "${targetLayer}"
-}`;
+    const prompt = `Zaprojektuj jedno precyzyjne mikropytanie do wywiadu biograficznego dla warstwy: "${targetLayer}".
+Dotychczasowy stan pamięci tego użytkownika obejmuje ${memories.length} wpisów (w tym ${layerCounts[targetLayer] || 0} w warstwie "${targetLayer}").
+Pytanie musi odnosić się do konkretnych sytuacji decyzyjnych lub wartości życiowych.`;
 
-        const result = await model.generateContent(prompt);
-        const text = result.response.text();
-        const jsonMatch = text.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          const parsed = JSON.parse(jsonMatch[0]);
-          return NextResponse.json({
-            id: `dyn-${Date.now()}`,
-            topic: parsed.topic || "Pytanie adaptacyjne",
-            question: parsed.question,
-            context: parsed.context || "Uzupełnienie luki w pamięci autobiograficznej.",
-            category: targetLayer,
-          });
-        }
-      } catch (err) {
-        console.error("[Interview AI Generation Error]", err);
-      }
-    }
-
-    // Dobór z banku pytań dopasowanego do luki
-    const candidate =
-      FALLBACK_BANK.find((q) => q.category === targetLayer) ||
-      FALLBACK_BANK[Math.floor(Math.random() * FALLBACK_BANK.length)];
+    const { object } = await generateStructuredData({
+      prompt,
+      systemInstruction,
+      schema: questionSchema,
+      modelName: AI_MODELS.FAST,
+    });
 
     return NextResponse.json({
-      id: `dyn-${Date.now()}`,
-      topic: candidate.topic,
-      question: candidate.question,
-      context: candidate.context,
-      category: candidate.category,
+      id: `q-${Date.now()}`,
+      topic: object.topic,
+      question: object.question,
+      context: object.context,
+      category: targetLayer,
     });
-  } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : "Błąd serwera";
+  } catch (err: unknown) {
+    if (err instanceof ModelUnavailableError) {
+      return NextResponse.json(
+        { error: err.message, code: "MODEL_UNAVAILABLE" },
+        { status: 503 }
+      );
+    }
+    const msg = err instanceof Error ? err.message : "Błąd serwera";
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

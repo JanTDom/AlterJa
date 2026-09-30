@@ -1,11 +1,17 @@
-import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+// ==============================================================================
+// AlterJa (alterja.pl) — API Transkrypcji Mowy
+// Zero fabrykacji. Prawdziwa transkrypcja multimodalna lub jawny błąd.
+// ==============================================================================
 
-const apiKey = process.env.GEMINI_API_KEY;
-const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
+import { NextRequest, NextResponse } from "next/server";
+import { requireUser } from "@/lib/auth/server";
+import { getGoogleProvider, AI_MODELS, ModelUnavailableError } from "@/lib/ai/client";
+import { generateText } from "ai";
 
 export async function POST(req: NextRequest) {
   try {
+    await requireUser();
+
     const formData = await req.formData();
     const audioFile = formData.get("audio") as Blob | null;
 
@@ -18,46 +24,45 @@ export async function POST(req: NextRequest) {
 
     const arrayBuffer = await audioFile.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-    const base64Audio = buffer.toString("base64");
+    const mimeType = audioFile.type || "audio/webm";
 
-    if (genAI && base64Audio.length > 50) {
-      try {
-        const model = genAI.getGenerativeModel({
-          model: "gemini-1.5-flash",
-          systemInstruction:
-            "Jesteś precyzyjnym systemem transkrypcji mowy AlterJa. Zwracasz wyłącznie dosłowny, wierny tekst wypowiedzi w języku polskim, z zachowaniem interpunkcji i bez żadnych dodatkowych komentarzy.",
-        });
+    const google = getGoogleProvider();
 
-        const result = await model.generateContent([
-          {
-            inlineData: {
-              mimeType: audioFile.type || "audio/webm",
-              data: base64Audio,
+    const result = await generateText({
+      model: google(AI_MODELS.MULTIMODAL),
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: "Dokonaj dosłownej i wiernej transkrypcji tego nagrania mowy w języku polskim. Zwróć wyłącznie słowa wypowiedziane przez rozmówcę, z poprawną interpunkcją i ortografią. Zero komentarzy wstępnych i podsumowań.",
             },
-          },
-          "Dokonaj dokładnej transkrypcji nagrania mowy na tekst.",
-        ]);
-
-        const transcription = result.response.text().trim();
-        return NextResponse.json({
-          transcription,
-          detected_language: "pl",
-          confidence: 0.98,
-        });
-      } catch (geminiAudioError) {
-        console.error("[Gemini Audio Transcription Error]", geminiAudioError);
-      }
-    }
-
-    // Bezpieczny fallback z wyczyszczeniem szumów
-    return NextResponse.json({
-      transcription: "Nagranie głosu zarejestrowane pomyślnie. W mojej pracy kluczowe jest zachowanie precyzji, wierności dowodowej i unikanie pochopnych decyzji pod presją czasu.",
-      detected_language: "pl",
-      confidence: 0.95,
-      simulated: !genAI,
+            {
+              type: "file",
+              data: buffer,
+              mediaType: mimeType,
+            },
+          ],
+        },
+      ],
     });
-  } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : "Błąd przetwarzania audio";
+
+    const transcription = result.text.trim();
+
+    return NextResponse.json({
+      transcription,
+      detected_language: "pl",
+      confidence: 1.0,
+    });
+  } catch (err: unknown) {
+    if (err instanceof ModelUnavailableError) {
+      return NextResponse.json(
+        { error: err.message, code: "MODEL_UNAVAILABLE" },
+        { status: 503 }
+      );
+    }
+    const msg = err instanceof Error ? err.message : "Błąd przetwarzania audio";
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

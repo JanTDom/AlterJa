@@ -1,23 +1,28 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import { getCurrentUser } from "@/lib/auth/server";
+import { createServerSideClient } from "@/lib/supabase/server";
 
-const SESSION_COOKIE_NAME = "alterja_auth_token";
-const SESSION_VALID_SECRET = "alterja_session_authorized_2026";
-
-export async function GET(req: NextRequest) {
-  const token = req.cookies.get(SESSION_COOKIE_NAME)?.value;
-  const isAuthenticated = token === SESSION_VALID_SECRET;
+export async function GET() {
+  const user = await getCurrentUser();
 
   return NextResponse.json({
-    authenticated: isAuthenticated,
+    authenticated: !!user,
+    userId: user?.id || null,
+    email: user?.email || null,
   });
 }
 
 export async function DELETE() {
-  const response = NextResponse.json({
-    success: true,
-    message: "Wylogowano pomyślnie.",
-  });
+  try {
+    const supabase = await createServerSideClient();
+    await supabase.auth.signOut();
 
-  response.cookies.delete(SESSION_COOKIE_NAME);
-  return response;
+    return NextResponse.json({
+      success: true,
+      message: "Wylogowano pomyślnie.",
+    });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Błąd wylogowania";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 }

@@ -1,10 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/navigation/Navbar";
-import { store } from "@/lib/db/store";
 import {
   Shield,
   Lock,
@@ -20,49 +19,87 @@ import {
 } from "lucide-react";
 
 export default function PrivacyPage() {
-  const profile = store.getProfile();
-  const [consents, setConsents] = useState<Record<string, boolean>>(store.getConsentsMap());
-  const [auditEvents, setAuditEvents] = useState<any[]>(store.getAuditEvents());
+  const [consents, setConsents] = useState<Record<string, boolean>>({
+    analysis: true,
+    style_modeling: true,
+    voice_synthesis: false,
+    api_sharing: true,
+    postmortem: false,
+  });
+  const [auditEvents, setAuditEvents] = useState<any[]>([]);
   const [exportState, setExportState] = useState<"idle" | "preparing" | "ready">("idle");
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteConfirmationText, setDeleteConfirmationText] = useState("");
   const [isDeleted, setIsDeleted] = useState(false);
   const [savingKey, setSavingKey] = useState<string | null>(null);
 
-  const toggleConsent = (purpose: string) => {
-    setSavingKey(purpose);
-    setTimeout(() => {
-      const nextVal = !consents[purpose];
-      const updated = store.updateConsent(purpose, nextVal);
-      setConsents({ ...updated });
-      setAuditEvents([...store.getAuditEvents()]);
-      setSavingKey(null);
-    }, 200);
+  const fetchPrivacyData = async () => {
+    try {
+      const res = await fetch("/api/privacy");
+      const data = await res.json();
+      if (data.success) {
+        if (data.consents) setConsents(data.consents);
+        if (Array.isArray(data.auditEvents)) setAuditEvents(data.auditEvents);
+      }
+    } catch (err) {
+      console.warn("Błąd pobierania danych prywatności:", err);
+    }
   };
 
-  const handleExportData = () => {
+  useEffect(() => {
+    fetchPrivacyData();
+  }, []);
+
+  const toggleConsent = async (purpose: string) => {
+    setSavingKey(purpose);
+    const nextVal = !consents[purpose];
+    try {
+      await fetch("/api/privacy", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ scope: purpose, isGranted: nextVal }),
+      });
+      setConsents((prev) => ({ ...prev, [purpose]: nextVal }));
+      fetchPrivacyData();
+    } catch (err) {
+      console.warn("Błąd aktualizacji zgody:", err);
+    } finally {
+      setSavingKey(null);
+    }
+  };
+
+  const handleExportData = async () => {
     setExportState("preparing");
-    setTimeout(() => {
-      const dump = store.exportAllUserData();
-      const blob = new Blob([JSON.stringify(dump, null, 2)], { type: "application/json" });
+    try {
+      const res = await fetch("/api/privacy/export");
+      const data = await res.json();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `alterja-export-${profile.id}-${new Date().toISOString().split("T")[0]}.json`;
+      a.download = `alterja-export-${new Date().toISOString().split("T")[0]}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
       setExportState("ready");
-      setAuditEvents([...store.getAuditEvents()]);
-    }, 600);
+      fetchPrivacyData();
+    } catch {
+      setExportState("idle");
+    }
   };
 
-  const handleDeleteAccount = () => {
+  const handleDeleteAccount = async () => {
     if (deleteConfirmationText !== "USUŃ WSZYSTKIE DANE") return;
-    store.deleteAllUserData();
-    setIsDeleted(true);
-    setDeleteModalOpen(false);
+    try {
+      const res = await fetch("/api/privacy", { method: "DELETE" });
+      if (res.ok) {
+        setIsDeleted(true);
+        setDeleteModalOpen(false);
+      }
+    } catch (err) {
+      console.warn("Błąd usuwania konta:", err);
+    }
   };
 
   if (isDeleted) {

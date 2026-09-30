@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Navbar from "@/components/navigation/Navbar";
-import { store } from "@/lib/db/store";
 import { LegacyDirective } from "@/domains/types";
 import {
   Landmark,
@@ -20,8 +19,23 @@ import {
 } from "lucide-react";
 
 export default function LegacyPage() {
-  const profile = store.getProfile();
-  const [directive, setDirective] = useState<LegacyDirective>(store.getLegacyDirective());
+  const [directive, setDirective] = useState<LegacyDirective>({
+    id: "default",
+    user_id: "",
+    primary_contact_name: null,
+    primary_contact_email: "",
+    on_verified_death: "archive_only",
+    allow_simulation: false,
+    status: "dormant",
+    mode: "archive_only",
+    trusted_contact_email: "",
+    inactivity_period_days: 90,
+    require_death_certificate: true,
+    posthumous_intro_message: "Niniejszy zapis stanowi autoryzowane archiwum pamięci.",
+    is_enabled: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  });
   const [isSaved, setIsSaved] = useState(false);
 
   useEffect(() => {
@@ -39,7 +53,7 @@ export default function LegacyPage() {
     e.preventDefault();
 
     try {
-      await fetch("/api/legacy", {
+      const res = await fetch("/api/legacy", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -50,19 +64,14 @@ export default function LegacyPage() {
           posthumous_intro_message: directive.posthumous_intro_message,
         }),
       });
-    } catch (err) {
-      console.warn("Błąd zapisu spuścizny przez API, fallback lokalny:", err);
-    }
 
-    store.updateLegacyDirective({
-      mode: directive.mode,
-      trusted_contact_email: directive.trusted_contact_email,
-      inactivity_period_days: directive.inactivity_period_days,
-      require_death_certificate: directive.require_death_certificate,
-      posthumous_intro_message: directive.posthumous_intro_message,
-    });
-    setIsSaved(true);
-    setTimeout(() => setIsSaved(false), 2500);
+      if (res.ok) {
+        setIsSaved(true);
+        setTimeout(() => setIsSaved(false), 2500);
+      }
+    } catch (err) {
+      console.warn("Błąd zapisu spuścizny przez API:", err);
+    }
   };
 
   const statusMap = {

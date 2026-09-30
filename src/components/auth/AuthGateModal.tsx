@@ -2,23 +2,26 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Lock, KeyRound, Eye, EyeOff, ShieldCheck, ArrowRight, AlertCircle, Loader2, X } from "lucide-react";
+import { Lock, Mail, KeyRound, ArrowRight, AlertCircle, Loader2, X, Sparkles } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 
 export default function AuthGateModal() {
   const pathname = usePathname();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [mode, setMode] = useState<"login" | "register">("login");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [inviteCode, setInviteCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [manualOpen, setManualOpen] = useState(false);
 
-  // Trasy publiczne, które nie wymuszają natychmiastowej blokady ekranu
-  const isPublicRoute = pathname === "/" || pathname === "/privacy" || pathname === "/terms" || pathname === "/ops";
+  const supabase = createClient();
+  const isPublicRoute = pathname === "/" || pathname.startsWith("/privacy") || pathname.startsWith("/terms") || pathname.startsWith("/login");
 
   useEffect(() => {
-    // Sprawdzenie sesji po załadowaniu
     fetch("/api/auth/check")
       .then((res) => res.json())
       .then((data) => {
@@ -28,7 +31,6 @@ export default function AuthGateModal() {
         setIsAuthenticated(false);
       });
 
-    // Nasłuchiwanie na ręczne otwarcie bramki (np. kliknięcie 'Zaloguj się')
     const handleOpenAuth = () => {
       setManualOpen(true);
       setErrorMessage(null);
@@ -42,28 +44,26 @@ export default function AuthGateModal() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!password.trim() || isLoading) return;
+    if (!email.trim() || !password.trim() || isLoading) return;
 
     setIsLoading(true);
     setErrorMessage(null);
 
     try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password: password.trim() }),
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password: password.trim(),
       });
 
-      const data = await res.json();
-
-      if (res.ok && data.success) {
-        setIsAuthenticated(true);
-        setManualOpen(false);
-        // Jeśli użytkownik logował się ręcznie na stronie głównej, odświeżamy stan
-        window.dispatchEvent(new CustomEvent("alterja-auth-changed", { detail: { authenticated: true } }));
-      } else {
-        setErrorMessage(data.error || "Nieprawidłowe hasło dostępu.");
+      if (error) {
+        setErrorMessage(error.message === "Invalid login credentials" ? "Nieprawidłowy e-mail lub hasło." : error.message);
+        return;
       }
+
+      setIsAuthenticated(true);
+      setManualOpen(false);
+      window.dispatchEvent(new CustomEvent("alterja-auth-changed", { detail: { authenticated: true } }));
+      window.location.reload();
     } catch {
       setErrorMessage("Błąd połączenia z serwerem autoryzacji.");
     } finally {
@@ -71,17 +71,57 @@ export default function AuthGateModal() {
     }
   };
 
-  // Dopóki trwa sprawdzanie sesji, nie wyświetlamy nic
-  if (isAuthenticated === null) {
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim() || !password.trim() || !inviteCode.trim() || isLoading) return;
+
+    setIsLoading(true);
+    setErrorMessage(null);
+
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: email.trim(),
+          password: password.trim(),
+          inviteCode: inviteCode.trim(),
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setErrorMessage(data.error || "Błąd rejestracji.");
+        return;
+      }
+
+      // Po udanej rejestracji logujemy automatycznie
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password: password.trim(),
+      });
+
+      if (error) {
+        setMode("login");
+        setErrorMessage("Konto utworzone. Zaloguj się.");
+        return;
+      }
+
+      setIsAuthenticated(true);
+      setManualOpen(false);
+      window.dispatchEvent(new CustomEvent("alterja-auth-changed", { detail: { authenticated: true } }));
+      window.location.reload();
+    } catch {
+      setErrorMessage("Wystąpił błąd rejestracji.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isAuthenticated === null || isAuthenticated) {
     return null;
   }
 
-  // Jeśli użytkownik jest już uwierzytelniony, modal nie jest renderowany
-  if (isAuthenticated) {
-    return null;
-  }
-
-  // Na stronach publicznych modal pojawia się tylko po jawnym wywołaniu
   if (isPublicRoute && !manualOpen) {
     return null;
   }
@@ -94,7 +134,6 @@ export default function AuthGateModal() {
       className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-slate-950/85 backdrop-blur-xl animate-in fade-in duration-300"
     >
       <div className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-slate-700/60 bg-gradient-to-b from-slate-900/95 via-slate-950/98 to-slate-950 shadow-2xl text-slate-100 flex flex-col">
-        {/* Przycisk zamknięcia na trasach publicznych przy ręcznym otwarciu */}
         {isPublicRoute && (
           <button
             type="button"
@@ -105,20 +144,19 @@ export default function AuthGateModal() {
             <X className="w-4 h-4" />
           </button>
         )}
-        {/* Górna scena artystyczna z oficjalnym logo AlterJa */}
-        <div className="relative h-48 w-full overflow-hidden border-b border-slate-800 flex items-center justify-center">
+
+        <div className="relative h-44 w-full overflow-hidden border-b border-slate-800 flex items-center justify-center">
           <Image
             src="/images/alterja-sphere.jpg"
-            alt="Szklana sfera lewitująca nad wodą reprezentująca jądro tożsamości AlterJa"
+            alt="Tożsamość AlterJa"
             fill
             priority
-            className="object-cover object-center filter brightness-[0.55] contrast-110 scale-105"
+            className="object-cover object-center filter brightness-[0.45] contrast-110"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-slate-950/20" />
 
-          {/* Oficjalne Logo AlterJa w centrum nagłówka */}
           <div className="relative z-10 flex flex-col items-center gap-2">
-            <div className="relative w-48 h-12">
+            <div className="relative w-44 h-10">
               <Image
                 src="/alterja-logo-white.png"
                 alt="Logo AlterJa"
@@ -128,91 +166,183 @@ export default function AuthGateModal() {
               />
             </div>
             <span className="text-[10px] font-mono tracking-widest uppercase text-slate-300 px-3 py-0.5 rounded-full bg-slate-950/80 border border-slate-700/80 backdrop-blur-md">
-              alterja.pl · Autoryzowany dostęp
+              alterja.pl · Logowanie
             </span>
           </div>
 
-          {/* Oznaczenie statusu bramki */}
-          <div className="absolute top-4 left-4 flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-950/80 backdrop-blur-md border border-slate-700/80 text-[10px] font-mono tracking-wider text-alterja-gold uppercase">
-            <Lock className="w-3 h-3 text-alterja-gold" />
-            <span>Bramka tożsamości</span>
+          <div className="absolute top-4 left-4 flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-950/80 backdrop-blur-md border border-slate-700/80 text-[10px] font-mono tracking-wider text-amber-400 uppercase">
+            <Lock className="w-3 h-3 text-amber-400" />
+            <span>Dostęp kontrolowany</span>
           </div>
         </div>
 
-        {/* Zawartość formularza */}
-        <div className="p-6 sm:p-8 space-y-6">
-          <div className="space-y-2 text-center">
-            <h2 id="auth-modal-title" className="text-2xl font-serif font-medium text-white tracking-tight">
-              Dostęp do cyfrowego modelu
-            </h2>
-            <p className="text-xs text-slate-400 font-sans leading-relaxed">
-              Projekt AlterJa chroni autobiografię, styl i cyfrową spuściznę. Wprowadź autoryzowane hasło, aby odblokować pełny dostęp do modułów aplikacji.
-            </p>
-          </div>
+        <div className="flex border-b border-slate-800 text-xs font-mono">
+          <button
+            type="button"
+            onClick={() => { setMode("login"); setErrorMessage(null); }}
+            className={`flex-1 py-3 text-center transition-colors ${
+              mode === "login"
+                ? "text-sky-400 border-b-2 border-sky-400 bg-slate-800/30 font-medium"
+                : "text-slate-400 hover:text-slate-200"
+            }`}
+          >
+            Logowanie
+          </button>
+          <button
+            type="button"
+            onClick={() => { setMode("register"); setErrorMessage(null); }}
+            className={`flex-1 py-3 text-center transition-colors ${
+              mode === "register"
+                ? "text-sky-400 border-b-2 border-sky-400 bg-slate-800/30 font-medium"
+                : "text-slate-400 hover:text-slate-200"
+            }`}
+          >
+            Rejestracja z zaproszeniem
+          </button>
+        </div>
 
+        <div className="p-6 sm:p-8 space-y-5">
           {errorMessage && (
-            <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-rose-950/60 border border-rose-800/80 text-rose-200 text-xs font-sans animate-in shake">
+            <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-rose-950/60 border border-rose-800/80 text-rose-200 text-xs font-sans">
               <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
               <span>{errorMessage}</span>
             </div>
           )}
 
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-1.5">
-              <label htmlFor="auth-password" className="text-[11px] font-mono uppercase tracking-wider text-slate-400 flex items-center justify-between">
-                <span>Hasło dostępu</span>
-                <span className="text-slate-500 font-normal">Autoryzacja lokalna</span>
-              </label>
-              <div className="relative flex items-center">
-                <div className="absolute left-3.5 text-slate-400 pointer-events-none">
-                  <KeyRound className="w-4 h-4" />
+          {mode === "login" ? (
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-mono uppercase tracking-wider text-slate-400">
+                  Adres e-mail
+                </label>
+                <div className="relative flex items-center">
+                  <Mail className="absolute left-3.5 text-slate-400 w-4 h-4 pointer-events-none" />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="twoj@adres.pl"
+                    required
+                    className="w-full pl-10 pr-4 py-3 rounded-2xl bg-slate-900 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  />
                 </div>
-                <input
-                  id="auth-password"
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Wprowadź hasło..."
-                  autoFocus
-                  required
-                  className="w-full pl-10 pr-12 py-3.5 rounded-2xl bg-slate-900 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-alterja-blue focus:border-transparent font-mono transition-all"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 p-1.5 text-slate-400 hover:text-white transition-colors"
-                  aria-label={showPassword ? "Ukryj hasło" : "Pokaż hasło"}
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
               </div>
-            </div>
 
-            <button
-              type="submit"
-              disabled={isLoading || !password.trim()}
-              className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-alterja-blue to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium text-xs tracking-wide transition-all shadow-lg shadow-blue-500/20 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Weryfikacja uprawnień...
-                </>
-              ) : (
-                <>
-                  <span>Odblokuj aplikację</span>
-                  <ArrowRight className="w-4 h-4" />
-                </>
-              )}
-            </button>
-          </form>
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-mono uppercase tracking-wider text-slate-400">
+                  Hasło
+                </label>
+                <div className="relative flex items-center">
+                  <KeyRound className="absolute left-3.5 text-slate-400 w-4 h-4 pointer-events-none" />
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    required
+                    className="w-full pl-10 pr-4 py-3 rounded-2xl bg-slate-900 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full py-3.5 px-6 rounded-2xl bg-sky-600 hover:bg-sky-500 text-white font-medium text-xs tracking-wide transition-all shadow-lg shadow-sky-500/20 disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Weryfikacja...
+                  </>
+                ) : (
+                  <>
+                    <span>Zaloguj się</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleRegister} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-mono uppercase tracking-wider text-slate-400 flex items-center justify-between">
+                  <span>Kod zaproszenia</span>
+                  <span className="text-amber-400 text-[10px]">Wymagany</span>
+                </label>
+                <div className="relative flex items-center">
+                  <Sparkles className="absolute left-3.5 text-amber-400 w-4 h-4 pointer-events-none" />
+                  <input
+                    type="text"
+                    value={inviteCode}
+                    onChange={(e) => setInviteCode(e.target.value)}
+                    placeholder="np. ALTERJA-FOUNDER-2026"
+                    required
+                    className="w-full pl-10 pr-4 py-3 rounded-2xl bg-slate-900 border border-amber-500/40 text-sm text-white placeholder-slate-500 uppercase font-mono focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-mono uppercase tracking-wider text-slate-400">
+                  Adres e-mail
+                </label>
+                <div className="relative flex items-center">
+                  <Mail className="absolute left-3.5 text-slate-400 w-4 h-4 pointer-events-none" />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="twoj@adres.pl"
+                    required
+                    className="w-full pl-10 pr-4 py-3 rounded-2xl bg-slate-900 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-mono uppercase tracking-wider text-slate-400">
+                  Ustal hasło
+                </label>
+                <div className="relative flex items-center">
+                  <KeyRound className="absolute left-3.5 text-slate-400 w-4 h-4 pointer-events-none" />
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Minimum 8 znaków"
+                    minLength={8}
+                    required
+                    className="w-full pl-10 pr-4 py-3 rounded-2xl bg-slate-900 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full py-3.5 px-6 rounded-2xl bg-amber-600 hover:bg-amber-500 text-white font-medium text-xs tracking-wide transition-all shadow-lg shadow-amber-500/20 disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Weryfikacja zaproszenia...
+                  </>
+                ) : (
+                  <>
+                    <span>Aktywuj konto</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
+              </button>
+            </form>
+          )}
 
           <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] font-mono text-slate-500">
-            <span className="flex items-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              Szyfrowana weryfikacja SHA-256
-            </span>
-            <span>AlterJa v1.0 • 2026</span>
+            <span>Supabase Auth & RLS</span>
+            <Link href="/terms" className="hover:text-slate-400 transition-colors">
+              Zasady i prywatność
+            </Link>
           </div>
         </div>
       </div>

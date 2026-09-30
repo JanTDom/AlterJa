@@ -15,7 +15,6 @@ import {
   Loader2,
   Award,
 } from "lucide-react";
-import { globalStore, DEMO_USER_ID } from "@/lib/db/store";
 import { MemoryLayer } from "@/domains/types";
 
 interface MicroQuestion {
@@ -85,17 +84,8 @@ export default function InterviewPage() {
         }),
       });
     } catch (err) {
-      console.warn("Błąd zapisu odpowiedzi przez API, fallback:", err);
+      console.warn("Błąd zapisu odpowiedzi przez API:", err);
     }
-
-    globalStore.addMemory(DEMO_USER_ID, {
-      layer: currentQ.category,
-      title: `Wywiad: ${currentQ.topic}`,
-      content: savedText,
-      epistemic_status: "user_declaration",
-      confidence: "confirmed",
-      is_superseded: false,
-    });
 
     setAnswerText("");
     setAnswersCount((prev) => prev + 1);

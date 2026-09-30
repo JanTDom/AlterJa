@@ -23,45 +23,26 @@ import {
   Cpu,
 } from "lucide-react";
 import { ConversationMode, Message, GroundingCitation } from "@/domains/types";
-import { globalStore, DEMO_USER_ID } from "@/lib/db/store";
 
 export default function ChatPage() {
   const [mode, setMode] = useState<ConversationMode>("reconstruction");
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: "initial-welcome",
+      conversation_id: "default",
+      user_id: "",
+      role: "assistant",
+      content: "Dzień dobry. Działam w trybie Rekonstrukcji — odpowiadam ściśle według zapisanych zasad, Twojego stylu i źródeł w pamięci. Jeśli w danej sprawie brakuje danych, otwarcie o tym poinformuję.",
+      mode: "reconstruction",
+      uncertainty_level: "unknown",
+      created_at: new Date().toISOString(),
+    },
+  ]);
   const [input, setInput] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
-  const [currentConvId, setCurrentConvId] = useState<string>("");
+  const [currentConvId, setCurrentConvId] = useState<string>("session-default");
   const [activeCitations, setActiveCitations] = useState<GroundingCitation[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const convs = globalStore.getConversations(DEMO_USER_ID);
-    let convId = "";
-    if (convs.length > 0) {
-      convId = convs[0].id;
-    } else {
-      const newConv = globalStore.createConversation(DEMO_USER_ID, "Sesja dialogowa", mode);
-      convId = newConv.id;
-    }
-    setCurrentConvId(convId);
-
-    const existingMsgs = globalStore.getMessages(convId);
-    if (existingMsgs.length === 0) {
-      const welcome = globalStore.addMessage(
-        convId,
-        DEMO_USER_ID,
-        "assistant",
-        "Dzień dobry. Działam w trybie Rekonstrukcji — odpowiadam ściśle według zapisanych zasad, Twojego stylu i źródeł w pamięci. Jeśli w danej sprawie brakuje danych, otwarcie o tym poinformuję.",
-        {
-          mode: "reconstruction",
-          uncertainty_level: "unknown",
-        }
-      );
-      setMessages([welcome]);
-    } else {
-      setMessages(existingMsgs);
-    }
-  }, []);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -74,18 +55,28 @@ export default function ChatPage() {
     const userText = input.trim();
     setInput("");
 
-    const userMsg = globalStore.addMessage(currentConvId, DEMO_USER_ID, "user", userText);
+    const userMsg: Message = {
+      id: crypto.randomUUID(),
+      conversation_id: currentConvId,
+      user_id: "",
+      role: "user",
+      content: userText,
+      created_at: new Date().toISOString(),
+    };
     setMessages((prev) => [...prev, userMsg]);
     setIsGenerating(true);
 
     let streamingContent = "";
-    const assistantMsg = globalStore.addMessage(
-      currentConvId,
-      DEMO_USER_ID,
-      "assistant",
-      "",
-      { mode }
-    );
+    const assistantMsgId = crypto.randomUUID();
+    const assistantMsg: Message = {
+      id: assistantMsgId,
+      conversation_id: currentConvId,
+      user_id: "",
+      role: "assistant",
+      content: "",
+      mode,
+      created_at: new Date().toISOString(),
+    };
     setMessages((prev) => [...prev, assistantMsg]);
 
     try {
@@ -126,7 +117,7 @@ export default function ChatPage() {
                 streamingContent += data.chunk;
                 setMessages((prev) =>
                   prev.map((msg) =>
-                    msg.id === assistantMsg.id ? { ...msg, content: streamingContent } : msg
+                    msg.id === assistantMsgId ? { ...msg, content: streamingContent } : msg
                   )
                 );
               }
@@ -139,7 +130,7 @@ export default function ChatPage() {
                 }));
                 setMessages((prev) =>
                   prev.map((msg) =>
-                    msg.id === assistantMsg.id
+                    msg.id === assistantMsgId
                       ? {
                           ...msg,
                           content: streamingContent,
@@ -158,11 +149,11 @@ export default function ChatPage() {
       }
     } catch (err) {
       console.error("[Chat stream error]", err);
-      const fallbackText = "Na podstawie zapisów w pamięci autobiograficznej: w tej sprawie opieram się wyłącznie na zweryfikowanych faktach i unikam pochopnych wniosków.";
+      const errorMessageText = "Wystąpił błąd komunikacji z modelem AI. Odpowiedź nie mogła zostać wygenerowana.";
       setMessages((prev) =>
         prev.map((msg) =>
-          msg.id === assistantMsg.id
-            ? { ...msg, content: fallbackText }
+          msg.id === assistantMsgId
+            ? { ...msg, content: errorMessageText }
             : msg
         )
       );

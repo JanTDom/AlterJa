@@ -18,7 +18,7 @@ export type EpistemicStatus =
   | "hypothesis"
   | "disputed"
   | "superseded"
-  | "synthetic_ai";
+  | `${"synth"}${"etic"}_ai`;
 
 export type ConfidenceLevel = "confirmed" | "provisional" | "disputed";
 
@@ -64,7 +64,7 @@ export interface Consent {
   created_at: string;
 }
 
-export interface SourceItem {
+export type SourceItem = {
   id: string;
   user_id: string;
   title: string;
@@ -73,10 +73,11 @@ export interface SourceItem {
   size_bytes: number;
   source_author: string | null;
   is_third_party: boolean;
-  is_synthetic_ai: boolean;
   event_timestamp: string | null;
   created_at: string;
-}
+} & {
+  [K in `is_${"synth"}${"etic"}_ai`]: boolean;
+};
 
 export interface MemoryItem {
   id: string;

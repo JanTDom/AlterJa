@@ -86,18 +86,20 @@ describe("AlterJa Domain and Epistemic Integrity Tests", () => {
     }
   });
 
-  it("weryfikuje bezpieczną autoryzację hasła przez skrót SHA-256 bez wycieku w kodzie", async () => {
+  it("weryfikuje kryptograficzne haszowanie kodów zaproszeń i kluczy API przez SHA-256", async () => {
     const crypto = await import("crypto");
-    const AUTHORIZED_HASH = "aff0d626d1dd85ed88ab023b216429ab75cb3324f47dc393aba2e92294c53cfd";
+    const hashInvite = (input) => crypto.createHash("sha256").update(input.trim().toUpperCase()).digest("hex");
+    const hashApiKey = (rawKey) => crypto.createHash("sha256").update(rawKey).digest("hex");
 
-    const verifyPassword = (input) => {
-      const hash = crypto.createHash("sha256").update(input).digest("hex");
-      return hash === AUTHORIZED_HASH;
-    };
+    const code = "ALTERJA-ALPHA-2026";
+    const hashedCode = hashInvite(code);
+    assert.strictEqual(hashedCode.length, 64, "Skrót SHA-256 kodu zaproszenia musi mieć 64 znaki");
+    assert.strictEqual(hashInvite("  alterja-alpha-2026  "), hashedCode, "Normalizacja kodu (trim + uppercase) gwarantuje determinizm");
 
-    assert.strictEqual(verifyPassword("niepoprawne_haslo"), false, "Odrzuca błędne hasło");
-    assert.strictEqual(verifyPassword(""), false, "Odrzuca puste hasło");
-    assert.strictEqual(AUTHORIZED_HASH.length, 64, "Skrót SHA-256 musi mieć 64 znaki");
+    const rawKey = "alt_live_test_secret1234567890";
+    const hashedKey = hashApiKey(rawKey);
+    assert.strictEqual(hashedKey.length, 64, "Skrót SHA-256 klucza API musi mieć 64 znaki");
+    assert.notStrictEqual(hashedKey, rawKey, "Klucz surowy nigdy nie jest tożsamy ze skrótem");
   });
 
   it("weryfikuje obecność dokładnie 10 autorskich grafik tożsamości", async () => {

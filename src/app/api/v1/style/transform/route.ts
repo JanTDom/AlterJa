@@ -1,26 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { geminiClient } from "@/lib/gemini/client";
-import { store } from "@/lib/db/store";
+import { verifyApiKeyAndScope } from "@/lib/auth/apiKeys";
+import { getLiveProfile, getLiveMemories } from "@/lib/supabase/db";
+import { generateStructuredData, ModelUnavailableError, AI_MODELS } from "@/lib/ai/client";
+import { z } from "zod";
 
 export async function POST(req: NextRequest) {
   try {
     const authHeader = req.headers.get("authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return NextResponse.json(
-        { error: "Wymagana autoryzacja: brak nagłówka Authorization z poprawnym kluczem Bearer." },
-        { status: 401 }
-      );
-    }
+    const { client, error, status } = await verifyApiKeyAndScope(authHeader, "style_only");
 
-    const token = authHeader.replace("Bearer ", "").trim();
-    const clients = store.getApiClients();
-    const isValidToken = token === "alt_live_demo_test_token" || clients.some((c) => c.api_key === token || token.startsWith("alt_live_"));
-
-    if (!isValidToken) {
-      return NextResponse.json(
-        { error: "Nieprawidłowy lub unieważniony klucz API." },
-        { status: 401 }
-      );
+    if (!client) {
+      return NextResponse.json({ error: error || "Brak autoryzacji" }, { status: status || 401 });
     }
 
     const body = await req.json();
@@ -33,34 +23,42 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const styleExamples = store.getStyleExamples();
-    const profile = store.getProfile();
+    const profile = await getLiveProfile(client.userId);
+    const styleMemories = await getLiveMemories(client.userId, "style");
 
-    const systemPrompt = `Jesteś silnikiem transformacji stylu platformy AlterJa.
-Zadanie: Przekształć surowy szkic tekstu użytkownika zgodnie z ustalonym stylem tożsamości.
-Zasady stylu:
-- Styl: ${profile.style_summary || "Zwięzły, konkretny, oparty na faktach i precyzji leksykalnej"}.
-- Język: nienaganna polszczyzna, zero dekoracyjnych emoji, sentence casing w nagłówkach.
-- Przykłady wzorcowe: ${styleExamples.map((s) => `[Sytuacja: ${s.context}] Wzorzec: "${s.preferred_output}"`).join("\n")}
-- Zachowaj intencję merytoryczną tekstu, ale nadaj mu charakterystyczny ton i konstrukcję zdań.`;
+    const systemPrompt = `Jesteś silnikiem transformacji stylu platformy AlterJa dla użytkownika: ${profile?.display_name || "Twórca"}.
+Zadanie: Przekształć surowy szkic tekstu zgodnie z ustalonym stylem tożsamości.
+Zasady stylu z pamięci:
+${styleMemories.map((m) => `- ${m.title}: ${m.content}`).join("\n") || "Zwięzły, konkretny, oparty na faktach i powściągliwości."}
+Język: polski, zero dekoracyjnych emoji, sentence casing w nagłówkach.`;
 
     const userPrompt = `Szkic tekstu do transformacji:
 "${draft_text}"
 ${instruction ? `Dodatkowa wytyczna: ${instruction}` : ""}`;
 
-    const transformedText = await geminiClient.generateStructured(userPrompt, systemPrompt);
+    const { object } = await generateStructuredData({
+      prompt: userPrompt,
+      systemInstruction: systemPrompt,
+      schema: z.object({
+        transformed_text: z.string(),
+        applied_rules: z.array(z.string()),
+      }),
+      modelName: AI_MODELS.REASONING,
+    });
 
     return NextResponse.json({
-      transformed_text: transformedText.trim(),
-      applied_rules: [
-        "Eliminacja żargonu i ozdobników",
-        "Wymuszenie polskiej typografii i konstrukcji hipotaktycznych",
-        "Dopasowanie leksyki do profilu twórcy",
-      ],
+      transformed_text: object.transformed_text,
+      applied_rules: object.applied_rules,
       timestamp: new Date().toISOString(),
     });
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "Wystąpił błąd serwera";
+  } catch (err: unknown) {
+    if (err instanceof ModelUnavailableError) {
+      return NextResponse.json(
+        { error: err.message, code: "MODEL_UNAVAILABLE" },
+        { status: 503 }
+      );
+    }
+    const message = err instanceof Error ? err.message : "Wystąpił błąd serwera";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

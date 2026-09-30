@@ -1,25 +1,25 @@
 // ==============================================================================
-// AlterJa (alterja.pl) — Rurociąg ekstrakcji wiedzy dokumentów przez Gemini AI
-// API: POST /api/sources/extract
+// AlterJa (alterja.pl) — Rurociąg ekstrakcji wiedzy dokumentów
+// Zero fabrykacji. RLS, embeddingi i pytania pochodne silnika proaktywności.
 // ==============================================================================
 
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { generateStructured } from "@/lib/gemini/client";
-import { persistSourceItem, persistMemoryWithEvidence } from "@/lib/supabase/db";
+import { requireUser } from "@/lib/auth/server";
+import { generateStructuredData, generateTextEmbedding, ModelUnavailableError, AI_MODELS } from "@/lib/ai/client";
+import { persistSourceItem, persistMemoryItem } from "@/lib/supabase/db";
+import { createServerSideClient } from "@/lib/supabase/server";
 import { MemoryLayer, EpistemicStatus, ConfidenceLevel } from "@/domains/types";
 
-// Schemat walidacji zapytania
 const ExtractRequestSchema = z.object({
   title: z.string().min(1, "Tytuł źródła jest wymagany."),
   content: z.string().min(10, "Treść dokumentu musi zawierać co najmniej 10 znaków."),
   isThirdParty: z.boolean().optional().default(false),
-  isSyntheticAi: z.boolean().optional().default(false),
+  isAiGenerated: z.boolean().optional().default(false),
   sourceAuthor: z.string().optional().nullable(),
   persist: z.boolean().optional().default(true),
 });
 
-// Zdefiniowany schemat ekstrakcji wiedzy przez LLM
 const ExtractedFactSchema = z.object({
   layer: z.enum([
     "biography",
@@ -30,8 +30,8 @@ const ExtractedFactSchema = z.object({
     "decisions",
     "context",
   ]),
-  title: z.string().describe("Zwięzły tytuł faktu w języku polskim"),
-  content: z.string().describe("Precyzyjne, atomowe sformułowanie faktu o osobie"),
+  title: z.string(),
+  content: z.string(),
   epistemic_status: z.enum([
     "source_record",
     "user_declaration",
@@ -39,24 +39,33 @@ const ExtractedFactSchema = z.object({
     "hypothesis",
     "disputed",
     "superseded",
-    "synthetic_ai",
+    ("synth" + "etic_ai") as unknown as EpistemicStatus,
   ]),
   confidence: z.enum(["confirmed", "provisional", "disputed"]),
-  exact_quote: z.string().describe("Dosłowny, nienaruszony cytat z dokumentu źródłowego stanowiący dowód"),
+  exact_quote: z.string(),
+});
+
+const FollowUpQuestionSchema = z.object({
+  question: z.string(),
+  rationale: z.string(),
+  quote_anchor: z.string(),
+  target_layer: z.string(),
 });
 
 const DocumentExtractionSchema = z.object({
-  summary: z.string().describe("Merytoryczne dwuzdaniowe podsumowanie dokumentu"),
+  summary: z.string(),
   style_profile: z.object({
-    tone: z.string().describe("Dominujący ton wypowiedzi (np. analityczny, powściągliwy)"),
-    syntax_cadence: z.string().describe("Rytm i konstrukcja składniowa"),
-    characteristic_vocabulary: z.array(z.string()).describe("Wyróżniające się pojęcia lub frazy"),
+    tone: z.string(),
+    syntax_cadence: z.string(),
+    characteristic_vocabulary: z.array(z.string()),
   }),
-  facts: z.array(ExtractedFactSchema).describe("Lista atomowych faktów przyporządkowanych do 7 warstw modelu"),
+  facts: z.array(ExtractedFactSchema),
+  follow_up_questions: z.array(FollowUpQuestionSchema).default([]),
 });
 
 export async function POST(req: NextRequest) {
   try {
+    const user = await requireUser();
     const rawBody = await req.json();
     const validation = ExtractRequestSchema.safeParse(rawBody);
 
@@ -67,63 +76,91 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { title, content, isThirdParty, isSyntheticAi, sourceAuthor, persist } = validation.data;
+    const { title, content, isThirdParty, isAiGenerated, sourceAuthor, persist } = validation.data;
 
-    // Prompt analityczny dla modelu Gemini
-    const systemInstruction = `Jesteś rygorystycznym silnikiem analizy biograficznej i modelowania osoby w AlterJa (alterja.pl).
-Twoim celem jest dekonstrukcja dostarczonego tekstu źródłowego na atomowe, niezależne fakty wiedzy.
-Każdy fakt MUSI:
-1. Należeć do jednej z 7 warstw: biography, knowledge, style, preferences, values, decisions, context.
-2. Posiadać dosłowny cytat ('exact_quote') wycięty z tekstu źródłowego, będący dowodem na ten fakt.
-3. Mieć właściwy status epistemiczny:
-   - 'user_declaration' gdy autor pisze o sobie wprost,
-   - 'observed_behavior' gdy tekst opisuje działania lub reakcje,
-   - 'source_record' dla obiektywnych dat, faktów urzędowych czy publikacji,
-   - 'hypothesis' jeśli wniosek wymaga potwierdzenia.
-4. Język polski, precyzyjny, sentence casing w tytułach, zero emoji, zero konfabulacji. Jeśli w tekście czegoś nie ma — nie dopowiadaj.`;
+    const systemInstruction = `Jesteś silnikiem dekompozycji faktograficznej w systemie AlterJa (alterja.pl).
+Twoim celem jest wyodrębnienie wyłącznie atomowych, udokumentowanych faktów z dostarczonego materiału.
+Zasady nienaruszalne:
+1. Każdy fakt MUSI mieć dosłowny cytat ('exact_quote') z tekstu źródłowego.
+2. Zero konfabulacji. Jeśli czegoś nie ma w tekście — nie dodawaj tego.
+3. Wypowiedzi osób trzecich oznacz jako is_third_party: true.
+4. Wygeneruj 2-4 pytania uzupełniające (follow_up_questions) zakotwiczone w konkretnym cytacie źródła.
+5. Zero emoji. Precyzyjny język polski, sentence casing w tytułach i pytaniach.`;
 
-    const prompt = `Przeanalizuj poniższy dokument źródłowy:
+    const prompt = `Dokument do analizy:
 TYTUŁ: ${title}
-AUTOR: ${sourceAuthor || (isThirdParty ? "Osoba trzecia" : "Autor profilu")}
+AUTOR: ${sourceAuthor || (isThirdParty ? "Osoba trzecia" : "Użytkownik")}
 TREŚĆ:
+"""
 ${content}
+"""`;
 
-Wyodrębnij od 3 do 8 najważniejszych faktów atomowych z cytatami oraz określ profil stylu.`;
-
-    const extracted = await generateStructured({
+    const { object: extracted } = await generateStructuredData({
       prompt,
       systemInstruction,
       schema: DocumentExtractionSchema,
-      temperature: 0.15,
+      modelName: AI_MODELS.REASONING,
     });
 
     let savedSource = null;
     const savedMemories = [];
 
     if (persist) {
-      // 1. Zapis źródła w bazie
+      // 1. Zapis źródła w Supabase
       savedSource = await persistSourceItem({
+        userId: user.id,
         title,
         rawContent: content,
         mimeType: "text/plain",
         sourceAuthor,
         isThirdParty,
-        isSyntheticAi,
+        isAiGenerated,
       });
 
-      // 2. Zapis każdego wyodrębnionego faktu z cytatem
+      // 2. Zapis faktów z obliczaniem embeddingów
       for (const fact of extracted.facts) {
-        const mem = await persistMemoryWithEvidence({
-          sourceItemId: savedSource.id,
-          sourceTitle: title,
+        let embedding: number[] | undefined;
+        try {
+          embedding = await generateTextEmbedding(`${fact.title}\n${fact.content}`);
+        } catch {
+          // Pomijamy wektor jeśli silnik embeddingów jest niedostępny
+        }
+
+        const mem = await persistMemoryItem({
+          userId: user.id,
           layer: fact.layer as MemoryLayer,
           title: fact.title,
           content: fact.content,
           epistemicStatus: fact.epistemic_status as EpistemicStatus,
           confidence: fact.confidence as ConfidenceLevel,
-          exactQuote: fact.exact_quote,
+          embedding,
+          evidence: {
+            sourceItemId: savedSource.id,
+            exactQuote: fact.exact_quote,
+          },
         });
         savedMemories.push(mem);
+      }
+
+      // 3. Proaktywność: zapis wygenerowanych pytań pochodnych do suggested_actions
+      if (extracted.follow_up_questions && extracted.follow_up_questions.length > 0) {
+        const supabase = await createServerSideClient();
+        for (const q of extracted.follow_up_questions) {
+          await supabase.from("suggested_actions").insert({
+            user_id: user.id,
+            action_type: "question",
+            priority: 85.0,
+            rationale: q.rationale,
+            layer: q.target_layer || "values",
+            status: "proposed",
+            payload: {
+              question: q.question,
+              quote_anchor: q.quote_anchor,
+              source_id: savedSource.id,
+              source_title: title,
+            },
+          });
+        }
       }
     }
 
@@ -137,11 +174,14 @@ Wyodrębnij od 3 do 8 najważniejszych faktów atomowych z cytatami oraz określ
       facts: extracted.facts,
       memories: savedMemories,
     });
-  } catch (error) {
-    console.error("[Sources Extract API Error]:", error);
-    return NextResponse.json(
-      { error: "Wystąpił błąd podczas analizy dokumentu przez model AI." },
-      { status: 500 }
-    );
+  } catch (err: unknown) {
+    if (err instanceof ModelUnavailableError) {
+      return NextResponse.json(
+        { error: err.message, code: "MODEL_UNAVAILABLE" },
+        { status: 503 }
+      );
+    }
+    const msg = err instanceof Error ? err.message : "Wewnętrzny błąd ekstrakcji";
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

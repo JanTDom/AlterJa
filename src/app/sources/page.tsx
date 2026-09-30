@@ -23,7 +23,6 @@ import {
   Layers,
   Quote,
 } from "lucide-react";
-import { globalStore, DEMO_USER_ID } from "@/lib/db/store";
 import { SourceItem, MemoryLayer, EpistemicStatus } from "@/domains/types";
 
 interface ExtractedFact {
@@ -48,7 +47,7 @@ interface ExtractionResponse {
 }
 
 export default function SourcesPage() {
-  const [sources, setSources] = useState<SourceItem[]>(() => globalStore.getSources(DEMO_USER_ID));
+  const [sources, setSources] = useState<SourceItem[]>([]);
   const [activeTab, setActiveTab] = useState<"paste" | "upload" | "voice">("paste");
 
   const [pasteTitle, setPasteTitle] = useState("");
@@ -92,15 +91,24 @@ export default function SourcesPage() {
 
   const [notice, setNotice] = useState<string | null>(null);
 
-  const refresh = () => setSources([...globalStore.getSources(DEMO_USER_ID)]);
+  const refresh = () => {
+    fetch("/api/sources")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && Array.isArray(data.sources)) {
+          setSources(data.sources);
+        }
+      })
+      .catch(() => {});
+  };
 
   const showNotice = (msg: string) => {
     setNotice(msg);
     setTimeout(() => setNotice(null), 4000);
   };
 
-  // Odpytanie o stan bazy Supabase przy załadowaniu strony
   useEffect(() => {
+    refresh();
     fetch("/api/health/db")
       .then((res) => res.json())
       .then((data) => {
@@ -277,52 +285,51 @@ export default function SourcesPage() {
     }
   };
 
-  // Standardowy szybki import (bez zaawansowanej dekompozycji)
-  const handleConfirmBasicImport = () => {
+  // Standardowy szybki import przez API
+  const handleConfirmBasicImport = async () => {
     if (!previewData) return;
 
-    const newSource = globalStore.addSource(DEMO_USER_ID, {
-      title: previewData.title,
-      raw_content: previewData.content,
-      mime_type: "text/plain",
-      size_bytes: previewData.sizeBytes,
-      source_author: previewData.isThirdParty ? "Osoba trzecia" : "Użytkownik",
-      is_third_party: previewData.isThirdParty,
-      is_synthetic_ai: previewData.isSyntheticAi,
-      event_timestamp: new Date().toISOString(),
-    });
+    try {
+      const res = await fetch("/api/sources/extract", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: previewData.title,
+          content: previewData.content,
+          isThirdParty: previewData.isThirdParty,
+          isSyntheticAi: previewData.isSyntheticAi,
+          persist: true,
+        }),
+      });
 
-    globalStore.addMemory(DEMO_USER_ID, {
-      layer: "knowledge",
-      title: `Wiedza ze źródła: ${previewData.title}`,
-      content: previewData.content.slice(0, 200) + (previewData.content.length > 200 ? "..." : ""),
-      epistemic_status: previewData.isThirdParty ? "observed_behavior" : "user_declaration",
-      confidence: "provisional",
-      is_superseded: false,
-      evidence: [
-        {
-          id: `evi-${Date.now()}`,
-          user_id: DEMO_USER_ID,
-          memory_item_id: "",
-          source_item_id: newSource.id,
-          source_title: previewData.title,
-          exact_quote: previewData.content.slice(0, 120),
-          created_at: new Date().toISOString(),
-        },
-      ],
-    });
-
-    setPreviewData(null);
-    setPasteTitle("");
-    setPasteContent("");
-    refresh();
-    showNotice(`Pomyślnie zaimportowano: „${previewData.title}”.`);
+      if (res.ok) {
+        setPreviewData(null);
+        setPasteTitle("");
+        setPasteContent("");
+        refresh();
+        showNotice(`Pomyślnie zaimportowano: „${previewData.title}”.`);
+      } else {
+        showNotice("Błąd podczas importu źródła.");
+      }
+    } catch {
+      showNotice("Błąd połączenia z serwerem podczas importu.");
+    }
   };
 
-  const handleDelete = (id: string, title: string) => {
-    globalStore.deleteSource(DEMO_USER_ID, id);
-    refresh();
-    showNotice(`Usunięto źródło: „${title}”.`);
+  const handleDelete = async (id: string, title: string) => {
+    try {
+      const res = await fetch(`/api/sources?id=${encodeURIComponent(id)}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        refresh();
+        showNotice(`Usunięto źródło: „${title}”.`);
+      } else {
+        showNotice("Nie udało się usunąć źródła.");
+      }
+    } catch {
+      showNotice("Błąd podczas usuwania źródła.");
+    }
   };
 
   const closeExtractionModal = () => {

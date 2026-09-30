@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Navbar from "@/components/navigation/Navbar";
-import { store } from "@/lib/db/store";
 import {
   Activity,
   Server,
@@ -19,14 +18,34 @@ import {
 
 export default function OpsPage() {
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const memoryStats = store.getMemoryStats();
-  const profile = store.getProfile();
-  const sources = store.getSources();
-  const auditEvents = store.getAuditEvents();
+  const [opsData, setOpsData] = useState({
+    connected: true,
+    sourcesCount: 0,
+    memoriesCount: 0,
+    auditEventsCount: 0,
+    activeJobsCount: 0,
+    databaseLatencyMs: 24,
+  });
+
+  const fetchOps = async () => {
+    try {
+      const res = await fetch("/api/ops/stats");
+      const data = await res.json();
+      if (data) {
+        setOpsData(data);
+      }
+    } catch (err) {
+      console.warn("Błąd pobierania metryk ops:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchOps();
+  }, []);
 
   const handleRefresh = () => {
     setIsRefreshing(true);
-    setTimeout(() => setIsRefreshing(false), 500);
+    fetchOps().finally(() => setIsRefreshing(false));
   };
 
   const services = [
@@ -115,13 +134,13 @@ export default function OpsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="p-6 rounded-3xl bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-md space-y-2">
             <span className="text-[10px] font-mono uppercase text-slate-500 font-bold tracking-wider">Warstwy pamięci w grafie</span>
-            <div className="text-3xl font-bold text-slate-950 font-mono">{memoryStats.total}</div>
+            <div className="text-3xl font-bold text-slate-950 font-mono">{opsData.memoriesCount}</div>
             <div className="text-xs text-slate-500 font-sans">Wszystkie zweryfikowane w dowodach</div>
           </div>
 
           <div className="p-6 rounded-3xl bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-md space-y-2">
             <span className="text-[10px] font-mono uppercase text-slate-500 font-bold tracking-wider">Podłączone źródła</span>
-            <div className="text-3xl font-bold text-slate-950 font-mono">{sources.length}</div>
+            <div className="text-3xl font-bold text-slate-950 font-mono">{opsData.sourcesCount}</div>
             <div className="text-xs text-emerald-700 font-semibold font-sans">Status: 100% przetworzonych</div>
           </div>
 
@@ -184,7 +203,7 @@ export default function OpsPage() {
 
             <div className="p-5 rounded-2xl bg-slate-50/80 border border-slate-200 space-y-1.5">
               <span className="font-mono text-slate-500 text-[10px] uppercase font-bold tracking-wider">Dziennik audytu zmian</span>
-              <p className="text-slate-950 font-semibold text-sm">{auditEvents.length} zarejestrowanych operacji</p>
+              <p className="text-slate-950 font-semibold text-sm">{opsData.auditEventsCount} zarejestrowanych operacji</p>
               <p className="text-xs text-slate-600 leading-relaxed">Wszystkie zdarzenia logowane do niemutowalnej tabeli PostgreSQL.</p>
             </div>
 

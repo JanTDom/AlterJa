@@ -18,7 +18,6 @@ import {
   LayoutGrid,
   Database,
 } from "lucide-react";
-import { globalStore, DEMO_USER_ID } from "@/lib/db/store";
 import { MemoryItem, MemoryLayer, EpistemicStatus } from "@/domains/types";
 
 const LAYERS: { id: MemoryLayer | "all"; label: string; desc: string; color: string }[] = [
@@ -33,7 +32,7 @@ const LAYERS: { id: MemoryLayer | "all"; label: string; desc: string; color: str
 ];
 
 export default function MemoryPage() {
-  const [memories, setMemories] = useState<MemoryItem[]>(() => globalStore.getMemories(DEMO_USER_ID));
+  const [memories, setMemories] = useState<MemoryItem[]>([]);
   const [selectedLayer, setSelectedLayer] = useState<MemoryLayer | "all">("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"cards" | "graph">("cards");
@@ -51,13 +50,11 @@ export default function MemoryPage() {
     try {
       const res = await fetch("/api/memory");
       const data = await res.json();
-      if (data.success && Array.isArray(data.memories) && data.memories.length > 0) {
+      if (data.success && Array.isArray(data.memories)) {
         setMemories(data.memories);
-      } else {
-        setMemories([...globalStore.getMemories(DEMO_USER_ID)]);
       }
     } catch {
-      setMemories([...globalStore.getMemories(DEMO_USER_ID)]);
+      setMemories([]);
     }
   };
 
@@ -69,12 +66,11 @@ export default function MemoryPage() {
 
   const handleDelete = async (id: string) => {
     try {
-      await fetch(`/api/memory?id=${id}`, { method: "DELETE" });
+      await fetch(`/api/memory?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+      refresh();
     } catch (err) {
       console.warn("Błąd usuwania wspomnienia:", err);
     }
-    globalStore.deleteMemory(DEMO_USER_ID, id);
-    refresh();
   };
 
   const handleCreate = async (e: React.FormEvent) => {
@@ -93,16 +89,9 @@ export default function MemoryPage() {
           confidence: "confirmed",
         }),
       });
+      refresh();
     } catch (err) {
-      console.warn("Błąd zapisu wspomnienia, fallback:", err);
-      globalStore.addMemory(DEMO_USER_ID, {
-        layer: newLayer,
-        title: newTitle.trim(),
-        content: newContent.trim(),
-        epistemic_status: newStatus,
-        confidence: "confirmed",
-        is_superseded: false,
-      });
+      console.warn("Błąd zapisu wspomnienia:", err);
     }
 
     setNewTitle("");
@@ -305,7 +294,7 @@ export default function MemoryPage() {
           /* WIDOK KART PAMIĘCI */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredMemories.map((mem) => {
-              const evidence = globalStore.getEvidenceForMemory(mem.id);
+              const evidence = mem.evidence || [];
               const layerMeta = LAYERS.find((l) => l.id === mem.layer);
 
               return (

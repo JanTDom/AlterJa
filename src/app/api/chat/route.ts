@@ -1,14 +1,19 @@
-import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { globalStore, DEMO_USER_ID } from "@/lib/db/store";
-import { getLiveMemories, persistConversationMessage } from "@/lib/supabase/db";
-import { GroundingCitation } from "@/domains/types";
+// ==============================================================================
+// AlterJa (alterja.pl) — Bezpieczny silnik czatu AI
+// Zero fabrykacji. Historia rozmowy. Egzekwowanie RLS.
+// ==============================================================================
 
-const apiKey = process.env.GEMINI_API_KEY;
-const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
+import { NextRequest, NextResponse } from "next/server";
+import { requireUser } from "@/lib/auth/server";
+import { searchLiveMemoriesHybrid, getLiveProfile } from "@/lib/supabase/db";
+import { generateTextEmbedding, streamAiDialogue, ModelUnavailableError, AI_MODELS } from "@/lib/ai/client";
+import { PERSONA_RECONSTRUCTION_PROMPT_V1, ASSISTANT_PROMPT_V1, CRITIC_PROMPT_V1 } from "@/prompts";
+import { createServerSideClient } from "@/lib/supabase/server";
+import { GroundingCitation } from "@/domains/types";
 
 export async function POST(req: NextRequest) {
   try {
+    const user = await requireUser();
     const body = await req.json();
     const { message, mode = "reconstruction", conversationId } = body;
 
@@ -19,184 +24,164 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const profile = globalStore.getProfile(DEMO_USER_ID);
-    // Odczyt wspomnień na żywo z Supabase
-    const memories = await getLiveMemories(DEMO_USER_ID);
+    const supabase = await createServerSideClient();
+    const profile = await getLiveProfile(user.id);
 
-    // Wyszukanie najbardziej powiązanych wspomnień
-    const queryLower = message.toLowerCase();
-    const matchedMemories = memories.filter(
-      (m) =>
-        m.title.toLowerCase().includes(queryLower) ||
-        m.content.toLowerCase().includes(queryLower)
-    );
-    const activeMemories = matchedMemories.length > 0 ? matchedMemories.slice(0, 3) : memories.slice(0, 3);
+    // 1. Obliczenie wektora embeddingu dla zapytania
+    let queryEmbedding: number[] | undefined;
+    try {
+      queryEmbedding = await generateTextEmbedding(message);
+    } catch {
+      // Jeśli model embeddingu jest niedostępny, wyszukiwanie hybrydowe przełączy się na tekstowe
+    }
 
-    const citations: GroundingCitation[] = activeMemories.map((m) => {
-      const evidence = m.evidence || globalStore.getEvidenceForMemory(m.id);
+    // 2. Wyszukanie adekwatnych wspomnień (RLS chroni dane)
+    const matchedMemories = await searchLiveMemoriesHybrid({
+      userId: user.id,
+      queryText: message,
+      queryEmbedding,
+      matchThreshold: 0.45,
+      limit: 5,
+    });
+
+    const citations: GroundingCitation[] = matchedMemories.map((m) => {
       return {
         memory_id: m.id,
         title: m.title,
         layer: m.layer,
         epistemic_status: m.epistemic_status,
-        source_name: evidence[0]?.source_title || "Pamięć zweryfikowana",
-        verbatim_quote: evidence[0]?.exact_quote || m.content.slice(0, 140),
+        source_name: m.source_title || "Zweryfikowana pamięć",
+        verbatim_quote: m.exact_quote || m.content.slice(0, 140),
       };
     });
 
-    const memoryContext = activeMemories
-      .map(
-        (m) =>
-          `[Warstwa: ${m.layer} | Status: ${m.epistemic_status} | Pewność: ${m.confidence}]\n${m.title}: ${m.content}`
-      )
-      .join("\n\n");
+    const memoryContext = matchedMemories.length > 0
+      ? matchedMemories
+          .map(
+            (m) =>
+              `[Warstwa: ${m.layer} | Tytuł: ${m.title} | Status: ${m.epistemic_status}]\nTreść: ${m.content}\nDowód: ${m.exact_quote || "Brak dosłownego cytatu"}`
+          )
+          .join("\n\n")
+      : "BRAK PASUJĄCYCH WSPOMNIEŃ POWYŻEJ PROGU PODOBIEŃSTWA. Nie zgaduj. Poinformuj o braku danych i zaproponuj konkretne pytanie uzupełniające tę lukę.";
 
-    let roleInstruction = "";
+    // 3. Budowa promptu systemowego w zależności od trybu
+    let systemInstruction = "";
     if (mode === "reconstruction") {
-      roleInstruction = `TRYB REKONSTRUKCJI:
-Odpowiadasz ściśle tak, jak zareagowałby ${profile?.display_name || "właściciel profilu"}.
-- Odtwarzaj jego perspektywę, zasady, preferencje i styl logicznego wywodu.
-- Jeśli czegoś nie wiesz z pamięci lub nie ma na to dowodu, napisz wprost: "Na podstawie dotychczasowych zapisków w pamięci nie mam wyrobionego zdania w tej sprawie" — NIGDY NIE KONFABULUJ.
-- Zero dekoracyjnych emoji. Pisz staranną, precyzyjną polszczyzną.`;
+      systemInstruction = `${PERSONA_RECONSTRUCTION_PROMPT_V1}\nUżytkownik: ${profile?.display_name || "Właściciel profilu"}\n\nKONTEKST PAMIĘCI:\n${memoryContext}`;
     } else if (mode === "critic") {
-      roleInstruction = `TRYB KRYTYCZNEGO PARTNERA:
-Konfrontujesz tezy rozmówcy przez pryzmat standardów i wartości ${profile?.display_name || "użytkownika"}.
-- Wskazuj luki logiczne, niespójności z zasadami i ukryte ryzyka.
-- Bądź merytoryczny i rygorystyczny.`;
+      systemInstruction = `${CRITIC_PROMPT_V1}\nUżytkownik: ${profile?.display_name || "Użytkownik"}\n\nKONTEKST PAMIĘCI:\n${memoryContext}`;
     } else {
-      roleInstruction = `TRYB ASYSTENTA:
-Jesteś obiektywnym asystentem AlterJa. Pomagasz rozwiązać zagadnienie merytorycznie, korzystając z kontekstu wiedzy użytkownika.`;
+      systemInstruction = `${ASSISTANT_PROMPT_V1}\nUżytkownik: ${profile?.display_name || "Użytkownik"}\n\nKONTEKST PAMIĘCI:\n${memoryContext}`;
     }
 
-    const systemPrompt = `Jesteś AlterJa (alterja.pl) — cyfrowym modelem człowieka.
-Profil: ${profile?.display_name || "Użytkownik"}
+    // 4. Pobranie historii wiadomości dla konwersacji (ostatnie 6 tur)
+    let historyMessages: { role: "user" | "assistant"; content: string }[] = [];
+    if (conversationId) {
+      const { data: dbMessages } = await supabase
+        .from("messages")
+        .select("role, content")
+        .eq("conversation_id", conversationId)
+        .order("created_at", { ascending: false })
+        .limit(6);
 
-${roleInstruction}
+      if (dbMessages && dbMessages.length > 0) {
+        historyMessages = (dbMessages.reverse() as { role: "user" | "assistant"; content: string }[]).filter(
+          (m) => m.role === "user" || m.role === "assistant"
+        );
+      }
+    }
 
-Baza pamięci autobiograficznej (jedyne źródło prawdy o osobie):
-${memoryContext}`;
+    // 5. Inicjalizacja strumienia AI SDK
+    const dialogueMessages = [
+      ...historyMessages.map((h) => ({
+        role: h.role,
+        content: h.content,
+      })),
+      {
+        role: "user" as const,
+        content: message,
+      },
+    ];
 
-    // Uruchomienie strumienia odpowiedzi SSE
+    const stream = streamAiDialogue({
+      systemInstruction,
+      messages: dialogueMessages,
+      temperature: mode === "reconstruction" ? 0.2 : 0.4,
+      modelName: mode === "reconstruction" ? AI_MODELS.REASONING : AI_MODELS.FAST,
+    });
+
     const encoder = new TextEncoder();
-
-    const stream = new ReadableStream({
+    const readable = new ReadableStream({
       async start(controller) {
         let fullReplyText = "";
 
-        if (genAI) {
-          try {
-            const model = genAI.getGenerativeModel({
-              model: "gemini-1.5-flash",
-              systemInstruction: systemPrompt,
-              generationConfig: {
-                temperature: mode === "reconstruction" ? 0.3 : 0.5,
-              },
-            });
+        try {
+          for await (const chunk of stream.textStream) {
+            fullReplyText += chunk;
+            controller.enqueue(
+              encoder.encode(`data: ${JSON.stringify({ chunk })}\n\n`)
+            );
+          }
 
-            const resultStream = await model.generateContentStream(message);
+          const uncertainty = matchedMemories.length === 0 ? "high" : "low";
 
-            for await (const chunk of resultStream.stream) {
-              const text = chunk.text();
-              if (text) {
-                fullReplyText += text;
-                controller.enqueue(
-                  encoder.encode(`data: ${JSON.stringify({ chunk: text })}\n\n`)
-                );
-              }
-            }
-
-            const uncertainty = citations.length === 0 ? "high" : "low";
-
-            // Utrwalenie konwersacji i wiadomości w Supabase
-            if (conversationId) {
-              await persistConversationMessage({
-                conversationId,
+          // Zapis do tabeli wiadomości
+          if (conversationId) {
+            await supabase.from("messages").insert([
+              {
+                conversation_id: conversationId,
+                user_id: user.id,
                 role: "user",
                 content: message,
                 mode,
-              });
-              await persistConversationMessage({
-                conversationId,
+              },
+              {
+                conversation_id: conversationId,
+                user_id: user.id,
                 role: "assistant",
                 content: fullReplyText,
                 mode,
+                grounding_citations: citations,
+                uncertainty_level: uncertainty,
+              },
+            ]);
+          }
+
+          controller.enqueue(
+            encoder.encode(
+              `data: ${JSON.stringify({
+                done: true,
                 citations,
                 uncertainty,
-              });
-            }
-
-            controller.enqueue(
-              encoder.encode(
-                `data: ${JSON.stringify({
-                  done: true,
-                  citations,
-                  uncertainty,
-                })}\n\n`
-              )
-            );
-            controller.close();
-            return;
-          } catch (geminiError) {
-            console.error("[Gemini Stream Error]", geminiError);
-            // Przejście do awaryjnego strumieniowania syntetycznego
-          }
+              })}\n\n`
+            )
+          );
+          controller.close();
+        } catch (streamError) {
+          const errMessage = streamError instanceof Error ? streamError.message : "Błąd strumieniowania modelu AI";
+          controller.enqueue(
+            encoder.encode(`data: ${JSON.stringify({ error: errMessage })}\n\n`)
+          );
+          controller.close();
         }
-
-        // Awaryjne deterministyczne strumieniowanie, gdy brak klucza lub błąd sieci
-        let syntheticText = "";
-        if (mode === "reconstruction") {
-          syntheticText = `Na podstawie zapisów w pamięci autobiograficznej: w odniesieniu do zagadnienia „${message.slice(0, 50)}...” zazwyczaj kieruję się zasadą spokojnej weryfikacji faktów, transparentności intencji i poszanowania zobowiązań. Jeśli nie ma w bibliotece szczegółowego zapisu dotyczącego tej kwestii, otwarcie to zaznaczam bez próby zgadywania.`;
-        } else if (mode === "critic") {
-          syntheticText = `Analizując Twoje pytanie z perspektywy krytycznej: czy w rozumowaniu dotyczącym „${message.slice(0, 50)}...” nie przyjmujesz zbyt optymistycznych założeń co do terminów lub zasobów? Warto zestawić tę tezę z alternatywnymi scenariuszami.`;
-        } else {
-          syntheticText = `Jako asystent AlterJa proponuję następujące uporządkowanie: możemy zweryfikować to zagadnienie w bibliotece pamięci lub sformułować mikropytanie do wywiadu, aby precyzyjnie ustalić Twoje preferencje.`;
-        }
-
-        for (let i = 0; i < syntheticText.length; i += 6) {
-          const slice = syntheticText.slice(i, i + 6);
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ chunk: slice })}\n\n`));
-          await new Promise((resolve) => setTimeout(resolve, 18));
-        }
-
-        if (conversationId) {
-          await persistConversationMessage({
-            conversationId,
-            role: "user",
-            content: message,
-            mode,
-          });
-          await persistConversationMessage({
-            conversationId,
-            role: "assistant",
-            content: syntheticText,
-            mode,
-            citations,
-            uncertainty: "moderate",
-          });
-        }
-
-        controller.enqueue(
-          encoder.encode(
-            `data: ${JSON.stringify({
-              done: true,
-              citations,
-              uncertainty: "moderate",
-            })}\n\n`
-          )
-        );
-        controller.close();
       },
     });
 
-    return new Response(stream, {
+    return new Response(readable, {
       headers: {
         "Content-Type": "text/event-stream; charset=utf-8",
         "Cache-Control": "no-cache, no-transform",
         Connection: "keep-alive",
       },
     });
-  } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : "Błąd serwera";
-    return NextResponse.json({ error: msg }, { status: 500 });
+  } catch (err: unknown) {
+    if (err instanceof ModelUnavailableError) {
+      return NextResponse.json(
+        { error: err.message, code: "MODEL_UNAVAILABLE" },
+        { status: 503 }
+      );
+    }
+    const message = err instanceof Error ? err.message : "Wewnętrzny błąd serwera";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

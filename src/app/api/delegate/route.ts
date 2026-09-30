@@ -1,29 +1,48 @@
 // ==============================================================================
-// AlterJa (alterja.pl) — API Centrum Wykonawczego (Delegowanie & Odpisz za mnie)
-// API: POST /api/delegate
+// AlterJa (alterja.pl) — API Delegata Wykonawczego („Odpisz za mnie”)
+// Zero atrap i zero zmyślonych odpowiedzi.
 // ==============================================================================
 
 import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { globalStore, DEMO_USER_ID } from "@/lib/db/store";
-import { getLiveMemories } from "@/lib/supabase/db";
+import { requireUser } from "@/lib/auth/server";
+import { getLiveMemories, getLiveProfile } from "@/lib/supabase/db";
+import { generateStructuredData, ModelUnavailableError, AI_MODELS } from "@/lib/ai/client";
+import { createServerSideClient } from "@/lib/supabase/server";
 import { GroundingCitation } from "@/domains/types";
+import { z } from "zod";
 
 export const dynamic = "force-dynamic";
 
-const apiKey = process.env.GEMINI_API_KEY;
-const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
+const delegateReplySchema = z.object({
+  replyText: z.string().min(1),
+  ruleApplied: z.string(),
+  rationale: z.string(),
+  alternativeTones: z.object({
+    sharper: z.string(),
+    softer: z.string(),
+  }),
+});
+
+const delegateAuditSchema = z.object({
+  verdict: z.enum(["ODRZUĆ", "POSTAW TWARDE WARUNKI", "ZAAKCEPTUJ"]),
+  matchScore: z.number().min(0).max(100),
+  summary: z.string(),
+  redFlags: z.array(z.string()),
+  counterProposal: z.string(),
+  rationale: z.string(),
+});
 
 export async function POST(req: NextRequest) {
   const startTime = Date.now();
   try {
+    const user = await requireUser();
     const body = await req.json();
     const {
-      taskType = "reply", // "reply" | "audit" | "sparring"
+      taskType = "reply", // "reply" | "audit"
       incomingText,
-      intent = "protect_rates", // "protect_rates" | "set_boundary" | "diplomatic" | "block_spam" | "general"
-      channel = "email", // "email" | "olx" | "whatsapp" | "sms" | "slack"
-      tone = "assertive", // "assertive" | "diplomatic" | "casual"
+      intent = "protect_rates",
+      channel = "email",
+      tone = "assertive",
       senderInfo,
     } = body;
 
@@ -34,176 +53,113 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const profile = globalStore.getProfile(DEMO_USER_ID);
-    const memories = await getLiveMemories(DEMO_USER_ID);
+    const supabase = await createServerSideClient();
+    const profile = await getLiveProfile(user.id);
+    const memories = await getLiveMemories(user.id);
 
-    // Wyszukanie kluczowych zasad decyzyjnych i preferencji z bazy
-    const queryLower = incomingText.toLowerCase();
-    const matchedMemories = memories.filter(
-      (m) =>
-        m.title.toLowerCase().includes(queryLower) ||
-        m.content.toLowerCase().includes(queryLower) ||
-        m.layer === "decisions" ||
-        m.layer === "values" ||
-        m.layer === "style"
-    );
+    // 1. Sprawdzenie deterministycznych reguł użytkownika z delegate_rules
+    const { data: dbRules } = await supabase
+      .from("delegate_rules")
+      .select("*")
+      .eq("user_id", user.id);
 
-    const activeMemories = matchedMemories.length > 0 ? matchedMemories.slice(0, 4) : memories.slice(0, 3);
+    let matchedDbRule = null;
+    if (dbRules && dbRules.length > 0) {
+      matchedDbRule = dbRules.find(
+        (r) =>
+          incomingText.toLowerCase().includes(r.condition_pattern.toLowerCase()) ||
+          r.intent === intent
+      );
+    }
 
-    const citations: GroundingCitation[] = activeMemories.map((m) => {
-      const evidence = m.evidence || globalStore.getEvidenceForMemory(m.id);
+    // 2. Dobór kontekstu pamięci
+    const relevantMemories = memories.filter(
+      (m) => m.layer === "decisions" || m.layer === "values" || m.layer === "style"
+    ).slice(0, 4);
+
+    const citations: GroundingCitation[] = relevantMemories.map((m) => {
+      const firstEvidence = m.evidence?.[0];
       return {
         memory_id: m.id,
         title: m.title,
         layer: m.layer,
         epistemic_status: m.epistemic_status,
-        source_name: evidence[0]?.source_title || "Zasada autobiograficzna",
-        verbatim_quote: evidence[0]?.exact_quote || m.content.slice(0, 160),
+        source_name: "Zasada autobiograficzna",
+        verbatim_quote: firstEvidence?.exact_quote || m.content.slice(0, 160),
       };
     });
 
-    const memoryContext = activeMemories
-      .map(
-        (m) =>
-          `[Warstwa: ${m.layer} | Tytuł: ${m.title}]\nTreść zasady: ${m.content}`
-      )
-      .join("\n\n");
+    const memoryContext = relevantMemories.length > 0
+      ? relevantMemories.map((m) => `[Warstwa: ${m.layer} | Tytuł: ${m.title}]\nTreść: ${m.content}`).join("\n\n")
+      : "Zasady domyślne: szacunek dla własnego czasu, ochrona stawek, kulturalna asertywność, zero pracy za półdarmo.";
 
-    let systemInstruction = "";
+    let resultData: unknown;
 
     if (taskType === "audit") {
-      systemInstruction = `Jesteś AlterJa — suwerennym doradcą i modelem człowieka dla: ${profile?.display_name || "Właściciela"}.
-Twoim zadaniem jest prześwietlenie propozycji/oferty przez pryzmat jego zasad życiowych, stawek i higieny czasu.
-Zidentyfikuj czerwone flagi, oceń zgodność z wartościami w skali 0-100% i wydaj jednoznaczny werdykt:
-- ODRZUĆ (gdy łamie zasady, zaniża stawki lub narusza czas wolny)
-- POSTAW TWARDE WARUNKI (gdy propozycja jest do uratowania przy modyfikacji zakresu)
-- ZAAKCEPTUJ (gdy jest w 100% zgodna z celami i stawkami)
+      const systemInstruction = `Jesteś doradcą decyzyjnym AlterJa dla użytkownika: ${profile?.display_name || "Właściciel"}.
+Twoim zadaniem jest rzetelne prześwietlenie propozycji pod kątem zasad, stawek i higieny czasu.
+Zasady użytkownika:
+${memoryContext}
+${matchedDbRule ? `Twarda reguła systemu: ${matchedDbRule.allowed_action} dla warunku: ${matchedDbRule.condition_pattern}` : ""}
+Zero emoji. Język polski, sentence casing.`;
 
-Zwróć odpowiedź w formacie JSON z polami:
-{
-  "verdict": "ODRZUĆ" | "POSTAW TWARDE WARUNKI" | "ZAAKCEPTUJ",
-  "matchScore": liczba 0-100,
-  "summary": "Krótkie podsumowanie 1-2 zdania",
-  "redFlags": ["flaga 1", "flaga 2"],
-  "counterProposal": "Gotowa riposta lub kontroferta do wysłania",
-  "rationale": "Uzasadnienie odwołujące się do zasad z pamięci"
-}
-Zero emoji. Sentence casing w języku polskim.`;
+      const prompt = `Przeanalizuj poniższą propozycję:\n"""\n${incomingText}\n"""\nNadawca: ${senderInfo || "Nieokreślony"}`;
+
+      const { object } = await generateStructuredData({
+        prompt,
+        systemInstruction,
+        schema: delegateAuditSchema,
+        modelName: AI_MODELS.REASONING,
+      });
+
+      resultData = object;
     } else {
-      systemInstruction = `Jesteś AlterJa (alterja.pl) — cyfrowym modelem człowieka.
-Odpisujesz w pierwszej osobie liczby pojedynczej w imieniu: ${profile?.display_name || "użytkownika"}.
-Kanał komunikacji: ${channel}.
-Wybrany ton: ${tone} (np. twardy/asertywny, kulturalny, krótki).
+      const systemInstruction = `Jesteś AlterJa (alterja.pl) — cyfrowym delegatem użytkownika: ${profile?.display_name || "Użytkownik"}.
+Odpisujesz w pierwszej osobie liczby pojedynczej w jego imieniu.
+Kanał: ${channel}.
+Ton: ${tone}.
 Intencja: ${intent}.
+${matchedDbRule ? `Obowiązująca twarda reguła użytkownika: ${matchedDbRule.allowed_action}` : ""}
 
 Zasady:
-1. Odpowiadasz bezpośrednio i zwięźle.
-2. Jeśli ktoś próbuje zbić stawkę, żąda darmowych poprawek lub marudzi o rabat — odrzuć to kulturalnie, bez tłumaczenia się i bez uległości.
-3. Jeśli ktoś zakłóca weekend lub wieczór — wskaż, że to czas regeneracji i odpowiedź nastąpi w godzinach roboczych.
-4. Używaj naturalnego, niewymuszonego języka polskiego bez korpomowy i bez zbędnych uprzejmości.
-5. Zero dekoracyjnych emoji.
+1. Odpowiadaj zwięźle, kulturalnie i asertywnie.
+2. Jeśli ktoś zbija cenę, żąda darmowych poprawek lub marudzi o rabat — odrzuć to bez tłumaczenia się.
+3. Zero dekoracyjnych emoji. Prawidłowa polszczyzna (sentence casing, cudzysłowy „”).
 
-Pamięć i zasady decyzyjne właściciela:
-${memoryContext}
+Pamięć i zasady:
+${memoryContext}`;
 
-Zwróć odpowiedź w formacie JSON z polami:
-{
-  "replyText": "Dokładna treść wiadomości gotowa do skopiowania i wysłania",
-  "ruleApplied": "Nazwa zasady z pamięci, na której się oparłeś",
-  "rationale": "Krótkie wyjaśnienie dlaczego tak odpowiedziałeś (1 zdanie)",
-  "alternativeTones": {
-    "sharper": "Wersja bardziej bezkompromisowa i krótka",
-    "softer": "Wersja bardziej dyplomatyczna"
-  }
-}`;
-    }
+      const prompt = `Treść wiadomości, na którą przygotowujesz szkic odpowiedzi:\n"""\n${incomingText}\n"""\nNadawca: ${senderInfo || "Nieokreślony"}`;
 
-    let resultJson: any = null;
+      const { object } = await generateStructuredData({
+        prompt,
+        systemInstruction,
+        schema: delegateReplySchema,
+        modelName: AI_MODELS.REASONING,
+      });
 
-    if (genAI) {
-      try {
-        const model = genAI.getGenerativeModel({
-          model: "gemini-1.5-flash",
-          systemInstruction,
-          generationConfig: {
-            temperature: 0.3,
-            responseMimeType: "application/json",
-          },
-        });
-
-        const prompt = `Treść przychodzącej wiadomości / propozycji:\n"""\n${incomingText}\n"""\n${
-          senderInfo ? `Nadawca: ${senderInfo}` : ""
-        }`;
-
-        const aiResponse = await model.generateContent(prompt);
-        const text = aiResponse.response.text();
-        resultJson = JSON.parse(text);
-      } catch (geminiError) {
-        console.warn("[Gemini API Error in /api/delegate, falling back to deterministic engine]:", geminiError);
-      }
-    }
-
-    // Odpowiedź awaryjna / deterministyczna, jeśli brak klucza lub awaria sieci
-    if (!resultJson) {
-      if (taskType === "audit") {
-        resultJson = {
-          verdict: incomingText.includes("rabat") || incomingText.includes("taniej") ? "ODRZUĆ" : "POSTAW TWARDE WARUNKI",
-          matchScore: 35,
-          summary: "Propozycja niesie ryzyko rozmycia zakresu prac i zaniżenia wyceny Twojego czasu.",
-          redFlags: [
-            "Presja czasu na natychmiastową decyzję bez prawa do analizy",
-            "Oczekiwanie ustępstw bez ekwiwalentnego zmniejszenia wymagań",
-            "Brak formalnego zabezpieczenia zaliczkowego",
-          ],
-          counterProposal:
-            "Dziękuję za ofertę. W tym kształcie nie mogę jej zaakceptować. Warunki możemy przedyskutować pod warunkiem zachowania stawki bazowej i zawężenia etapu pierwszego. Do usłyszenia w godzinach pracy.",
-          rationale: "Zasada nienaruszalności stawki bazowej oraz ochrony czasu wolnego.",
-        };
-      } else {
-        let reply = "";
-        let rule = "Zasada szacunku dla własnego czasu i stawek";
-        let rationale = "Odrzucenie żądań sprzecznych z Twoimi kryteriami bez wdawania się w spory.";
-
-        if (intent === "protect_rates" || incomingText.includes("rabat") || incomingText.includes("taniej")) {
-          reply = "Dziękuję za wiadomość. Podana cena jest ostateczna i wynika z nakładu pracy oraz jakości, którą gwarantuję. Nie udzielam rabatów ze względu na presję terminu. Jeśli kwota jest dla Państwa za wysoka, możemy proporcjonalnie zmniejszyć zakres zadania. Pozdrawiam.";
-          rule = "Zasada nienaruszalności stawek i jakości";
-          rationale = "Odrzucenie pracy za półdarmo i obrona Twoich warunków finansowych.";
-        } else if (intent === "set_boundary" || incomingText.includes("weekend") || incomingText.includes("niedziela")) {
-          reply = "Cześć! Weekend to czas pełnego odpoczynku i nie otwieram wtedy komputera. Jeżeli sprawa wymaga mojej pracy zawodowej, napisz w poniedziałek rano — sprawdzę kalendarz i stawkę za konsultację. Dobrego weekendu!";
-          rule = "Zasada ochrony weekendu i higieny odpoczynku";
-          rationale = "Wyznaczenie jasnych granic bez poczucia winy.";
-        } else if (intent === "block_spam") {
-          reply = "Dziękuję, nie wyrażam zgody na kontakt marketingowy. Na podstawie art. 17 i 21 RODO żądam niezwłocznego usunięcia mojego numeru i adresu z Państwa baz telemarketingowych.";
-          rule = "Procedura ochrony prywatności RODO";
-          rationale = "Natychmiastowe formalne ucięcie kontaktu marketingowego.";
-        } else {
-          reply = `Dziękuję za kontakt w sprawie: „${incomingText.slice(0, 40)}...”. Zapoznam się ze szczegółami w godzinach roboczych i wrócę z merytoryczną odpowiedzią zgodnie z naszym harmonogramem.`;
-        }
-
-        resultJson = {
-          replyText: reply,
-          ruleApplied: rule,
-          rationale,
-          alternativeTones: {
-            sharper: "Nie wyrażam zgody na te warunki. Temat uważam za zamknięty.",
-            softer: "Dziękuję za propozycję, jednak obecnie nie mogę jej przyjąć. W razie zmiany okoliczności wrócimy do tematu.",
-          },
-        };
-      }
+      resultData = object;
     }
 
     const latencyMs = Date.now() - startTime;
 
     return NextResponse.json({
       success: true,
-      data: resultJson,
+      data: resultData,
       citations,
       latencyMs,
+      ruleApplied: matchedDbRule?.allowed_action || "Domyślna ochrona interesów",
+      requiresApproval: matchedDbRule ? !matchedDbRule.auto_send : true,
       timestamp: new Date().toISOString(),
     });
-  } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : "Błąd serwera";
-    console.error("[Delegate API Error]:", error);
+  } catch (err: unknown) {
+    if (err instanceof ModelUnavailableError) {
+      return NextResponse.json(
+        { error: err.message, code: "MODEL_UNAVAILABLE" },
+        { status: 503 }
+      );
+    }
+    const msg = err instanceof Error ? err.message : "Błąd przetwarzania zlecenia delegata";
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

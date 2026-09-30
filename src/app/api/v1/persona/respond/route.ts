@@ -1,28 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import { geminiClient } from "@/lib/gemini/client";
-import { store } from "@/lib/db/store";
+import { verifyApiKeyAndScope } from "@/lib/auth/apiKeys";
+import { searchLiveMemoriesHybrid, getLiveProfile } from "@/lib/supabase/db";
+import { generateStructuredData, generateTextEmbedding, ModelUnavailableError, AI_MODELS } from "@/lib/ai/client";
+import { PERSONA_RECONSTRUCTION_PROMPT_V1, ASSISTANT_PROMPT_V1, CRITIC_PROMPT_V1 } from "@/prompts";
 import { GroundingCitation, MemoryLayer } from "@/domains/types";
+import { z } from "zod";
 
 export async function POST(req: NextRequest) {
   const startTime = Date.now();
   try {
     const authHeader = req.headers.get("authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return NextResponse.json(
-        { error: "Wymagana autoryzacja: brak nagłówka Authorization z poprawnym kluczem Bearer." },
-        { status: 401 }
-      );
-    }
+    const { client, error, status } = await verifyApiKeyAndScope(authHeader, "reconstruction");
 
-    const token = authHeader.replace("Bearer ", "").trim();
-    const clients = store.getApiClients();
-    const isValidToken = token === "alt_live_demo_test_token" || clients.some((c) => c.api_key === token || token.startsWith("alt_live_"));
-
-    if (!isValidToken) {
-      return NextResponse.json(
-        { error: "Nieprawidłowy lub unieważniony klucz API." },
-        { status: 401 }
-      );
+    if (!client) {
+      return NextResponse.json({ error: error || "Brak autoryzacji" }, { status: status || 401 });
     }
 
     const body = await req.json();
@@ -35,76 +26,78 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const profile = store.getProfile();
-    let memoryItems = store.getMemoryItems();
+    const profile = await getLiveProfile(client.userId);
 
-    if (Array.isArray(allowed_layers) && allowed_layers.length > 0) {
-      memoryItems = memoryItems.filter((m) => allowed_layers.includes(m.layer));
+    let queryEmbedding: number[] | undefined;
+    try {
+      queryEmbedding = await generateTextEmbedding(message);
+    } catch {
+      // Ignorujemy brak wektora
     }
 
-    // Wybór najbardziej dopasowanych kart pamięci do kontekstu
-    const queryLower = message.toLowerCase();
-    const relevantMemories = memoryItems.filter((m) =>
-      m.title.toLowerCase().includes(queryLower) ||
-      m.content.toLowerCase().includes(queryLower) ||
-      (m.keywords && m.keywords.some((k) => queryLower.includes(k.toLowerCase())))
-    );
+    const requestedLayers = Array.isArray(allowed_layers) && allowed_layers.length > 0
+      ? (allowed_layers as MemoryLayer[]).filter((l) => client.allowedLayers.includes(l))
+      : (client.allowedLayers as MemoryLayer[]);
 
-    const activeMemories = relevantMemories.length > 0 ? relevantMemories.slice(0, 3) : memoryItems.slice(0, 2);
+    const matchedMemories = await searchLiveMemoriesHybrid({
+      userId: client.userId,
+      queryText: message,
+      queryEmbedding,
+      layers: requestedLayers,
+      matchThreshold: 0.45,
+      limit: 4,
+    });
 
-    const citations: GroundingCitation[] = activeMemories.map((m) => {
-      const evidence = store.getEvidenceForMemory(m.id);
+    const citations: GroundingCitation[] = matchedMemories.map((m) => {
       return {
         memory_id: m.id,
         title: m.title,
-        layer: m.layer,
+        layer: m.layer as MemoryLayer,
         epistemic_status: m.epistemic_status,
-        source_name: evidence[0]?.source_title || "Źródło zweryfikowane",
-        verbatim_quote: evidence[0]?.exact_quote || m.content,
+        source_name: m.source_title || "Źródło zweryfikowane",
+        verbatim_quote: m.exact_quote || m.content.slice(0, 160),
       };
     });
 
-    const memoryContext = activeMemories
-      .map((m) => `[Warstwa: ${m.layer} | Status: ${m.epistemic_status} | Pewność: ${((m.confidence_score ?? 0.95) * 100).toFixed(0)}%]\n${m.title}: ${m.content}`)
-      .join("\n\n");
+    const memoryContext = matchedMemories.length > 0
+      ? matchedMemories.map((m) => `[Warstwa: ${m.layer} | Tytuł: ${m.title}]\nTreść: ${m.content}`).join("\n\n")
+      : "BRAK PASUJĄCYCH WSPOMNIEŃ POWYŻEJ PROGU PODOBIEŃSTWA. Jawnie stwierdź brak danych i zaproponuj pytanie uzupełniające.";
 
-    let roleInstruction = "";
+    let systemInstruction = "";
     if (mode === "reconstruction") {
-      roleInstruction = `TRYB REKONSTRUKCJI:
-Odpowiadasz ściśle tak, jak zareagowałby ${profile.full_name}.
-- Przewiduj reakcję, używaj jego stylu, perspektywy i znanych decyzji.
-- Jeśli czegoś nie wiesz z pamięci lub nie ma na to dowodu, powiedz wprost: "Na podstawie moich obecnych danych nie mam wyrobionej opinii w tej sprawie" - NIGDY NIE KONFABULUJ.
-- Zero emoji. Precyzyjna polszczyzna.`;
+      systemInstruction = `${PERSONA_RECONSTRUCTION_PROMPT_V1}\nProfil: ${profile?.display_name || "Twórca"}\n\nKONTEKST PAMIĘCI:\n${memoryContext}`;
     } else if (mode === "critic") {
-      roleInstruction = `TRYB KRYTYCZNEGO PARTNERA:
-Konfrontujesz tezy rozmówcy z punktu widzenia standardów ${profile.full_name}.
-- Wskazuj luki logiczne, niespójności z fundamentalnymi zasadami i ryzyka.
-- Bądź merytoryczny i rygorystyczny, bez fałszywych pochlebstw.`;
+      systemInstruction = `${CRITIC_PROMPT_V1}\nProfil: ${profile?.display_name || "Twórca"}\n\nKONTEKST PAMIĘCI:\n${memoryContext}`;
     } else {
-      roleInstruction = `TRYB ASYSTENTA:
-Jesteś obiektywnym, precyzyjnym asystentem AlterJa. Pomagasz rozwiązać problem merytorycznie, korzystając z kontekstu wiedzy użytkownika.`;
+      systemInstruction = `${ASSISTANT_PROMPT_V1}\nProfil: ${profile?.display_name || "Twórca"}\n\nKONTEKST PAMIĘCI:\n${memoryContext}`;
     }
 
-    const systemPrompt = `Jesteś AlterJa (alterja.pl) — cyfrowym modelem człowieka.
-Profil: ${profile.full_name} (${profile.style_summary})
+    const { object } = await generateStructuredData({
+      prompt: `Wiadomość wejściowa:\n"""\n${message}\n"""`,
+      systemInstruction,
+      schema: z.object({
+        response: z.string(),
+      }),
+      modelName: AI_MODELS.REASONING,
+    });
 
-${roleInstruction}
-
-Dostępna pamięć autobiograficzna (użyj jej jako jedynego źródła prawdy o osobie):
-${memoryContext}`;
-
-    const rawResponse = await geminiClient.generateStructured(message, systemPrompt);
     const latencyMs = Date.now() - startTime;
 
     return NextResponse.json({
-      response: rawResponse.trim(),
+      response: object.response.trim(),
       mode,
       citations,
       latency_ms: latencyMs,
       timestamp: new Date().toISOString(),
     });
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "Wystąpił błąd serwera";
+  } catch (err: unknown) {
+    if (err instanceof ModelUnavailableError) {
+      return NextResponse.json(
+        { error: err.message, code: "MODEL_UNAVAILABLE" },
+        { status: 503 }
+      );
+    }
+    const message = err instanceof Error ? err.message : "Wystąpił błąd serwera";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

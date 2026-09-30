@@ -1,28 +1,31 @@
 // ==============================================================================
 // AlterJa (alterja.pl) — API Wzorców Decyzyjnych
-// API: GET, POST /api/decisions
 // ==============================================================================
 
 import { NextRequest, NextResponse } from "next/server";
+import { requireUser } from "@/lib/auth/server";
 import { getLiveDecisions, persistDecisionCase } from "@/lib/supabase/db";
-import { DEMO_USER_ID } from "@/lib/db/store";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const userId = searchParams.get("userId") || DEMO_USER_ID;
-
-  const decisions = await getLiveDecisions(userId);
-  return NextResponse.json({
-    success: true,
-    count: decisions.length,
-    decisions,
-  });
+export async function GET() {
+  try {
+    const user = await requireUser();
+    const decisions = await getLiveDecisions(user.id);
+    return NextResponse.json({
+      success: true,
+      count: decisions.length,
+      decisions,
+    });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Brak sesji";
+    return NextResponse.json({ error: msg }, { status: 401 });
+  }
 }
 
 export async function POST(req: NextRequest) {
   try {
+    const user = await requireUser();
     const body = await req.json();
     const {
       situation,
@@ -30,7 +33,6 @@ export async function POST(req: NextRequest) {
       chosenOption,
       userJustification,
       decisionDate,
-      userId = DEMO_USER_ID,
     } = body;
 
     if (!situation || !chosenOption) {
@@ -41,7 +43,7 @@ export async function POST(req: NextRequest) {
     }
 
     const decision = await persistDecisionCase({
-      userId,
+      userId: user.id,
       situation,
       optionsConsidered: Array.isArray(optionsConsidered) ? optionsConsidered : [chosenOption],
       chosenOption,
@@ -53,11 +55,8 @@ export async function POST(req: NextRequest) {
       success: true,
       decision,
     });
-  } catch (error) {
-    console.error("[Decisions API POST Error]:", error);
-    return NextResponse.json(
-      { error: "Wystąpił błąd podczas zapisywania decyzji." },
-      { status: 500 }
-    );
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Błąd zapisu decyzji";
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
