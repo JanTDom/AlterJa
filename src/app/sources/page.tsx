@@ -99,7 +99,9 @@ export default function SourcesPage() {
           setSources(data.sources);
         }
       })
-      .catch(() => {});
+      .catch((err) => {
+        console.warn("Błąd odświeżania listy źródeł:", err);
+      });
   };
 
   const showNotice = (msg: string) => {

@@ -144,12 +144,15 @@ export default function DashboardPage() {
                   accumulated += parsed.chunk;
                   setSimResponse(accumulated);
                 }
-              } catch {}
+              } catch (parseErr) {
+                console.warn("Błąd parsowania fragmentu SSE w symulacji:", parseErr);
+              }
             }
           }
         }
       }
-    } catch {
+    } catch (simErr) {
+      console.warn("Błąd silnika symulacji:", simErr);
       setSimResponse("Wystąpił problem z połączeniem z silnikiem symulacji.");
     } finally {
       setIsSimulating(false);
